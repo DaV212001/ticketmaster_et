@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:ticketmaster_et/constants/theme.dart';
@@ -26,27 +27,29 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
           children: const [HomeTab(), CategoryTab(), ProfileWidget()],
         ),
         bottomNavigationBar: SlidingClippedNavBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           onButtonPressed: (index) {
             setState(() {
               selectedIndex = index;
             });
           },
           iconSize: 30,
-          activeColor: Styles.themeData().secondaryHeaderColor,
+          activeColor: Styles.themeData(
+                  isDarkTheme: true, isM3Enabled: false, context: context)
+              .secondaryHeaderColor,
           selectedIndex: selectedIndex,
           barItems: [
             BarItem(
               icon: Icons.home,
-              title: 'Home',
+              title: tr('home'),
             ),
             BarItem(
               icon: Icons.category,
-              title: 'Category',
+              title: tr('category'),
             ),
             BarItem(
               icon: Icons.person,
-              title: 'Profile',
+              title: tr('profile'),
             ),
           ],
         ),

@@ -1,5 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../provider/settings_provider.dart';
 
 class ProfileWidget extends StatefulWidget {
   const ProfileWidget({Key? key}) : super(key: key);
@@ -23,9 +27,10 @@ class ProfileWidgetState extends State<ProfileWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final themeChange = Provider.of<SettingsProvider>(context);
+    final languageChange = Provider.of<SettingsProvider>(context);
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: const Color(0xFFF1F4F8),
       body: SafeArea(
         top: true,
         child: Column(
@@ -37,10 +42,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
-                  color: Colors.white,
                   boxShadow: [
                     BoxShadow(
-                      blurRadius: 3,
+                      blurRadius: 0.5,
                       color: Color(0x33000000),
                       offset: Offset(0, 1),
                     )
@@ -94,8 +98,6 @@ class ProfileWidgetState extends State<ProfileWidget> {
                                   .textTheme
                                   .headlineSmall!
                                   .copyWith(
-                                    fontFamily: 'Outfit',
-                                    color: const Color(0xFF14181B),
                                     fontSize: 24,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -127,9 +129,8 @@ class ProfileWidgetState extends State<ProfileWidget> {
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
               child: Text(
-                'Account',
+                tr('profile'),
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                      fontFamily: 'Plus Jakarta Sans',
                       color: const Color(0xFF57636C),
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -142,10 +143,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -168,11 +168,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Edit Profile',
+                            tr('editprofile'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),
@@ -195,7 +193,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
               child: Text(
-                'General',
+                tr('general'),
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
                       fontFamily: 'Plus Jakarta Sans',
                       color: const Color(0xFF57636C),
@@ -210,10 +208,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -236,23 +233,26 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Change Theme',
+                            tr('darktheme'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),
                           ),
                         ),
                       ),
-                      const Align(
+                      Align(
                         alignment: AlignmentDirectional(0.9, 0),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Color(0xFF57636C),
-                          size: 18,
+                        child: Switch(
+                          inactiveThumbColor: Colors.white,
+                          inactiveTrackColor: const Color(0xFF9B9B9B),
+                          value: themeChange.darkTheme,
+                          onChanged: (bool value) {
+                            setState(() {
+                              themeChange.darktheme = value;
+                            });
+                          },
                         ),
                       ),
                     ],
@@ -266,10 +266,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -292,24 +291,30 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Change Language',
+                            tr('changelanguage'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),
                           ),
                         ),
                       ),
-                      const Align(
+                      Align(
                         alignment: AlignmentDirectional(0.9, 0),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Color(0xFF57636C),
-                          size: 18,
-                        ),
+                        child: DropdownButton(
+                            value: languageChange.languageCode,
+                            items: const [
+                              DropdownMenuItem(
+                                  value: 'en', child: Text('English')),
+                              DropdownMenuItem(
+                                  value: 'am', child: Text('Amharic'))
+                            ],
+                            onChanged: (String? value) {
+                              setState(() {
+                                languageChange.languageCode = value!;
+                              });
+                            }),
                       ),
                     ],
                   ),
@@ -322,10 +327,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -348,11 +352,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Support',
+                            tr('support'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),
@@ -378,10 +380,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -404,11 +405,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Terms of Service',
+                            tr('tos'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),
@@ -434,10 +433,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 width: double.infinity,
                 height: 60,
                 decoration: BoxDecoration(
-                  color: Colors.white,
                   boxShadow: const [
                     BoxShadow(
-                      blurRadius: 5,
+                      blurRadius: 0.5,
                       color: Color(0x3416202A),
                       offset: Offset(0, 2),
                     )
@@ -460,11 +458,9 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           padding:
                               const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
                           child: Text(
-                            'Invite Friends',
+                            tr('invitefriends'),
                             style:
                                 Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
                                       fontSize: 16,
                                       fontWeight: FontWeight.normal,
                                     ),

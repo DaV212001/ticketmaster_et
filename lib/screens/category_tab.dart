@@ -73,8 +73,8 @@ class _CategoryTabState extends State<CategoryTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
               'Sports', // Category name
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -102,7 +102,7 @@ class _CategoryTabState extends State<CategoryTab> {
                                   sportActivities[index].image,
                                 ))),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(sportActivities[index].name),
                     ],
                   ),
@@ -110,10 +110,10 @@ class _CategoryTabState extends State<CategoryTab> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
-              'Sports', // Category name
+              'Sports',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
@@ -139,7 +139,7 @@ class _CategoryTabState extends State<CategoryTab> {
                                   sportActivities[index].image,
                                 ))),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(sportActivities[index].name),
                     ],
                   ),
@@ -147,8 +147,8 @@ class _CategoryTabState extends State<CategoryTab> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
               'Sports', // Category name
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -176,7 +176,7 @@ class _CategoryTabState extends State<CategoryTab> {
                                   sportActivities[index].image,
                                 ))),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(sportActivities[index].name),
                     ],
                   ),
@@ -184,8 +184,8 @@ class _CategoryTabState extends State<CategoryTab> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
               'Sports', // Category name
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -213,7 +213,7 @@ class _CategoryTabState extends State<CategoryTab> {
                                   sportActivities[index].image,
                                 ))),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(sportActivities[index].name),
                     ],
                   ),
@@ -221,8 +221,8 @@ class _CategoryTabState extends State<CategoryTab> {
               },
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
               'Sports', // Category name
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -250,7 +250,7 @@ class _CategoryTabState extends State<CategoryTab> {
                                   sportActivities[index].image,
                                 ))),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(sportActivities[index].name),
                     ],
                   ),

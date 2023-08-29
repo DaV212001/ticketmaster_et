@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
@@ -76,17 +77,19 @@ class _HomeTabState extends State<HomeTab>
           width: MediaQuery.of(context).size.width / 1.5,
           height: 45,
           child: TabBar(
-            tabs: const [
+            tabs: [
               Tab(
                 child: Text(
-                  'Home',
-                  style: TextStyle(color: Colors.black),
+                  tr('home'),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
               ),
               Tab(
                 child: Text(
-                  'Upcoming',
-                  style: TextStyle(color: Colors.black),
+                  tr('upcoming'),
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
               )
             ],

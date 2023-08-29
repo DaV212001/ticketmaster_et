@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
@@ -122,7 +123,9 @@ class HomeTabWidget extends StatelessWidget {
             ),
             Text(
               '${modified[index].description} $index',
-              style: const TextStyle(fontSize: 30, color: Colors.black),
+              style: const TextStyle(
+                fontSize: 30,
+              ),
             ),
           ],
         );
@@ -240,7 +243,7 @@ class UpcomingTabWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Categories',
+                    tr('category'),
                     style: TextStyle(fontSize: 20),
                   ),
                   Expanded(
