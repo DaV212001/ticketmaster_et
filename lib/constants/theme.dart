@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Styles {
-  static ThemeData themeData() {
+  static ThemeData themeData({required bool isDark}) {
     return ThemeData(
-        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF792ABC)),
-        primaryColor: const Color(0xFF792ABC),
-        secondaryHeaderColor: const Color(0xFF603C97));
+        appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF3953A4)),
+        primaryColor: const Color(0xFF3953A4),
+        secondaryHeaderColor: const Color(0xFF64C5BA));
   }
 }

@@ -89,7 +89,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Joy Augustin',
+                              'Abebe Kebede',
                               style: Theme.of(context)
                                   .textTheme
                                   .headlineSmall!
@@ -104,7 +104,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                               padding: const EdgeInsetsDirectional.fromSTEB(
                                   0, 4, 0, 0),
                               child: Text(
-                                'joy@augustin.com',
+                                'ababe@gmail.com',
                                 style: Theme.of(context)
                                     .textTheme
                                     .labelMedium!
@@ -134,174 +134,6 @@ class ProfileWidgetState extends State<ProfileWidget> {
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
-                        Icons.attach_money_rounded,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            'Payment Options',
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                          ),
-                        ),
-                      ),
-                      const Align(
-                        alignment: AlignmentDirectional(0.9, 0),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Color(0xFF57636C),
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
-                        Icons.language_outlined,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            'Country',
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                          ),
-                        ),
-                      ),
-                      const Align(
-                        alignment: AlignmentDirectional(0.9, 0),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Color(0xFF57636C),
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
-                        Icons.notifications_none,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            'Notification Settings',
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontFamily: 'Plus Jakarta Sans',
-                                      color: const Color(0xFF14181B),
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                          ),
-                        ),
-                      ),
-                      const Align(
-                        alignment: AlignmentDirectional(0.9, 0),
-                        child: Icon(
-                          Icons.arrow_forward_ios,
-                          color: Color(0xFF57636C),
-                          size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
               ),
             ),
             Padding(
@@ -370,6 +202,118 @@ class ProfileWidgetState extends State<ProfileWidget> {
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                     ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.dark_mode,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            'Change Theme',
+                            style:
+                                Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      color: const Color(0xFF14181B),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                          ),
+                        ),
+                      ),
+                      const Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(0xFF57636C),
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.language,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            'Change Language',
+                            style:
+                                Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                      fontFamily: 'Plus Jakarta Sans',
+                                      color: const Color(0xFF14181B),
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                    ),
+                          ),
+                        ),
+                      ),
+                      const Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: Icon(
+                          Icons.arrow_forward_ios,
+                          color: Color(0xFF57636C),
+                          size: 18,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
             Padding(

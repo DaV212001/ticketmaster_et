@@ -17,9 +17,25 @@ class _HomeTabState extends State<HomeTab>
   List<EventModel> events = [
     EventModel(
         id: '001',
-        title: 'New year EXPO',
+        title: 'Bear concert',
         image:
-            'https://img.freepik.com/free-photo/town-famous-attraction-landmark-village_1417-388.jpg?w=1060&t=st=1662380712~exp=1662381312~hmac=fd853eae11f31c295ee48bedc286ebc0534e289be71ae93c4f8d21d7003daa6e',
+            'https://images.pexels.com/photos/2311713/pexels-photo-2311713.jpeg?auto=compress&cs=tinysrgb&w=600',
+        date: '12 Feb',
+        location: 'location',
+        description: 'description'),
+    EventModel(
+        id: '001',
+        title: 'Red concert',
+        image:
+            'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=600',
+        date: '12 Feb',
+        location: 'location',
+        description: 'description'),
+    EventModel(
+        id: '001',
+        title: 'Family event',
+        image:
+            'https://images.pexels.com/photos/3951652/pexels-photo-3951652.jpeg?auto=compress&cs=tinysrgb&w=600',
         date: '12 Feb',
         location: 'location',
         description: 'description'),
@@ -27,23 +43,7 @@ class _HomeTabState extends State<HomeTab>
         id: '001',
         title: 'New year EXPO',
         image:
-            'https://img.freepik.com/free-photo/town-famous-attraction-landmark-village_1417-388.jpg?w=1060&t=st=1662380712~exp=1662381312~hmac=fd853eae11f31c295ee48bedc286ebc0534e289be71ae93c4f8d21d7003daa6e',
-        date: '12 Feb',
-        location: 'location',
-        description: 'description'),
-    EventModel(
-        id: '001',
-        title: 'New year EXPO',
-        image:
-            'https://img.freepik.com/free-photo/town-famous-attraction-landmark-village_1417-388.jpg?w=1060&t=st=1662380712~exp=1662381312~hmac=fd853eae11f31c295ee48bedc286ebc0534e289be71ae93c4f8d21d7003daa6e',
-        date: '12 Feb',
-        location: 'location',
-        description: 'description'),
-    EventModel(
-        id: '001',
-        title: 'New year EXPO',
-        image:
-            'https://img.freepik.com/free-photo/town-famous-attraction-landmark-village_1417-388.jpg?w=1060&t=st=1662380712~exp=1662381312~hmac=fd853eae11f31c295ee48bedc286ebc0534e289be71ae93c4f8d21d7003daa6e',
+            'https://images.pexels.com/photos/1317374/pexels-photo-1317374.jpeg?auto=compress&cs=tinysrgb&w=600',
         date: '12 Feb',
         location: 'location',
         description: 'description'),
@@ -65,7 +65,8 @@ class _HomeTabState extends State<HomeTab>
     }
     final Controller controller = Controller()
       ..addListener((event) {
-        _handleCallbackEvent(event.direction, event.success);
+        _handleCallbackEvent(event.direction, event.success,
+            currentIndex: event.pageNo);
       });
 
     super.build(context);
@@ -106,7 +107,24 @@ class _HomeTabState extends State<HomeTab>
 
   void _handleCallbackEvent(ScrollDirection direction, ScrollSuccess success,
       {int? currentIndex}) {
-    print(
-        "Scroll callback received with data: {direction: $direction, success: $success and index: ${currentIndex ?? 'not given'}}");
+    // print(
+    //     "Scroll callback received with data: {direction: $direction, success: $success and index: ${currentIndex ?? 'not given'}}");
+    double _scale = 1.0;
+    double _previousScale = 1.0;
+
+    void _onScaleStart(ScaleStartDetails details) {
+      _previousScale = _scale;
+      setState(() {});
+    }
+
+    void _onScaleUpdate(ScaleUpdateDetails details) {
+      _scale = _previousScale * details.scale;
+      setState(() {});
+    }
+
+    void _onScaleEnd(ScaleEndDetails details) {
+      _previousScale = 1.0;
+      setState(() {});
+    }
   }
 }
