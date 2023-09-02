@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
-import 'package:ticketmaster/lib/translations/main.dart'
+import 'package:ticketmaster_et/lib/main.dart'
 
 class EventDetail extends StatelessWidget {
   const EventDetail({super.key});
