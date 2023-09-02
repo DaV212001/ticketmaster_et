@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
-import 'package:ticketmaster_et/lib/main.dart'
+import 'package:ticketmaster_et/main.dart';
+import 'package:chapa_unofficial/chapa_unofficial.dart';
 
 class EventDetail extends StatelessWidget {
   const EventDetail({super.key});
 
   @override
   Widget build(BuildContext context) {
-    ticketPrice = 300;
     return Scaffold(
       backgroundColor:
           Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
@@ -46,8 +46,13 @@ class EventDetail extends StatelessWidget {
                 height: 30,
               ),
               ElevatedButton(
-                  onPressed: () {
-                     await Chapa.getInstance.startPayment(
+                  onPressed: () async {
+                    String txRef = TxRefRandomGenerator.generate(prefix: 'etIDOL');
+                    // Access the generated transaction reference
+                    String storedTxRef = TxRefRandomGenerator.gettxRef;
+                    // Use the Chapa Flutter SDK to create a new transaction
+
+                    await Chapa.getInstance.startPayment(
                     context: context,
                     onInAppPaymentSuccess: (successMsg) async {
                     
@@ -60,7 +65,7 @@ class EventDetail extends StatelessWidget {
                           return AlertDialog(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                             title: Text("Ticket Purchase Successful!"),
-                            content: Text("$ticketPrice Paid! Enjoy the event!"),
+                            content: Text("300 Birr Paid! Enjoy the event!"),
                             actions: [
                               TextButton(
                                 child: Text("OK"),
@@ -78,7 +83,7 @@ class EventDetail extends StatelessWidget {
                      
                       print('PAYMENT FAILURE');// Handle error
                     },
-                    amount:ticketPrice,
+                    amount:'300',
                     currency: 'ETB',
                     txRef: storedTxRef,
                     firstName: 'Bamlak',

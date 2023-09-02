@@ -6,6 +6,7 @@ import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
 import 'models/translation.dart';
 import 'screens/home_screen.dart';
+import 'package:chapa_unofficial/chapa_unofficial.dart';
 
 SettingsProvider settingsProvider = SettingsProvider();
 late String langCode;
