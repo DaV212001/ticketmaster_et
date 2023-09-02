@@ -6,6 +6,7 @@ class EventDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ticketPrice = 300;
     return Scaffold(
       backgroundColor:
           Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
@@ -44,7 +45,46 @@ class EventDetail extends StatelessWidget {
                 height: 30,
               ),
               ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                     await Chapa.getInstance.startPayment(
+                    context: context,
+                    onInAppPaymentSuccess: (successMsg) async {
+                    
+                      print('PAYMENT SUCCESS!');// Handle success events
+                     
+                      // Show the pop-up card
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                            title: Text("Ticket Purchase Successful!"),
+                            content: Text("$ticketPrice Paid! Enjoy the event!"),
+                            actions: [
+                              TextButton(
+                                child: Text("OK"),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                  Navigator.of(context).pop();
+                                },
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                    onInAppPaymentError: (errorMsg) {
+                     
+                      print('PAYMENT FAILURE');// Handle error
+                    },
+                    amount:ticketPrice,
+                    currency: 'ETB',
+                    txRef: storedTxRef,
+                    firstName: 'Bamlak',
+                    lastName: 'Aschalew',
+                    phoneNumber: '0944070484',
+                  );
+                  },
                   child: const Text('PAY 300 BIRR'),
                   style: ButtonStyle(
                       minimumSize: MaterialStatePropertyAll(
