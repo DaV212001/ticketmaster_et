@@ -20,6 +20,7 @@ Future<void> appInit() async {
 }
 
 void main() async {
+  Chapa.configure(privateKey: "CHASECK_TEST-QlVxOwMIyNJCuIipknSMvWfTWJ0pm2K4");
   await appInit();
   runApp(EasyLocalization(
     supportedLocales: Translation.all,
