@@ -91,15 +91,15 @@ class _HomeTabState extends State<HomeTab>
                   style:
                       TextStyle(color: Theme.of(context).colorScheme.onSurface),
                 ),
-              )
+              ),
             ],
             controller: tabController,
           ),
         ),
         Expanded(
             child: TabBarView(controller: tabController, children: [
-          HomeTabWidget(modified: modified, controller: controller),
           UpcomingTabWidget(events: events),
+          HomeTabWidget(modified: modified, controller: controller),
         ]))
       ],
     );

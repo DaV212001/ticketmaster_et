@@ -34,9 +34,7 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
             });
           },
           iconSize: 30,
-          activeColor: Styles.themeData(
-                  isDarkTheme: true, isM3Enabled: false, context: context)
-              .secondaryHeaderColor,
+          activeColor: Theme.of(context).primaryColor,
           selectedIndex: selectedIndex,
           barItems: [
             BarItem(
