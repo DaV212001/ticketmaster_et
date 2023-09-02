@@ -1,8 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
-import 'package:ticketmaster_et/constants/theme.dart';
-import 'package:ticketmaster_et/screens/category_tab.dart';
 import 'package:ticketmaster_et/screens/home_tab.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
 
@@ -24,7 +22,7 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
       child: Scaffold(
         body: IndexedStack(
           index: selectedIndex,
-          children: const [HomeTab(), CategoryTab(), ProfileWidget()],
+          children: const [HomeTab(), ProfileWidget()],
         ),
         bottomNavigationBar: SlidingClippedNavBar(
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -40,10 +38,6 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
             BarItem(
               icon: Icons.home,
               title: tr('home'),
-            ),
-            BarItem(
-              icon: Icons.category,
-              title: tr('category'),
             ),
             BarItem(
               icon: Icons.person,

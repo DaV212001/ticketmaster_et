@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:ticketmaster_et/screens/category_events.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 import 'models/category_model.dart';
@@ -94,8 +94,8 @@ class CardEventThisMonth extends StatelessWidget {
   }
 }
 
-class HomeTabWidget extends StatelessWidget {
-  const HomeTabWidget({
+class UpcomingTabWidget extends StatelessWidget {
+  const UpcomingTabWidget({
     super.key,
     required this.modified,
     required this.controller,
@@ -135,8 +135,8 @@ class HomeTabWidget extends StatelessWidget {
   }
 }
 
-class UpcomingTabWidget extends StatelessWidget {
-  const UpcomingTabWidget({
+class HomeTabWidget extends StatelessWidget {
+  const HomeTabWidget({
     super.key,
     required this.events,
   });
@@ -145,6 +145,52 @@ class UpcomingTabWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<SportActivity> sportActivities = [
+      SportActivity(
+          name: 'Football',
+          image:
+              'https://images.pexels.com/photos/140039/pexels-photo-140039.jpeg?auto=compress&cs=tinysrgb&w=600'),
+      SportActivity(
+          name: 'Basketball',
+          image:
+              'https://images.pexels.com/photos/1080884/pexels-photo-1080884.jpeg?auto=compress&cs=tinysrgb&w=600'),
+      SportActivity(
+          name: 'Soccer',
+          image:
+              'https://images.pexels.com/photos/1198172/pexels-photo-1198172.jpeg?auto=compress&cs=tinysrgb&w=600'),
+      SportActivity(
+          name: 'Tennis',
+          image:
+              'https://images.pexels.com/photos/1103833/pexels-photo-1103833.jpeg?auto=compress&cs=tinysrgb&w=600'),
+      // Add more activities here
+    ];
+
+    List<ConcertActivity> concertActivity = [
+      ConcertActivity(
+          name: 'Ethiopian music',
+          image:
+              'https://littleethiopia.files.wordpress.com/2013/07/tteedd.jpg'),
+      ConcertActivity(
+          name: 'African music',
+          image:
+              'https://www.musicinafrica.net/sites/default/files/images/article/201905/winyo.jpg'),
+      ConcertActivity(
+          name: 'Spiritual',
+          image:
+              'https://images.pexels.com/photos/10024790/pexels-photo-10024790.jpeg?auto=compress&cs=tinysrgb&w=400'),
+    ];
+
+    List<OutdoorActivity> outdoorActivities = [
+      OutdoorActivity(
+          name: 'Hiking',
+          image:
+              'https://images.pexels.com/photos/2480554/pexels-photo-2480554.jpeg?auto=compress&cs=tinysrgb&w=400'),
+      OutdoorActivity(
+          name: 'Group travel',
+          image:
+              'https://images.pexels.com/photos/1274592/pexels-photo-1274592.jpeg?auto=compress&cs=tinysrgb&w=400')
+    ];
+
     final List<CategoryModel> cat = [
       CategoryModel(
           imagePath:
@@ -152,30 +198,38 @@ class UpcomingTabWidget extends StatelessWidget {
           name: 'Sport'),
       CategoryModel(
           imagePath:
-              'https://images.pexels.com/photos/13387388/pexels-photo-13387388.jpeg?auto=compress&cs=tinysrgb&w=600',
+              'https://images.pexels.com/photos/625644/pexels-photo-625644.jpeg?auto=compress&cs=tinysrgb&w=400',
           name: 'Concert'),
       CategoryModel(
           imagePath:
-              'https://images.pexels.com/photos/13387388/pexels-photo-13387388.jpeg?auto=compress&cs=tinysrgb&w=600',
+              'https://media.istockphoto.com/id/1058909060/photo/blurred-business-people.jpg?b=1&s=612x612&w=0&k=20&c=NVG9BIprpucdnw1E3oRWHkGPw5a0hH_2Q6hW779BF6s=',
           name: 'Expo'),
       CategoryModel(
           imagePath:
-              'https://images.pexels.com/photos/13387388/pexels-photo-13387388.jpeg?auto=compress&cs=tinysrgb&w=600',
+              'https://images.pexels.com/photos/17636489/pexels-photo-17636489/free-photo-of-man-in-hat-and-with-backpack-standing-with-hills-behind.jpeg?auto=compress&cs=tinysrgb&w=400',
           name: 'Travel'),
       CategoryModel(
           imagePath:
-              'https://images.pexels.com/photos/13387388/pexels-photo-13387388.jpeg?auto=compress&cs=tinysrgb&w=600',
+              'https://images.pexels.com/photos/4046265/pexels-photo-4046265.jpeg?auto=compress&cs=tinysrgb&w=400',
           name: 'Dance'),
       CategoryModel(
           imagePath:
-              'https://images.pexels.com/photos/13387388/pexels-photo-13387388.jpeg?auto=compress&cs=tinysrgb&w=600',
+              'https://images.pexels.com/photos/4262173/pexels-photo-4262173.jpeg?auto=compress&cs=tinysrgb&w=400',
           name: 'Family'),
     ];
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Text(
+                'Featured events',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+            ),
             SizedBox(
               height: 350,
               child: CarouselSlider.builder(
@@ -186,37 +240,35 @@ class UpcomingTabWidget extends StatelessWidget {
                   autoPlay: true,
                 ),
                 itemBuilder: (BuildContext context, int index, pageViewIndex) {
-                  return Container(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => EventDetail()));
-                      },
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8.0),
-                        child: CachedNetworkImage(
-                          fadeOutDuration: const Duration(milliseconds: 300),
-                          fadeOutCurve: Curves.easeOut,
-                          fadeInDuration: const Duration(milliseconds: 700),
-                          fadeInCurve: Curves.easeIn,
-                          imageUrl: events[index].image,
-                          imageBuilder: (context, imageProvider) => Container(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: imageProvider,
-                                fit: BoxFit.cover,
-                              ),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const EventDetail()));
+                    },
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: CachedNetworkImage(
+                        fadeOutDuration: const Duration(milliseconds: 300),
+                        fadeOutCurve: Curves.easeOut,
+                        fadeInDuration: const Duration(milliseconds: 700),
+                        fadeInCurve: Curves.easeIn,
+                        imageUrl: events[index].image,
+                        imageBuilder: (context, imageProvider) => Container(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: imageProvider,
+                              fit: BoxFit.cover,
                             ),
                           ),
-                          // placeholder: (context, url) =>
-                          //     discoverImageShimmer(isDark),
-                          // errorWidget: (context, url, error) => Image.asset(
-                          //   'assets/images/na_logo.png',
-                          //   fit: BoxFit.cover,
-                          // ),
                         ),
+                        // placeholder: (context, url) =>
+                        //     discoverImageShimmer(isDark),
+                        // errorWidget: (context, url, error) => Image.asset(
+                        //   'assets/images/na_logo.png',
+                        //   fit: BoxFit.cover,
+                        // ),
                       ),
                     ),
                   );
@@ -236,31 +288,41 @@ class UpcomingTabWidget extends StatelessWidget {
             // ),
 
             Container(
-              padding: EdgeInsets.all(8),
-              height: 500,
+              padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
+              height: 380,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     tr('category'),
-                    style: TextStyle(fontSize: 20),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
+                  const Padding(padding: EdgeInsets.only(bottom: 8)),
                   Expanded(
                     child: GridView.builder(
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
                             const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 150,
-                          childAspectRatio: 0.48,
-                          crossAxisSpacing: 5,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 8,
                           mainAxisSpacing: 5,
                         ),
                         itemCount: cat.length,
                         itemBuilder: (context, index) {
                           return Column(
                             children: [
-                              Image.network(cat[index].imagePath!),
+                              Image.network(
+                                cat[index].imagePath!,
+                                fit: BoxFit.cover,
+                                height: 120,
+                                width: 120,
+                              ),
+                              const SizedBox(
+                                height: 8,
+                              ),
                               Expanded(child: Text(cat[index].name!)),
                             ],
                           );
@@ -268,7 +330,132 @@ class UpcomingTabWidget extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
+
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'Sports', // Category name
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height:
+                      200, // Adjust the height of the horizontal scrollable list view
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: sportActivities.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 150, // Size of the square image
+                              height: 150,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                        sportActivities[index].image,
+                                      ))),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(sportActivities[index].name),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Concert',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height:
+                      200, // Adjust the height of the horizontal scrollable list view
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: concertActivity.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const CategoryEvents();
+                                }));
+                              },
+                              child: Container(
+                                width: 150, // Size of the square image
+                                height: 150,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                          concertActivity[index].image,
+                                        ))),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(concertActivity[index].name),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Travel', // Category name
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height:
+                      200, // Adjust the height of the horizontal scrollable list view
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: outdoorActivities.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 150, // Size of the square image
+                              height: 150,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                        outdoorActivities[index].image,
+                                      ))),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(outdoorActivities[index].name),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

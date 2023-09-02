@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element, no_leading_underscores_for_local_identifiers
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
@@ -98,8 +100,8 @@ class _HomeTabState extends State<HomeTab>
         ),
         Expanded(
             child: TabBarView(controller: tabController, children: [
-          UpcomingTabWidget(events: events),
-          HomeTabWidget(modified: modified, controller: controller),
+          HomeTabWidget(events: events),
+          UpcomingTabWidget(modified: modified, controller: controller),
         ]))
       ],
     );
@@ -112,21 +114,21 @@ class _HomeTabState extends State<HomeTab>
       {int? currentIndex}) {
     // print(
     //     "Scroll callback received with data: {direction: $direction, success: $success and index: ${currentIndex ?? 'not given'}}");
-    double _scale = 1.0;
-    double _previousScale = 1.0;
+    double scale = 1.0;
+    double previousScale = 1.0;
 
     void _onScaleStart(ScaleStartDetails details) {
-      _previousScale = _scale;
+      previousScale = scale;
       setState(() {});
     }
 
     void _onScaleUpdate(ScaleUpdateDetails details) {
-      _scale = _previousScale * details.scale;
+      scale = previousScale * details.scale;
       setState(() {});
     }
 
     void _onScaleEnd(ScaleEndDetails details) {
-      _previousScale = 1.0;
+      previousScale = 1.0;
       setState(() {});
     }
   }

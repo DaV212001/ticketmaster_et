@@ -243,7 +243,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                         ),
                       ),
                       Align(
-                        alignment: AlignmentDirectional(0.9, 0),
+                        alignment: const AlignmentDirectional(0.9, 0),
                         child: Switch(
                           inactiveThumbColor: Colors.white,
                           inactiveTrackColor: const Color(0xFF9B9B9B),
@@ -301,7 +301,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                         ),
                       ),
                       Align(
-                        alignment: AlignmentDirectional(0.9, 0),
+                        alignment: const AlignmentDirectional(0.9, 0),
                         child: DropdownButton(
                             value: languageChange.languageCode,
                             items: const [

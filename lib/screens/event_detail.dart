@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:ticket_widget/ticket_widget.dart';
-import 'package:ticketmaster_et/main.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 
 class EventDetail extends StatelessWidget {
@@ -27,17 +26,17 @@ class EventDetail extends StatelessWidget {
                       'https://www.akwaabamusic.com/wp-content/uploads/2018/09/WhatsApp-Image-2018-09-20-at-4.21.12-PM.jpeg'),
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
-              Padding(
+              const Padding(
                 padding: EdgeInsets.all(8.0),
                 child: Text(
                     'Experience the eccentric concert of Rophnan at Millenium Hall!'),
               ),
               const TicketWidget(
                 width: 350,
-                height: 500,
+                height: 415,
                 isCornerRounded: true,
                 padding: EdgeInsets.all(20),
                 child: TicketData(),
@@ -47,54 +46,55 @@ class EventDetail extends StatelessWidget {
               ),
               ElevatedButton(
                   onPressed: () async {
-                    String txRef = TxRefRandomGenerator.generate(prefix: 'etIDOL');
+                    String txRef =
+                        TxRefRandomGenerator.generate(prefix: 'ticketmaster');
                     // Access the generated transaction reference
                     String storedTxRef = TxRefRandomGenerator.gettxRef;
                     // Use the Chapa Flutter SDK to create a new transaction
 
                     await Chapa.getInstance.startPayment(
-                    context: context,
-                    onInAppPaymentSuccess: (successMsg) async {
-                    
-                      print('PAYMENT SUCCESS!');// Handle success events
-                     
-                      // Show the pop-up card
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            title: Text("Ticket Purchase Successful!"),
-                            content: Text("300 Birr Paid! Enjoy the event!"),
-                            actions: [
-                              TextButton(
-                                child: Text("OK"),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                  Navigator.of(context).pop();
-                                },
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    onInAppPaymentError: (errorMsg) {
-                     
-                      print('PAYMENT FAILURE');// Handle error
-                    },
-                    amount:'300',
-                    currency: 'ETB',
-                    txRef: storedTxRef,
-                    firstName: 'Bamlak',
-                    lastName: 'Aschalew',
-                    phoneNumber: '0944070484',
-                  );
+                      context: context,
+                      onInAppPaymentSuccess: (successMsg) async {
+                        print('PAYMENT SUCCESS!'); // Handle success events
+
+                        // Show the pop-up card
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20)),
+                              title: const Text("Ticket Purchase Successful!"),
+                              content:
+                                  const Text("300 Birr Paid! Enjoy the event!"),
+                              actions: [
+                                TextButton(
+                                  child: const Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      onInAppPaymentError: (errorMsg) {
+                        print('PAYMENT FAILURE'); // Handle error
+                      },
+                      amount: '300',
+                      currency: 'ETB',
+                      txRef: storedTxRef,
+                      firstName: 'Bamlak',
+                      lastName: 'Aschalew',
+                      phoneNumber: '0936648802',
+                    );
                   },
-                  child: const Text('PAY 300 BIRR'),
                   style: ButtonStyle(
                       minimumSize: MaterialStatePropertyAll(
-                          Size(MediaQuery.of(context).size.width * 0.9, 50)))),
+                          Size(MediaQuery.of(context).size.width * 0.9, 50))),
+                  child: const Text('PAY 300 BIRR')),
             ],
           ),
         ),
@@ -187,16 +187,16 @@ class TicketData extends StatelessWidget {
                     fit: BoxFit.cover)),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.only(top: 10.0, left: 75.0, right: 75.0),
-          child: Text(
-            'Phone number',
-            style: TextStyle(
-              color: Colors.black,
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
+        // const Padding(
+        //   padding: EdgeInsets.only(top: 10.0, left: 75.0, right: 75.0),
+        //   child: Text(
+        //     'Phone number',
+        //     style: TextStyle(
+        //       color: Colors.black,
+        //     ),
+        //   ),
+        // ),
+        // const SizedBox(height: 30),
       ],
     );
   }
