@@ -1,4 +1,4 @@
-package com.mssethiopia.ticketmasteret.ticketmaster_et
+package com.ticketmasteret.app
 
 import io.flutter.embedding.android.FlutterActivity
 

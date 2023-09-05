@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:ticketmaster_et/models/event_providers.dart';
 import 'package:ticketmaster_et/screens/category_events.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
@@ -94,38 +95,99 @@ class CardEventThisMonth extends StatelessWidget {
   }
 }
 
-class UpcomingTabWidget extends StatelessWidget {
-  const UpcomingTabWidget({
-    super.key,
-    required this.modified,
-    required this.controller,
-  });
+class UpcomingTabWidget extends StatefulWidget {
+  const UpcomingTabWidget(
+      {super.key,
+      required this.modified,
+      required this.controller,
+      required this.isZoomed,
+      required this.toggleZoom});
 
   final List<EventModel> modified;
   final Controller controller;
+  final bool isZoomed;
+  final VoidCallback toggleZoom;
 
+  @override
+  State<UpcomingTabWidget> createState() => _UpcomingTabWidgetState();
+}
+
+class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
   @override
   Widget build(BuildContext context) {
     return TikTokStyleFullPageScroller(
-      contentSize: modified.length,
+      contentSize: widget.modified.length,
       swipePositionThreshold: 0.2,
       swipeVelocityThreshold: 2000,
       animationDuration: const Duration(milliseconds: 400),
-      controller: controller,
+      controller: widget.controller,
       builder: (BuildContext context, int index) {
         return Stack(
           alignment: Alignment.bottomLeft,
           children: [
-            Container(
-              // color: events[index],
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: NetworkImage(modified[index].image))),
+            Center(
+              child: AnimatedContainer(
+                //alignment: Alignment.center,
+                transformAlignment: Alignment.topCenter,
+                duration:
+                    const Duration(seconds: 2), // Change the duration here
+                curve: Curves.easeInOut,
+                transform: Matrix4.identity()
+                  ..scale(widget.isZoomed ? 1.1 : 1.0),
+                child: Container(
+                  // color: events[index],
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          fit: BoxFit.cover,
+                          image: NetworkImage(widget.modified[index].image))),
+                ),
+              ),
             ),
-            Text(
-              '${modified[index].description} $index',
-              style: const TextStyle(
-                fontSize: 30,
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.modified[index].description,
+                          style: const TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          widget.modified[index].location,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                        Text(
+                          widget.modified[index].date,
+                          style: const TextStyle(fontSize: 15),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                            MaterialPageRoute(builder: ((context) {
+                          return const EventDetail();
+                        })));
+                      },
+                      child: const Text('BUY TICKETS'),
+                      style: ButtonStyle(
+                          side: MaterialStatePropertyAll(BorderSide(
+                              style: BorderStyle.solid,
+                              color: Theme.of(context).primaryColor)),
+                          shadowColor: const MaterialStatePropertyAll(
+                              Colors.transparent),
+                          backgroundColor: const MaterialStatePropertyAll(
+                              Colors.transparent))),
+                ],
               ),
             ),
           ],
@@ -217,19 +279,27 @@ class HomeTabWidget extends StatelessWidget {
               'https://images.pexels.com/photos/4262173/pexels-photo-4262173.jpeg?auto=compress&cs=tinysrgb&w=400',
           name: 'Family'),
     ];
+
+    List<EventProviders> ep = [
+      EventProviders(
+          imagePath:
+              'https://scontent-lhr8-1.xx.fbcdn.net/v/t39.30808-1/327198307_549535743782007_5008466511557648326_n.jpg?stp=c22.0.275.275a_dst-jpg&_nc_cat=106&ccb=1-7&_nc_sid=754033&_nc_ohc=HaclEAV3F6IAX9P2rfN&_nc_ht=scontent-lhr8-1.xx&oh=00_AfCiFmDKCWv8IMS9u3-Y4uNffamkwyr1jMQVEw1VMahazg&oe=64FBF726',
+          name: 'Adika'),
+      EventProviders(
+          imagePath:
+              'https://www.sortlist.com/_next/image?url=https%3A%2F%2Fsortlist.gumlet.io%2Fsortlist-core-api%2Fxmsxdysf7w55mvylydzuq9xwtkcz%3Fw%3D150%26q%3D95%26format%3Dauto&w=96&q=75',
+          name: 'Bloom Event Organizer'),
+      EventProviders(
+          imagePath:
+              'https://www.sortlist.com/_next/image?url=https%3A%2F%2Fsortlist.gumlet.io%2Fsortlist-core-api%2Fxx6ydti8cosjmmw7kihejo9dq3lb%3Fw%3D150%26q%3D95%26format%3Dauto&w=96&q=75',
+          name: 'Parna Events')
+    ];
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.only(top: 8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Text(
-                'Featured events',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-            ),
             SizedBox(
               height: 350,
               child: CarouselSlider.builder(
@@ -287,51 +357,6 @@ class HomeTabWidget extends StatelessWidget {
             //   ),
             // ),
 
-            Container(
-              padding: const EdgeInsets.fromLTRB(8, 25, 8, 8),
-              height: 380,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    tr('category'),
-                    style: const TextStyle(
-                        fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const Padding(padding: EdgeInsets.only(bottom: 8)),
-                  Expanded(
-                    child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 150,
-                          childAspectRatio: 0.75,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 5,
-                        ),
-                        itemCount: cat.length,
-                        itemBuilder: (context, index) {
-                          return Column(
-                            children: [
-                              Image.network(
-                                cat[index].imagePath!,
-                                fit: BoxFit.cover,
-                                height: 120,
-                                width: 120,
-                              ),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              Expanded(child: Text(cat[index].name!)),
-                            ],
-                          );
-                        }),
-                  ),
-                ],
-              ),
-            ),
-
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -353,16 +378,34 @@ class HomeTabWidget extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            Container(
-                              width: 150, // Size of the square image
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(
-                                        sportActivities[index].image,
-                                      ))),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const CategoryEvents();
+                                }));
+                              },
+                              child: CachedNetworkImage(
+                                fadeOutDuration:
+                                    const Duration(milliseconds: 300),
+                                fadeOutCurve: Curves.easeOut,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 700),
+                                fadeInCurve: Curves.easeIn,
+                                imageUrl: events[index].image,
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  width: 150, // Size of the square image
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                            sportActivities[index].image,
+                                          ))),
+                                ),
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(sportActivities[index].name),
@@ -397,16 +440,26 @@ class HomeTabWidget extends StatelessWidget {
                                   return const CategoryEvents();
                                 }));
                               },
-                              child: Container(
-                                width: 150, // Size of the square image
-                                height: 150,
-                                decoration: BoxDecoration(
-                                    shape: BoxShape.rectangle,
-                                    image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: NetworkImage(
-                                          concertActivity[index].image,
-                                        ))),
+                              child: CachedNetworkImage(
+                                fadeOutDuration:
+                                    const Duration(milliseconds: 300),
+                                fadeOutCurve: Curves.easeOut,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 700),
+                                fadeInCurve: Curves.easeIn,
+                                imageUrl: concertActivity[index].image,
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  width: 150, // Size of the square image
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                            concertActivity[index].image,
+                                          ))),
+                                ),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -435,19 +488,127 @@ class HomeTabWidget extends StatelessWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: Column(
                           children: [
-                            Container(
-                              width: 150, // Size of the square image
-                              height: 150,
-                              decoration: BoxDecoration(
-                                  shape: BoxShape.rectangle,
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(
-                                        outdoorActivities[index].image,
-                                      ))),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const CategoryEvents();
+                                }));
+                              },
+                              child: Container(
+                                width: 150, // Size of the square image
+                                height: 150,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                          outdoorActivities[index].image,
+                                        ))),
+                              ),
                             ),
                             const SizedBox(height: 8),
                             Text(outdoorActivities[index].name),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Concert',
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height:
+                      200, // Adjust the height of the horizontal scrollable list view
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: concertActivity.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const CategoryEvents();
+                                }));
+                              },
+                              child: CachedNetworkImage(
+                                fadeOutDuration:
+                                    const Duration(milliseconds: 300),
+                                fadeOutCurve: Curves.easeOut,
+                                fadeInDuration:
+                                    const Duration(milliseconds: 700),
+                                fadeInCurve: Curves.easeIn,
+                                imageUrl: concertActivity[index].image,
+                                imageBuilder: (context, imageProvider) =>
+                                    Container(
+                                  width: 150, // Size of the square image
+                                  height: 150,
+                                  decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: NetworkImage(
+                                            concertActivity[index].image,
+                                          ))),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(concertActivity[index].name),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'Event Providers', // Category name
+                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height:
+                      200, // Adjust the height of the horizontal scrollable list view
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: ep.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const CategoryEvents();
+                                }));
+                              },
+                              child: Container(
+                                width: 150, // Size of the square image
+                                height: 150,
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.rectangle,
+                                    image: DecorationImage(
+                                        fit: BoxFit.cover,
+                                        image: NetworkImage(
+                                          ep[index].imagePath!,
+                                        ))),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(ep[index].name!),
                           ],
                         ),
                       );

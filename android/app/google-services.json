@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "129735038833",
+    "project_id": "ticketmaster-fd9dc",
+    "storage_bucket": "ticketmaster-fd9dc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:129735038833:android:631edeca36cf81686f08d0",
+        "android_client_info": {
+          "package_name": "com.ticketmasteret.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "129735038833-datmh05i0pccfu850urvkbstc9pstrt9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTyRS_sztss_0QAIuxMet0hVuMgiJNXo8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "129735038833-datmh05i0pccfu850urvkbstc9pstrt9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
