@@ -1,0 +1,604 @@
+import 'package:chewie/chewie.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ticket_widget/ticket_widget.dart';
+import 'package:chapa_unofficial/chapa_unofficial.dart';
+import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/thankyouscreen.dart';
+import 'package:video_player/video_player.dart';
+import 'dart:math';
+import '../constants/app_constants.dart';
+import '../functions/functions.dart';
+import '../provider/loginpersistence.dart';
+import '../provider/settings_provider.dart';
+
+
+
+// class EventDetail extends StatelessWidget {
+//   EventDetail({required this.event, super.key});
+//   final Event event;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final loginDataProvider = Provider.of<LoginDataProvider>(context);
+//
+//     return Scaffold(
+//       backgroundColor:
+//           Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+//       body: Center(
+//         child: SingleChildScrollView(
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               Container(
+//                 height: 200,
+//                 width: double.infinity * 0.9,
+//                 padding: const EdgeInsets.all(8.0),
+//                 child: ClipRRect(
+//                   borderRadius: BorderRadius.circular(30),
+//                   child: Image.network(
+//                       fit: BoxFit.cover,
+//                     event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25': event.image!.trim(),),
+//                 ),
+//               ),
+//               const SizedBox(
+//                 height: 10,
+//               ),
+//               Padding(
+//                 padding: EdgeInsets.all(8.0),
+//                 child: Text(
+//                     event.desc!),
+//               ),
+//               TicketWidget(
+//                 width: 350,
+//                 height: 415,
+//                 isCornerRounded: true,
+//                 padding: EdgeInsets.all(20),
+//                 child: TicketData(event: event,),
+//               ),
+//               const SizedBox(
+//                 height: 30,
+//               ),
+//               ElevatedButton(
+//                   onPressed: () async {
+//                     String txRef =
+//                         TxRefRandomGenerator.generate(prefix: 'ticketmaster');
+//                     // Access the generated transaction reference
+//                     String storedTxRef = TxRefRandomGenerator.gettxRef;
+//                     // Use the Chapa Flutter SDK to create a new transaction
+//                     loginDataProvider.loginData !=null||loginDataProvider.isUserRegistered == true?
+//                     await Chapa.getInstance.startPayment(
+//                       context: context,
+//                       onInAppPaymentSuccess: (successMsg) async {
+//                         print('PAYMENT SUCCESS!'); // Handle success events
+//
+//                         // Show the pop-up card
+//                         showDialog(
+//                           context: context,
+//                           builder: (BuildContext context) {
+//                             return AlertDialog(
+//                               shape: RoundedRectangleBorder(
+//                                   borderRadius: BorderRadius.circular(20)),
+//                               title: const Text("Ticket Purchase Successful!"),
+//                               content:
+//                                   const Text("300 Birr Paid! Enjoy the event!"),
+//                               actions: [
+//                                 TextButton(
+//                                   child: const Text("OK"),
+//                                   onPressed: () {
+//                                     Navigator.of(context).pop();
+//                                     Navigator.of(context).pop();
+//                                   },
+//                                 ),
+//                               ],
+//                             );
+//                           },
+//                         );
+//                       },
+//                       onInAppPaymentError: (errorMsg) {
+//                         print('PAYMENT FAILURE'); // Handle error
+//                       },
+//                       amount: '300',
+//                       currency: 'ETB',
+//                       txRef: storedTxRef,
+//                       firstName: 'Bamlak',
+//                       lastName: 'Aschalew',
+//                       phoneNumber: '0936648802',
+//                     ) :  Navigator.push(context, MaterialPageRoute(builder: (context) {
+//                       return SignupScreen();
+//                     }));
+//                   },
+//                   style: ButtonStyle(
+//                       minimumSize: MaterialStatePropertyAll(
+//                           Size(MediaQuery.of(context).size.width * 0.9, 50))),
+//                   child: const Text('PAY 300 BIRR')),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
+String ticketNum = '';
+
+class EventDetail extends StatefulWidget {
+  EventDetail({super.key, required this.event});
+final Event event;
+  @override
+  State<EventDetail> createState() => _EventDetailState();
+}
+
+class _EventDetailState extends State<EventDetail> {
+
+  List<Category> categories = [];
+  List<City> cities = [];
+  List<Organizer> organizers = [];
+  bool _isLoading = true;
+  String? categoryname = 'Default';
+  String? organizername = 'Default';
+  String? cityname = 'Default';
+  List<Event> events = [];
+  @override
+  void initState() {
+    super.initState();
+    ticketNum = generateRandomAlphanumeric(7);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
+      updatesForEventDetail();
+    });
+  }
+
+
+  void updatesForEventDetail() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await getEventsbyID(widget.event.id!, Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
+      events = value;
+      print( 'VALUE OF THE EVENTS for event details page: $value');
+    }));
+    await getCategorySubCategory(Provider.of<SettingsProvider>(context, listen: false).languageCode)
+        .then((value) => setState(() {
+      categories = value;
+      print('VALUE OF THE CATEGORY for event details page: $value');
+    }));
+    for (Category cat in categories){
+      if(int.parse(widget.event.categoryId!) == 2? cat.id == 7: cat.id == int.parse(widget.event.categoryId!)){
+        setState(() {
+          categoryname = cat.name == 'Cinemas and Teather'? 'Cinema': cat.name;
+        });
+      }
+    }
+    await getCity(Provider.of<SettingsProvider>(context, listen: false).languageCode)
+        .then((value) => setState(() {
+      cities = value;
+      print('VALUE OF THE CATEGORY for event details page: $value');
+    }));
+    for (City city in cities){
+      if( city.id == int.parse(widget.event.cityId!)){
+        setState(() {
+          cityname = city.name;
+        });
+      }
+    }
+    await getOrganizers(Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
+      organizers = value;
+      print( 'VALUE OF THE ORGANIZERS for cat events: $value');
+    }));
+    for (Organizer org in organizers){
+      if( org.id == int.parse(widget.event.organizerId!)){
+        setState(() {
+          organizername = org.name;
+        });
+      }
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Here we start listening to changes in SettingsProvider
+    Provider.of<SettingsProvider>(context).addListener(updatesForEventDetail);
+  }
+
+  @override
+  void dispose() {
+    if (mounted) {
+      Provider.of<SettingsProvider>(context, listen: false).removeListener(updatesForEventDetail);
+    }
+    super.dispose();
+  }
+
+
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    final loginDataProvider = Provider.of<LoginDataProvider>(context);
+    return Scaffold(
+      backgroundColor:
+      Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 200,
+                width: double.infinity * 0.9,
+                padding: const EdgeInsets.all(8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(30),
+                  child: !widget.event.image!.endsWith('.mp4')?Image.network(
+                    fit: BoxFit.cover,
+                    widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage'
+                        || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D'
+                        || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'
+                        ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'
+                        ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
+                    'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+                        :
+                    widget.event.image!.trim(),
+                  )
+                  :
+                  VideoPlayerWidget(videoUrl: widget.event.image!),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text(
+                    widget.event.desc!),
+              ),
+              TicketWidget(
+                width: 350,
+                height: 415,
+                isCornerRounded: true,
+                padding: EdgeInsets.all(20),
+                child: TicketData(events: events, categoryname: categoryname!, cityname: cityname!, organizername: organizername!,),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+
+                    if(events.isNotEmpty &&events[0].classes!.isNotEmpty &&events[0].classes![0].price != 0) {
+
+                      String txRef =
+                      TxRefRandomGenerator.generate(prefix: 'ticketmaster');
+                      // Access the generated transaction reference
+                      String storedTxRef = TxRefRandomGenerator.gettxRef;
+                      // Use the Chapa Flutter SDK to create a new transaction
+                      loginDataProvider.loginData != null ||
+                          loginDataProvider.isUserRegistered == true ?
+                      await Chapa.getInstance.startPayment(
+                        context: context,
+                        onInAppPaymentSuccess: (successMsg) async {
+                          print('PAYMENT SUCCESS!'); // Handle success events
+
+                          // Show the pop-up card
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                title: const Text(
+                                    "Ticket Purchase Successful!"),
+                                content:
+                                const Text("300 Birr Paid! Enjoy the event!"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("OK"),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                        onInAppPaymentError: (errorMsg) {
+                          print('PAYMENT FAILURE'); // Handle error
+                        },
+                        amount: '${
+                            events.isNotEmpty ?
+                            //events is not empty
+                            events[0].classes![0].price! != 0 ?
+                            //events is not empty and class price is not 0
+                            events[0].classes![0].price! :
+                            //events is not empty but class price is 0
+                            '0'
+                                :
+                            //events is empty
+                            '0'}',
+                        currency: 'ETB',
+                        txRef: storedTxRef,
+                        firstName: 'Bamlak',
+                        lastName: 'Aschalew',
+                        phoneNumber: '0936648802',
+                      ) : Navigator.push(
+                          context, MaterialPageRoute(builder: (context) {
+                        return SignupScreen();
+                      }));
+                    } else {
+                      Navigator.push(
+                          context, MaterialPageRoute(builder: (context) {
+                        return ThankYouScreen(event: events[0]);
+                      }));
+                    }
+                  },
+                  style: ButtonStyle(
+                      minimumSize: MaterialStatePropertyAll(
+                          Size(MediaQuery.of(context).size.width * 0.9, 50))),
+                  child: Text('PAY ${events.isNotEmpty && events[0].classes!.isNotEmpty?events[0].classes![0].price!:'0'} BIRR')),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+
+String generateRandomAlphanumeric(int length) {
+  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  Random rnd = Random();
+  return String.fromCharCodes(Iterable.generate(
+      length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+}
+
+
+
+
+class TicketData extends StatelessWidget {
+  TicketData({
+    Key? key, required this.events, required this.categoryname, required this.organizername, required this.cityname
+  }) : super(key: key);
+final List<Event> events;
+final String categoryname;
+final String organizername;
+final String cityname;
+
+  @override
+  Widget build(BuildContext context) {
+    Class? selectedClass;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Container(
+              width: 120.0,
+              height: 35.0,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                border: Border.all(width: 1.0, color: Colors.green),
+              ),
+              child: Center(
+                child: Text(
+                  categoryname,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.green,),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Text(
+                  cityname,
+                  style: TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold),
+                ),
+              ],
+            )
+          ],
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: 20.0),
+          child: Text(
+            events.isNotEmpty?
+            events[0].title!: '',
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 15.0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0, bottom: 8),
+                  child: ticketDetailsWidget(
+                      'Organizer', '${organizername}', 'Date', events.isNotEmpty?events[0].date!:''),
+                ),
+                ticketDetailsWidget('Place', events.isNotEmpty?events[0].place!:'', 'Time', events.isNotEmpty?events[0].time!:''),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12.0, right: 52.0),
+                  child: ticketDetailsWidget('Ticket', events.isNotEmpty&&events[0].classes!.isNotEmpty?'$ticketNum, ${events[0].classes?[0].availableTicket} tickets left': '$ticketNum', '', ''),
+                ),
+                events.isNotEmpty? events[0].classes!.isNotEmpty?Padding(
+                  padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
+                  child: Text('Class',
+                  style: TextStyle(color: Colors.grey),),
+                ): SizedBox(height: 5,): SizedBox(height: 5,) ,
+                Padding(
+                  padding: const EdgeInsets.only(top: 0, right: 53.0),
+                  child:
+                  events.isNotEmpty?
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: events[0].classes!.map((Class) {
+                      bool isSelected = selectedClass == Class;
+                      return Row(
+                      children: [
+                      ElevatedButton(
+                      onPressed: () {
+                      if (isSelected) {
+                      selectedClass = null;
+                      } else {
+                      selectedClass = Class;
+                      }
+                      ;
+                      },
+                      style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      ),
+                      backgroundColor: isSelected
+                      ? MaterialStatePropertyAll(Colors.cyanAccent.withOpacity(0.5))
+                          : MaterialStatePropertyAll(Colors.black),
+                      ),
+                      child: Center(
+                      child: Text('${Class.title} - ${Class.price}',
+                      style: TextStyle(
+                      color: isSelected ? Colors.black : Colors.white,
+                      )),
+                      ),
+                      ),
+                      SizedBox(width: 5,)
+                      ],
+                      );
+                      }).toList(),
+                    ),
+                  ):
+                   CircularProgressIndicator()
+                ),
+              ],
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
+          child: Container(
+            width: 250.0,
+            height: 60.0,
+            decoration: const BoxDecoration(
+                image: DecorationImage(
+                    image: NetworkImage(
+                        'https://www.computalabel.com/Images/ITFusAlt22x.png'),
+                    fit: BoxFit.cover)),
+          ),
+        ),
+        // const Padding(
+        //   padding: EdgeInsets.only(top: 10.0, left: 75.0, right: 75.0),
+        //   child: Text(
+        //     'Phone number',
+        //     style: TextStyle(
+        //       color: Colors.black,
+        //     ),
+        //   ),
+        // ),
+        // const SizedBox(height: 30),
+      ],
+    );
+  }
+}
+
+
+
+Widget ticketDetailsWidget(String firstTitle, String firstDesc,
+    String secondTitle, String secondDesc) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Padding(
+        padding: const EdgeInsets.only(left: 12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              firstTitle,
+              style: const TextStyle(color: Colors.grey),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(
+                firstDesc,
+                style: const TextStyle(color: Colors.black),
+              ),
+            )
+          ],
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.only(right: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              secondTitle,
+              style: const TextStyle(color: Colors.grey),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 4.0),
+              child: Text(
+                secondDesc,
+                style: const TextStyle(color: Colors.black),
+              ),
+            )
+          ],
+        ),
+      )
+    ],
+  );
+}
+
+
+class VideoPlayerWidget extends StatefulWidget {
+  final String videoUrl;
+
+  VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
+
+  @override
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  late ChewieController _chewieController;
+
+  @override
+
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _chewieController = ChewieController(
+      videoPlayerController: _controller,
+      aspectRatio: 9 / 16,
+      autoPlay: true,
+      looping: true,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
+    _chewieController.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Chewie(
+      controller: _chewieController,
+    );
+  }
+}
