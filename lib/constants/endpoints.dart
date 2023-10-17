@@ -45,8 +45,19 @@ class Endpoints {
     return '$apiUrl' "/register";
   }
 
-
   static String paymentVerifyEndpoint() {
     return '$apiUrl' '/payment_verify';
+  }
+
+  static String privacyEndpoint() {
+    return '$apiUrl' '/privacy';
+  }
+
+  static String termAndConditionEndpoint() {
+    return '$apiUrl' '/term_and_condition';
+  }
+
+  static String faqEndpoint() {
+    return '$apiUrl' '/faq';
   }
 }

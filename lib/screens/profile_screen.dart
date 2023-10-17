@@ -3,10 +3,17 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
+import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
 import 'package:ticketmaster_et/screens/videotest.dart';
 
+import '../functions/functions.dart';
+import '../models/faq.dart';
+import '../models/privacy_policy.dart';
+import '../models/terms_and_conditions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
+import 'faq_screen.dart';
 
 class ProfileWidget extends StatefulWidget {
   const ProfileWidget({Key? key}) : super(key: key);
@@ -18,12 +25,39 @@ class ProfileWidget extends StatefulWidget {
 class ProfileWidgetState extends State<ProfileWidget> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  List<PrivacyPolicy> privacyPolicy = [];
+  List<FAQ> faq = [];
+    List<TermsAndConditions> termsAndConditions = [];
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
+      await getTermsAndConditions(Provider.of<SettingsProvider>(context, listen: false).languageCode)
+          .then((value) => setState(() {
+        termsAndConditions = value;
+        print('ProfileWidget termsAndConditions: $termsAndConditions');
+        print('ProfileWidget termsAndConditions title: ${termsAndConditions[0].title}');
+        print('ProfileWidget termsAndConditions id: ${termsAndConditions[0].id}');
+      }));
+      await getPrivacyPolicy(Provider.of<SettingsProvider>(context, listen: false).languageCode)
+          .then((value) => setState(() {
+        privacyPolicy = value;
+        print('privacyPolicy: $privacyPolicy');
+        print('ProfileWidget privacyPolicy: $privacyPolicy');
+        print('ProfileWidget privacyPolicy title: ${privacyPolicy[0].title}');
+        print('ProfileWidget privacyPolicy id: ${privacyPolicy[0].id}');
+      }));
+      await getFAQ(Provider.of<SettingsProvider>(context, listen: false).languageCode)
+          .then((value) => setState(() {
+        faq = value;
+        print('faq: $faq');
+        print('ProfileWidget faq: $faq');
+        print('ProfileWidget faq title: ${faq[0].title}');
+        print('ProfileWidget faq id: ${faq[0].id}');
+        print('ProfileWidget faq description: ${faq[0].description}');
+      }));
     });
   }
 
@@ -41,9 +75,8 @@ class ProfileWidgetState extends State<ProfileWidget> {
       key: scaffoldKey,
       body: SafeArea(
         top: true,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
+          scrollDirection: Axis.vertical,
           children: [
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(0, 1, 0, 0),
@@ -623,6 +656,187 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 ),
               ),
             ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 0.5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.privacy_tip_sharp,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            'Privacy Policy',
+                            style:
+                            Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          color: Color(0xFF57636C),
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PrivacyPolicyScreen(privacyPolicy:privacyPolicy),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 0.5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.question_mark,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            'FAQ',
+                            style:
+                            Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          color: Color(0xFF57636C),
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => FAQScreen(faq:faq),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 0.5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.gavel,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            'Terms and conditions',
+                            style:
+                            Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          color: Color(0xFF57636C),
+                          onPressed: (){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TermsAndConditionsScreen(termsAndConditions:termsAndConditions),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
           ],
         ),
       ),
