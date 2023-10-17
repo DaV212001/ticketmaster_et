@@ -6,6 +6,7 @@ import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/splash_screen.dart';
 import 'models/translation.dart';
 import 'main_layout_screen.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
@@ -23,8 +24,8 @@ Future<void> appInit() async {
   print('COUNTRY CODE $countryCode');
   await settingsProvider.getCurrentThemeMode();
   print("1");
-  settingsProvider.languageCode =
-      langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
+  // settingsProvider.languageCode =
+  //     langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
   print("2");
   await settingsProvider.getLanguageCode();
   print("3");
@@ -41,7 +42,8 @@ void main() async {
     supportedLocales: Translation.all,
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
-    startLocale: Locale(langCode, countryCode),
+    startLocale:Locale('en'),
+    // startLocale: Locale(langCode, countryCode),
     child: TicketMasterET(
       settingsProvider: settingsProvider,
     ),
@@ -128,6 +130,8 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
+  bool isFirstTimeUser = true;
+
   @override
   void initState() {
 
@@ -136,11 +140,35 @@ class _LandingPageState extends State<LandingPage> {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
     });
+    _checkFirstTimeUser();
   }
-
+  Future<void> _checkFirstTimeUser() async {
+    print("Checking First TimeUser");
+    final prefs = await SharedPreferences.getInstance();
+    final hasLaunchedBefore = prefs.getBool('hasLaunchedBefore') ?? false;
+    if (hasLaunchedBefore) {
+      setState(() {
+        isFirstTimeUser = false;
+      });
+    } else {
+      await prefs.setBool('hasLaunchedBefore', true);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final loginDataProvider = Provider.of<LoginDataProvider>(context);
+    Widget homeScreen;
+    print("First Time User status $isFirstTimeUser");
+    if (isFirstTimeUser) {
+      print("SplashScreen $isFirstTimeUser");
+      homeScreen = SplashScreen();
+    } else if (loginDataProvider.loginData != null) {
+      print("TicketMatserHomePage $isFirstTimeUser");
+      homeScreen = TicketMatserHomePage(title: tr('ticketmaster_name'));
+    } else {
+      print("SignupScreen $isFirstTimeUser");
+      homeScreen = SignupScreen();
+    }
     return MaterialApp(
       localizationsDelegates: context.localizationDelegates,
       supportedLocales: context.supportedLocales,
@@ -149,8 +177,9 @@ class _LandingPageState extends State<LandingPage> {
           isDarkTheme: settingsProvider.darkTheme,
           context: context,
           isM3Enabled: false),
-      home: loginDataProvider.loginData != null?
-      TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: SignupScreen()),
+      // home: loginDataProvider.loginData != null?
+      // TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: SignupScreen()),
+      home: homeScreen
     );
   }
 }
