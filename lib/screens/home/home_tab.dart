@@ -4,12 +4,14 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
+import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_tab_widget.dart';
+import 'package:ticketmaster_et/screens/home/section/upcoming_screen_tab/upcoming_tab_widget.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 
-import '../constants/app_constants.dart';
-import '../functions/functions.dart';
-import '../provider/settings_provider.dart';
-import '../widgets.dart';
+import '../../constants/app_constants.dart';
+import '../../functions/functions.dart';
+import '../../provider/settings_provider.dart';
+import '../../widgets.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 class HomeTab extends StatefulWidget {
@@ -37,25 +39,35 @@ class _HomeTabState extends State<HomeTab>
   bool _isLoading = true;
   @override
   void initState() {
+    print("HomeTab 1");
     super.initState();
     languageChange = Provider.of<SettingsProvider>(context, listen: false);
+    print("HomeTab 2");
     languageChange.addListener(rebuild);
+    print("HomeTab 3");
     tabController = TabController(length: 2, vsync: this);
+    print("HomeTab 4");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateCategories();
     });
   }
   void updateCategories() {
+    print("updateCategories Called 1");
     setState(() {
       _isLoading = true;
     });
+    print("updateCategories Called 2");
     getEvents('$apiUrl/upcoming', Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
+      print("updateCategories Called 3.1");
       events = value;
-      print( 'VALUE OF THE EVENTS: $value');
+    //  print( 'VALUE OF THE EVENTS: $value');
+      print("updateCategories Called 3.2");
     }));
+    print("updateCategories Called 4");
     setState(() {
       _isLoading = false;
     });
+    print("updateCategories Called 5");
   }
 
 
@@ -94,7 +106,7 @@ class _HomeTabState extends State<HomeTab>
       });
 
     super.build(context);
-    print(tabController.index);
+ //   print(tabController.index);
     return Stack(
       alignment: Alignment.topCenter,
       children: [
@@ -104,7 +116,8 @@ class _HomeTabState extends State<HomeTab>
               modified: modified,
               controller: controller,
               isZoomed: isImageZoomed,
-              toggleZoom: toggleImageZoom),
+              toggleZoom: toggleImageZoom
+          )
         ]),
         Padding(
           padding: const EdgeInsets.all(20.0),

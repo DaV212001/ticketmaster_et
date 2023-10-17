@@ -12,7 +12,7 @@ final retryOptions = RetryOptions(
     maxAttempts: 100000);
 Future<List<Event>> getEvents(String apiUrl, String language) async {
   List<Event> events = [];
-
+  print("getEvents Called");
   try {
     var res = await retryOptions.retry(
           () => http.get(Uri.parse(apiUrl)),
@@ -64,7 +64,7 @@ Future<List<Category>> getCategorySubCategory(String language) async {
           () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/category-sub-category")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-print(res.body);
+// print(res.body);
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event By category get successfully') {
       var categoriesData = data['data'] as List;

@@ -7,7 +7,7 @@ import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
 import 'models/translation.dart';
-import 'screens/home_screen.dart';
+import 'main_layout_screen.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 
 SettingsProvider settingsProvider = SettingsProvider();
@@ -18,24 +18,30 @@ Future<void> appInit() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   SharedPreferences preferences = await SharedPreferences.getInstance();
-  langCode = await preferences.getString('langCode')?? 'en';
-  countryCode = await preferences.getString('countryCode')??'';
+  langCode = await preferences.getString('langCode') ?? 'en';
+  countryCode = await preferences.getString('countryCode') ?? '';
   print('COUNTRY CODE $countryCode');
   await settingsProvider.getCurrentThemeMode();
-  settingsProvider.languageCode = langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
+  print("1");
+  // settingsProvider.languageCode =
+  //     langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
+  print("2");
   await settingsProvider.getLanguageCode();
+  print("3");
   print(settingsProvider.languageCode);
+  print("4");
 }
 
-
 void main() async {
+  print("main 1");
   Chapa.configure(privateKey: "CHASECK-aQDv2MqkPRx2Ia9W9WiuC2m69VOGE6OO");
   await appInit();
+  print("main 2");
   runApp(EasyLocalization(
     supportedLocales: Translation.all,
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
-    startLocale: Locale(langCode, countryCode),
+    startLocale: Locale('en'),
     child: TicketMasterET(
       settingsProvider: settingsProvider,
     ),
@@ -54,43 +60,62 @@ class TicketMasterET extends StatefulWidget {
 class _TicketMasterETState extends State<TicketMasterET>
     with ChangeNotifier, WidgetsBindingObserver {
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(builder: ((context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const MaterialApp(
-          debugShowCheckedModeBanner: true,
-          home: Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-        );
-      } else if (snapshot.hasError) {
-        MaterialApp(
-          debugShowCheckedModeBanner: true,
-          home: Scaffold(
-            body: Center(
-              child: Text(tr('error_occured')),
-            ),
-          ),
-        );
-      }
+  void dispose() {
+    super.dispose(); // This line was missing
+    // ...
+  }
+// ...
 
-      return MultiProvider(
-        providers: [
-          ChangeNotifierProvider(create: (_) {
-            return widget.settingsProvider;
-          }),
-      ChangeNotifierProvider(
-      create: (context) => LoginDataProvider(),
-      ),
-        ],
-        child: Consumer<SettingsProvider>(
-            builder: (context, settingsProvider, snapshot) {
-          return LandingPage();
-        }),
-      );
-    }));
+  @override
+  void initState() {
+    super.initState();
+    print("_TicketMasterETState Start");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      builder: ((context, snapshot) {
+        print("TicketMasterET 1");
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          print("TicketMasterET 2");
+          return const MaterialApp(
+            debugShowCheckedModeBanner: true,
+            home: Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          print("TicketMasterET 4");
+          return MaterialApp(
+            debugShowCheckedModeBanner: true,
+            home: Scaffold(
+              body: Center(
+                child: Text('Error: ${snapshot.error}'),
+              ),
+            ),
+          );
+        } else {
+          print("TicketMasterET 5");
+          return MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => settingsProvider),
+              ChangeNotifierProvider(
+                create: (context) => LoginDataProvider(),
+              ),
+            ],
+            child: Consumer<SettingsProvider>(
+              builder: (context, settingsProvider, snapshot) {
+                return LandingPage();
+              },
+            ),
+          );
+        }
+      }),
+      future: null,
+    );
   }
 }
 
@@ -105,6 +130,7 @@ class LandingPage extends StatefulWidget {
 class _LandingPageState extends State<LandingPage> {
   @override
   void initState() {
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Load login data after the widget has been built
