@@ -571,113 +571,6 @@ class ProfileWidgetState extends State<ProfileWidget> {
                     mainAxisSize: MainAxisSize.max,
                     children: [
                       const Icon(
-                        Icons.logout_rounded,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            tr('logout'),
-                            style:
-                            Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional(0.9, 0),
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_forward_ios),
-                          color: Color(0xFF57636C),
-                          iconSize: 18, onPressed: () {
-                            setState(() {
-                              loginDataProvider.clear();
-                            });
-                        },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 0.5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
-                        Icons.ios_share,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                              const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            tr('invitefriends'),
-                            style:
-                                Theme.of(context).textTheme.bodyLarge!.copyWith(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                          ),
-                        ),
-                      ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Color(0xFF57636C),
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 0.5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
                         Icons.privacy_tip_sharp,
                         color: Color(0xFF57636C),
                         size: 24,
@@ -836,7 +729,114 @@ class ProfileWidgetState extends State<ProfileWidget> {
                   ),
                 ),
               ),
-            )
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 0.5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.logout_rounded,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            tr('logout'),
+                            style:
+                            Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          color: Color(0xFF57636C),
+                          iconSize: 18, onPressed: () {
+                          setState(() {
+                            loginDataProvider.clear();
+                          });
+                        },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              child: Container(
+                width: double.infinity,
+                height: 60,
+                decoration: BoxDecoration(
+                  boxShadow: const [
+                    BoxShadow(
+                      blurRadius: 0.5,
+                      color: Color(0x3416202A),
+                      offset: Offset(0, 2),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.rectangle,
+                ),
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      const Icon(
+                        Icons.ios_share,
+                        color: Color(0xFF57636C),
+                        size: 24,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding:
+                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                          child: Text(
+                            tr('invitefriends'),
+                            style:
+                            Theme.of(context).textTheme.bodyLarge!.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const Icon(
+                        Icons.arrow_forward_ios,
+                        color: Color(0xFF57636C),
+                        size: 18,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
