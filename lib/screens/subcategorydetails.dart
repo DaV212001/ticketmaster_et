@@ -258,7 +258,7 @@ double? devicewidth =MediaQuery.of(context).size.width;
             itemBuilder:
                 (BuildContext context, int index, pageViewIndex) {
 
-              if (events.isNotEmpty&&coverimages.isNotEmpty) {
+              if (coverimages.isNotEmpty) {
                 return
                     Container(
                       height: deviceheight*0.3,
@@ -301,7 +301,7 @@ double? devicewidth =MediaQuery.of(context).size.width;
             itemCount:
             coverimages.isEmpty ? 4 : coverimages.length,
           ),
-        if(events.isNotEmpty)if(coverimages.isNotEmpty)Container(
+        Container(
           height: deviceheight*0.3,
           width: devicewidth,
           decoration: BoxDecoration(

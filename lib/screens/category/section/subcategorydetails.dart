@@ -10,6 +10,7 @@ import 'package:ticketmaster_et/screens/event_detail.dart';
 
 import '../../../provider/settings_provider.dart';
 
+
 class SubCatDetail extends StatefulWidget {
   const SubCatDetail({required this.subCategory, super.key});
   final SubCategory subCategory;
@@ -21,11 +22,11 @@ class _SubCatDetailState extends State<SubCatDetail> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
-      statusBarColor: Colors.black,
-      statusBarIconBrightness: Brightness.light
+        statusBarColor: Colors.black,
+        statusBarIconBrightness: Brightness.light
     ));
     return Scaffold(
-      backgroundColor: Colors.white,
+        backgroundColor: Colors.white,
         body: TabBarAndTabViews(subCategories: widget.subCategory));
   }
 }
@@ -48,8 +49,8 @@ class TabBarAndTabViews extends StatefulWidget {
 class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-List<Event> events = [];
-List<CoverImage> coverimages = [];
+  List<Event> events = [];
+  List<CoverImage> coverimages = [];
   bool _isLoaded = false;
 
   @override
@@ -82,12 +83,12 @@ List<CoverImage> coverimages = [];
 
     try{
       if(mounted){
-      final coverimage = await getCoverImagesbySubCatID(widget.subCategories.id!,
-          Provider.of<SettingsProvider>(context, listen: false).languageCode
-      );
-      setState(() {
-        coverimages = coverimage;
-      });
+        final coverimage = await getCoverImagesbySubCatID(widget.subCategories.id!,
+            Provider.of<SettingsProvider>(context, listen: false).languageCode
+        );
+        setState(() {
+          coverimages = coverimage;
+        });
       }else{
         return;
       }
@@ -111,94 +112,94 @@ List<CoverImage> coverimages = [];
     } catch (e) {
       print(e);
       if(mounted)
-      setState(() {
-        _hasError = true;
-      });
+        setState(() {
+          _hasError = true;
+        });
     }
   }
 
 
 
-List<Event> empty = [];
+  List<Event> empty = [];
   @override
   Widget build(BuildContext context) {
     // Define the TabPairs list inside the build method
     List<TabPair> TabPairs = [
       TabPair(
-        tab: Tab(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [ Flexible(child: Text(tr('events')))],
+          tab: Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [ Flexible(child: Text(tr('events')))],
+            ),
           ),
-        ),
-        view:  events.isNotEmpty || !_hasError?
+          view:  events.isNotEmpty || !_hasError?
           ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: events.length,
-          itemBuilder: (context, index) {
+              scrollDirection: Axis.horizontal,
+              itemCount: events.length,
+              itemBuilder: (context, index) {
 
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                                  return EventDetail(event: events.isNotEmpty?events[index]: empty[index]);
-                                }));
-                          },
-                          child: Container(
-                            height: 100,
-                            width: 100,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10.0),
-                              child:
-                              CachedNetworkImage(
-                                fadeOutDuration:
-                                const Duration(milliseconds:
-                                300),
-                                fadeOutCurve:
-                                Curves.easeOut,
-                                fadeInDuration:
-                                const Duration(milliseconds:
-                                700),
-                                fadeInCurve:
-                                Curves.easeIn,
-                                imageUrl:events[index].image!.trim(),
-                                imageBuilder:
-                                    (context, imageProvider) =>
-                                    Container(
-                                      decoration:
-                                      BoxDecoration(
-                                        image:
-                                        DecorationImage(
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index]);
+                                  }));
+                            },
+                            child: Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child:
+                                CachedNetworkImage(
+                                  fadeOutDuration:
+                                  const Duration(milliseconds:
+                                  300),
+                                  fadeOutCurve:
+                                  Curves.easeOut,
+                                  fadeInDuration:
+                                  const Duration(milliseconds:
+                                  700),
+                                  fadeInCurve:
+                                  Curves.easeIn,
+                                  imageUrl:events[index].image!.trim(),
+                                  imageBuilder:
+                                      (context, imageProvider) =>
+                                      Container(
+                                        decoration:
+                                        BoxDecoration(
                                           image:
-                                          imageProvider,
-                                          fit:
-                                          BoxFit.cover,
+                                          DecorationImage(
+                                            image:
+                                            imageProvider,
+                                            fit:
+                                            BoxFit.cover,
+                                          ),
                                         ),
                                       ),
-                                    ),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Center(child: Text(events[index].title!)),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            }
-        )
-          :Center (
-      child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
-      )
+                          const SizedBox(height: 8),
+                          Center(child: Text(events[index].title!)),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }
+          )
+              :Center (
+            child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+          )
       ),
       TabPair(
         tab: Tab(
@@ -208,16 +209,16 @@ List<Event> empty = [];
           ),
         ),
         view: widget.subCategories.desc=='0'||widget.subCategories.desc==null?Center(
-          child: Center (
-            child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
-          )
+            child: Center (
+              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+            )
         ):Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(
             alignment: Alignment.topCenter,
             child: Container(
               child: Text(
-                  widget.subCategories.desc!,
+                widget.subCategories.desc!,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -238,94 +239,94 @@ List<Event> empty = [];
         ),
       ),
     ];
-double? deviceheight =MediaQuery.of(context).size.height;
-double? devicewidth =MediaQuery.of(context).size.width;
+    double? deviceheight =MediaQuery.of(context).size.height;
+    double? devicewidth =MediaQuery.of(context).size.width;
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
       child: Column(
         children: [
-      Stack(
-      children:[CarouselSlider.builder(
+          Stack(
+              children:[CarouselSlider.builder(
 
-            options: CarouselOptions(
-              disableCenter: true,
-              viewportFraction: 1,
-              enlargeCenterPage: false,
-              autoPlay: true,
-            ),
+                options: CarouselOptions(
+                  disableCenter: true,
+                  viewportFraction: 1,
+                  enlargeCenterPage: false,
+                  autoPlay: true,
+                ),
 
-            itemBuilder:
-                (BuildContext context, int index, pageViewIndex) {
+                itemBuilder:
+                    (BuildContext context, int index, pageViewIndex) {
 
-              if (events.isNotEmpty&&coverimages.isNotEmpty) {
-                return
-                    Container(
-                      height: deviceheight*0.3,
-                      width: devicewidth,
-                      child: CachedNetworkImage(
-                        fadeOutDuration:
-                        const Duration(milliseconds:
-                        300),
-                        fadeOutCurve:
-                        Curves.easeOut,
-                        fadeInDuration:
-                        const Duration(milliseconds:
-                        700),
-                        fadeInCurve:
-                        Curves.easeIn,
-                        imageUrl:coverimages[index].coverimage!.trim(),
-                        imageBuilder:
-                            (context, imageProvider) =>
-                            Container(
-                              decoration:
-                              BoxDecoration(
-                                image:
-                                DecorationImage(
+                  if (coverimages.isNotEmpty) {
+                    return
+                      Container(
+                        height: deviceheight*0.3,
+                        width: devicewidth,
+                        child: CachedNetworkImage(
+                          fadeOutDuration:
+                          const Duration(milliseconds:
+                          300),
+                          fadeOutCurve:
+                          Curves.easeOut,
+                          fadeInDuration:
+                          const Duration(milliseconds:
+                          700),
+                          fadeInCurve:
+                          Curves.easeIn,
+                          imageUrl:coverimages[index].coverimage!.trim(),
+                          imageBuilder:
+                              (context, imageProvider) =>
+                              Container(
+                                decoration:
+                                BoxDecoration(
                                   image:
-                                  imageProvider,
-                                  fit:
-                                  BoxFit.cover,
+                                  DecorationImage(
+                                    image:
+                                    imageProvider,
+                                    fit:
+                                    BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                      ),
+                        ),
+                      );
+                  } else {
+                    return Image.asset(
+                      'assets/images/na_logo.jpg',
+                      fit: BoxFit.cover,
                     );
-              } else {
-                return Image.asset(
-                  'assets/images/na_logo.jpg',
-                  fit: BoxFit.cover,
-                );
-              }
-            },
-            itemCount:
-            coverimages.isEmpty ? 4 : coverimages.length,
-          ),
-        if(events.isNotEmpty)if(coverimages.isNotEmpty)Container(
-          height: deviceheight*0.3,
-          width: devicewidth,
-          decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-              )
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Align(
-              alignment: Alignment.topCenter ,
-              child: Text(
-                widget.subCategories.name!,
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  fontSize: devicewidth * 0.04
-                ),
+                  }
+                },
+                itemCount:
+                coverimages.isEmpty ? 4 : coverimages.length,
               ),
-            ),
+                Container(
+                  height: deviceheight*0.3,
+                  width: devicewidth,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topCenter ,
+                      child: Text(
+                        widget.subCategories.name!,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: devicewidth * 0.04
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+              ]
           ),
-        )
-    ]
-    ),
           Container(
             height: 45,
             decoration: BoxDecoration(

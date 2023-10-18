@@ -500,3 +500,27 @@ Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
 
   return termsAndConditions;
 }
+
+
+Future<List<Ticket>> getTickets(String phone, String language) async {
+  List<Ticket> tickets = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/my-ticket/${int.parse(phone)}")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Event detail get successfully') {
+      var eventsData = data['data'] as List;
+      tickets = eventsData.map((eventData) => Ticket.fromJson(eventData, language)).toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return tickets;
+}

@@ -591,13 +591,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late ChewieController _chewieController;
 
   @override
-
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     _chewieController = ChewieController(
       videoPlayerController: widget.controller!=null? widget.controller! : _controller,
-      aspectRatio: 9 / 16,
+      aspectRatio: 13/24,
+      showControls: false,
       autoPlay: true,
       looping: true,
     );

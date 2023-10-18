@@ -5,6 +5,7 @@ import 'package:ticketmaster_et/models/event_model.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import '../constants/app_constants.dart';
 import '../functions/functions.dart';
+import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 import 'event_detail.dart';
 
@@ -16,7 +17,7 @@ class UserTickets extends StatefulWidget {
 }
 
 class _UserTicketsState extends State<UserTickets> {
-  List<Event> events = [];
+  List<Ticket> tickets = [];
 
   bool _isLoading = true;
 
@@ -32,8 +33,10 @@ class _UserTicketsState extends State<UserTickets> {
     setState(() {
       _isLoading = true;
     });
-    getEvents('$apiUrl/event', Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-      events = value;
+    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+    String? phone = accountProvider.loginData?.phone;
+    getTickets(phone!, Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
+      tickets = value;
       print( 'VALUE OF THE EVENTS: $value');
     }));
     setState(() {
@@ -63,13 +66,10 @@ class _UserTicketsState extends State<UserTickets> {
         body: ListView.builder(
             controller: scrollController,
             physics: const BouncingScrollPhysics(),
-            itemCount: events.length,
+            itemCount: tickets.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return EventDetail(event: events[index],);
-                  }));
                 },
                 child: Container(
                   color: Colors.transparent,
@@ -90,8 +90,8 @@ class _UserTicketsState extends State<UserTickets> {
                                 height: 130,
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  child: events[index].image == null
-                                      ||events[index].image! == 'https://admin.ticketmaster-et.com/public/storage' || events[index].image! == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || events[index].image! == 'https://admin.ticketmaster-et.com/public/storage/aaa'||events[index].image! == 'https://admin.ticketmaster-et.com/public/storage/'||events[index].image! == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
+                                  child: tickets[index].eventImage == null
+                                      ||tickets[index].eventImage! == 'https://admin.ticketmaster-et.com/public/storage' || tickets[index].eventImage! == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || tickets[index].eventImage! == 'https://admin.ticketmaster-et.com/public/storage/aaa'||tickets[index].eventImage! == 'https://admin.ticketmaster-et.com/public/storage/'||tickets[index].eventImage! == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
                                   Image.asset(
                                           'assets/images/na_logo.jpg',
                                           fit: BoxFit.cover,
@@ -104,7 +104,7 @@ class _UserTicketsState extends State<UserTickets> {
                                           fadeInDuration: const Duration(
                                               milliseconds: 700),
                                           fadeInCurve: Curves.easeIn,
-                                          imageUrl: events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png': events[index].image!.trim(),
+                                          imageUrl: tickets[index].eventImage!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || tickets[index].eventImage!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || tickets[index].eventImage!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||tickets[index].eventImage!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||tickets[index].eventImage!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png': tickets[index].eventImage!.trim(),
                                           imageBuilder:
                                               (context, imageProvider) =>
                                                   Container(
@@ -133,24 +133,27 @@ class _UserTicketsState extends State<UserTickets> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    events[index].title!,
+                                    tickets[index].eventName!,
                                     style: const TextStyle(
                                         fontFamily: 'PoppinsSB',
                                         fontSize: 15,
                                         overflow: TextOverflow.ellipsis),
                                   ),
+                                  Text(tickets[index].eventTime!),
                                   Row(
                                     children: <Widget>[
                                       const Icon(
                                         Icons.calendar_month,
                                       ),
                                       Text(
-                                        events[index].date!,
+                                        tickets[index].eventDate!,
                                         style: const TextStyle(
                                             fontFamily: 'Poppins'),
                                       ),
                                     ],
                                   ),
+                                  Text(tickets[index].eventPlace??' '),
+                                  Text(tickets[index].ticket_number??' '),
                                 ],
                               ),
                             )

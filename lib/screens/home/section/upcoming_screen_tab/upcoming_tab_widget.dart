@@ -36,6 +36,7 @@ class UpcomingTabWidget extends StatefulWidget {
 class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
   final List<VideoPlayerController?> _controllers = [];
   final List<bool> _isPlaying = [];
+  final _pageController = PageController();
 
   @override
   void initState() {
@@ -44,13 +45,14 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
       if (widget.modified[i].upcomingImage!.endsWith('.mp4')) {
         _controllers.add(VideoPlayerController.networkUrl(
           Uri.parse(widget.modified[i].upcomingImage!),
-        )..initialize());
+        ));
         _isPlaying.add(false);
       } else {
         _controllers.add(null);
         _isPlaying.add(false);
       }
     }
+    _pageController.addListener(_onScroll);
   }
 
   @override
@@ -69,132 +71,129 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
       }
     }
   }
+
+  void _onScroll() {
+    final pageIndex = (_pageController.page ?? 0).round();
+    _pauseAllVideos();
+    if (_controllers[pageIndex] != null) {
+      _controllers[pageIndex]?.play();
+      _controllers[pageIndex]?.setPlaybackSpeed(0.75);
+      _isPlaying[pageIndex] = true;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    int currentIndex = 0;
-    return TikTokStyleFullPageScroller(
-      contentSize: widget.modified.length,
-      swipePositionThreshold: 0.2,
-      swipeVelocityThreshold: 2000,
-      animationDuration: const Duration(milliseconds: 400),
-      controller: widget.controller,
-      builder: (BuildContext context, int iindex) {
+    return PageView.builder(
+      scrollDirection: Axis.vertical,
+      itemCount: widget.modified.length,
+      controller: _pageController,
+      itemBuilder: (BuildContext context, int iindex) {
 
         if (_controllers[iindex] != null) {
           return Stack(
             alignment: Alignment.center,
             children: [
-              AspectRatio(
-                aspectRatio: _controllers[iindex]!.value.aspectRatio,
-                child: VideoPlayer(_controllers[iindex]!),
+              VideoPlayerWidget(
+                  videoUrl: widget.modified[iindex].upcomingImage!,
+                  controller: _controllers[iindex]
               ),
-              FloatingActionButton(
-                onPressed: () {
-                  setState(() {
-                    if (_isPlaying[iindex]) {
-                      _controllers[iindex]?.pause();
-                      _isPlaying[iindex] = false;
-                    } else {
-                      _pauseAllVideos();
-                      _controllers[iindex]?.play();
-                      _isPlaying[iindex] = true;
-                    }
-                  });
-                },
-                child: Icon(_isPlaying[iindex] ? Icons.pause : Icons.play_arrow),
-              ),
-              Stack(
-                children: [
-                  ImageFiltered(
-                    imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                    child: Container(
-                      height: 150,
-                      decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              stops: [0.0, 0.2],
-                              colors: [
-                                Colors.transparent,
-                                Colors.black.withOpacity(0.7)
-                              ])
+              Positioned(
+                bottom: 0.5,
+                child: Stack(
+                  children: [
+                    ImageFiltered(
+                      imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        height: 150,
+                        decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                stops: [0.0, 0.2],
+                                colors: [
+                                  Colors.transparent,
+                                  Colors.black.withOpacity(0.7)
+                                ])
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    color: Colors.transparent,
-                    height: 150,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        SizedBox(
-                          width: MediaQuery
-                              .of(context)
-                              .size
-                              .width * 0.5,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(
-                                height: 120,
-                                child: ListView.builder(
-                                    itemCount: 3,
-                                    itemBuilder: (context, index) {
-                                      return Column(
-                                        crossAxisAlignment: CrossAxisAlignment
-                                            .start,
-                                        children: [
-                                          Text(
-                                            widget.modified[iindex].desc!,
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white),
-                                          ),
-                                          Text(
-                                            widget.modified[iindex].place!,
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.white),
-                                          ),
-                                          Text(
-                                            widget.modified[iindex].date!,
-                                            style: TextStyle(
-                                                fontSize: 15, color: Colors.white),
-                                          ),
-                                        ],
-                                      );
-                                    }),
-                              )
+                    Container(
+                      color: Colors.transparent,
+                      height: 150,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          SizedBox(
+                            width: MediaQuery
+                                .of(context)
+                                .size
+                                .width * 0.5,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  height: 120,
+                                  child: ListView.builder(
+                                      itemCount: 3,
+                                      itemBuilder: (context, index) {
+                                        return Column(
+                                          crossAxisAlignment: CrossAxisAlignment
+                                              .start,
+                                          children: [
+                                            Text(
+                                              widget.modified[iindex].desc!,
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.white),
+                                            ),
+                                            Text(
+                                              widget.modified[iindex].place!,
+                                              style: TextStyle(
+                                                  fontSize: 15, color: Colors.white),
+                                            ),
+                                            Text(
+                                              widget.modified[iindex].date!,
+                                              style: TextStyle(
+                                                  fontSize: 15, color: Colors.white),
+                                            ),
+                                          ],
+                                        );
+                                      }),
+                                )
 
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: ((context) {
-                                    return EventDetail(
-                                      event: widget.modified[iindex],
-                                    );
-                                  })));
-                            },
-                            style: ButtonStyle(
-                                side: MaterialStatePropertyAll(BorderSide(
-                                    style: BorderStyle.solid,
-                                    color: Theme
-                                        .of(context)
-                                        .primaryColor)),
-                                shadowColor: MaterialStatePropertyAll(
-                                    Colors.white.withOpacity(0.5)),
-                                backgroundColor: const MaterialStatePropertyAll(
-                                    Colors.transparent)),
-                            child: Text(tr('buy_tickets'))),
-                      ],
+                          SizedBox(width: MediaQuery.of(context).size.width*0.16),
+                          ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(context,
+                                    MaterialPageRoute(builder: ((context) {
+                                      return EventDetail(
+                                        event: widget.modified[iindex],
+                                      );
+                                    })));
+                              },
+                              style: ButtonStyle(
+                                  side: MaterialStatePropertyAll(BorderSide(
+                                      style: BorderStyle.solid,
+                                      color: Theme
+                                          .of(context)
+                                          .primaryColor)),
+                                  shadowColor: MaterialStatePropertyAll(
+                                      Colors.white.withOpacity(0.5)),
+                                  backgroundColor: const MaterialStatePropertyAll(
+                                      Colors.transparent)),
+                              child: Text(tr('buy_tickets'))),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           );
@@ -288,7 +287,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                             style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.red),
+                                                color: Colors.white),
                                           ),
                                           Text(
                                             widget.modified[iindex].place!,

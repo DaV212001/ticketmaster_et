@@ -99,6 +99,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
 
         Padding(
@@ -131,6 +132,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                           height: 150,
                           decoration: BoxDecoration(
                               shape: BoxShape.rectangle,
+                              borderRadius: BorderRadius.circular(15),
                               image: DecorationImage(
                                   fit: BoxFit.cover,
                                   image: NetworkImage(

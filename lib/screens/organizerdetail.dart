@@ -400,7 +400,7 @@ List<CoverImage> coverimages = [];
                 itemBuilder:
                     (BuildContext context, int index, pageViewIndex) {
 
-                  if (events.isNotEmpty&&coverimages.isNotEmpty) {
+                  if (coverimages.isNotEmpty) {
                     return
                       Container(
                         height: deviceheight*0.3,
@@ -443,7 +443,7 @@ List<CoverImage> coverimages = [];
                 itemCount:
                 coverimages.isEmpty ? 4 : coverimages.length,
               ),
-                if(events.isNotEmpty)if(coverimages.isNotEmpty)Container(
+               Container(
                   height: deviceheight*0.3,
                   width: devicewidth,
                   decoration: BoxDecoration(

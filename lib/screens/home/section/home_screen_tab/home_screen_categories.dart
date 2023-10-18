@@ -148,6 +148,7 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
                             height: 150,
                             decoration: BoxDecoration(
                                 shape: BoxShape.rectangle,
+                                borderRadius: BorderRadius.circular(15),
                                 image: DecorationImage(
                                     fit: BoxFit.cover,
                                     image: NetworkImage(

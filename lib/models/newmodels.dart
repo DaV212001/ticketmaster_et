@@ -169,6 +169,78 @@ class Event {
   }
 }
 
+class Ticket {
+  String? className;
+  String? eventImage;
+  String? eventName;
+  String? eventPlace;
+  String? eventDate;
+  String? eventTime;
+  String? phone;
+  String? ticket_number;
+  String? price;
+
+  Ticket({
+    this.phone,
+    this.price,
+    this.className,
+    this.eventDate,
+    this.eventImage,
+    this.eventName,
+    this.eventPlace,
+    this.eventTime,
+    this.ticket_number
+  });
+
+  Ticket.fromJson(Map<String, dynamic> json, String language){
+    phone = json['phone'];
+    price = json['price'];
+    switch (language) {
+      case 'am':
+        className = json['class_name_am']??" ";
+        break;
+      case 'en':
+        className = json['class_name_en']??" ";
+        break;
+      case 'en-AU':
+        className = json['class_name_or']??" ";
+        break;
+      default:
+        throw Exception('Invalid language: $language');
+    }
+    eventTime = json['event_time'];
+    switch (language) {
+      case 'am':
+        eventPlace = json['event_place_am']??" ";
+        break;
+      case 'en':
+        eventPlace = json['event_place_en']??" ";
+        break;
+      case 'en-AU':
+        eventPlace = json['event_place_or']??" ";
+        break;
+      default:
+        throw Exception('Invalid language: $language');
+    }
+    ticket_number = json['ticket_number'];
+    eventDate = json['event_date'];
+    eventImage = json['event_image']!=null?baseUrl+json['event_image']:" ";
+    switch (language) {
+      case 'am':
+        eventName = json['event_name_am']??" ";
+        break;
+      case 'en':
+        eventName = json['event_name_en']??" ";
+        break;
+      case 'en-AU':
+        eventName = json['event_name_or']??" ";
+        break;
+      default:
+        throw Exception('Invalid language: $language');
+    }
+  }
+}
+
 class Category {
   int? id;
   String? image;
