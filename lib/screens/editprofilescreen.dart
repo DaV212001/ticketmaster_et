@@ -3,18 +3,12 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketmaster_et/screens/home_screen.dart';
-
 import '../components/fields.dart';
-import '../constants/app_constants.dart';
-import '../constants/endpoints.dart';
 import '../functions/functions.dart';
+import '../main_layout_screen.dart';
 import '../models/newmodels.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
-import 'login.dart';
-import 'dart:convert';
-
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -42,11 +36,11 @@ class _EditProfileState extends State<EditProfile> {
 
       final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
 
-
+      String? phone = accountProvider.loginData?.phone!;
       UpdatedUser data = UpdatedUser(
         firstName: _firstName,
         lastName: _lastName,
-        phone: '251$_phoneNumber',
+        phone: phone,
       );
 
       await updateUser(data).then((value) async {
@@ -92,6 +86,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   Widget build(BuildContext context) {
     final languageChange = Provider.of<SettingsProvider>(context);
+    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
@@ -189,10 +184,8 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           const SizedBox(height: 15),
                           Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text("Name", style: TextStyle(fontSize: 17))),
-                          const SizedBox(
-                            height: 10,
+                            alignment: Alignment.topLeft,
+                            child: Text(tr('first_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -217,7 +210,7 @@ class _EditProfileState extends State<EditProfile> {
                                 _firstName = value;
                               },
                               decoration: InputDecoration(
-                                hintText: tr('first_name'),
+                                hintText: accountProvider.loginData?.firstName!,
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.all(16.0),
                               ),
@@ -225,6 +218,10 @@ class _EditProfileState extends State<EditProfile> {
                           ),
                           SizedBox(
                             height: 10,
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(tr('last_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
                           ),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -249,7 +246,7 @@ class _EditProfileState extends State<EditProfile> {
                                 _lastName = value;
                               },
                               decoration: InputDecoration(
-                                hintText: tr('last_name'),
+                                hintText: accountProvider.loginData?.lastName,
                                 border: InputBorder.none,
                                 contentPadding: EdgeInsets.all(16.0),
                               ),
@@ -258,57 +255,6 @@ class _EditProfileState extends State<EditProfile> {
                           const SizedBox(
                             height: 25,
                           ),
-                          InputHeader(headerName: tr('phone')),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Row(
-                            children: [
-                              Text(
-                                "+251",
-                                style: Theme.of(context).textTheme.bodyLarge,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Expanded(
-                                  flex: 4,
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.grey[200], // Background color
-                                    ),
-                                    child: TextFormField(
-                                      key: const ValueKey("phone"),
-                                      validator: (value) {
-                                        if (value!.isEmpty) {
-                                          return "phone empty";
-                                        } else if (value.length > 9 || value.length < 9) {
-                                          return "phone number invalid";
-                                        }
-                                        return null;
-                                      },
-                                      onSaved: (newValue) {
-                                        _phoneNumber = newValue;
-                                      },
-                                      onChanged: (value) {
-                                        _phoneNumber = value;
-                                      },
-                                      decoration: const InputDecoration(
-                                        hintText: "9xxx66565",
-                                        border: InputBorder.none,
-                                        contentPadding: EdgeInsets.zero,
-                                      ),
-                                    ),
-                                  )),
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-
-
                         ],
                       ),
                     ),

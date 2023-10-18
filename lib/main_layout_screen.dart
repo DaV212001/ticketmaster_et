@@ -2,13 +2,13 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
-import 'package:ticketmaster_et/screens/category_tab.dart';
-import 'package:ticketmaster_et/screens/home_tab.dart';
+import 'package:ticketmaster_et/screens/category/category_tab.dart';
+import 'package:ticketmaster_et/screens/home/home_tab.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
 import 'package:ticketmaster_et/screens/user_tickets.dart';
 
-import '../provider/loginpersistence.dart';
+import 'provider/loginpersistence.dart';
 
 class TicketMatserHomePage extends StatefulWidget {
   const TicketMatserHomePage({super.key, required this.title});
@@ -21,7 +21,12 @@ class TicketMatserHomePage extends StatefulWidget {
 
 class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
   int selectedIndex = 0;
-
+  @override
+  void initState() {
+    print("TicketMatserHomePage");
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
 

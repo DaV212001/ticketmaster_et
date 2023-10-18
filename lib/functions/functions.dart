@@ -4,6 +4,9 @@ import 'package:retry/retry.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../models/faq.dart';
+import '../models/privacy_policy.dart';
+import '../models/terms_and_conditions.dart';
 
 final client = http.Client();
 final retryOptions = RetryOptions(
@@ -406,4 +409,94 @@ Future<UpdatedUserResponse> updateUser( UpdatedUser data) async {
     client.close();
   }
   return updatedUserData;
+}
+
+
+
+Future<List<PrivacyPolicy>> getPrivacyPolicy(String language) async {
+  print("getPrivacyPolicy");
+  List<PrivacyPolicy> privacyPolicy = [];
+
+
+
+  try {
+    print("http.get 1");
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/privacy")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+
+    print("http.get 2");
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Privacy Policy get successfully') {
+      print("if");
+      print("data['message'] ${data['message']}");
+      var privacyPolicyData = data['data'] as List;
+      print("privacyPolicyData ${privacyPolicyData}");
+      privacyPolicy = privacyPolicyData.map((privacyData) => PrivacyPolicy.fromJson(privacyData, language)).toList();
+      print("privacyPolicy ${privacyPolicy[0]}");
+      print("privacyPolicy id ${privacyPolicy[0].id}");
+      print("privacyPolicy title ${privacyPolicy[0].title}");
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return privacyPolicy;
+}
+Future<List<FAQ>> getFAQ(String language) async {
+  print("getFAQ");
+  List<FAQ> faq = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/faq")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Faq get successfully') {
+      var faqData = data['data'] as List;
+      faq = faqData.map((faqData) => FAQ.fromJson(faqData, language)).toList();
+      print("faq id ${faq[0].id}");
+      print("faq title ${faq[0].title}");
+      print("faq description ${faq[0].description}");
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return faq;
+}
+Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
+  print("getTermsAndConditions");
+  List<TermsAndConditions> termsAndConditions = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/term_and_condition")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    print("res = ${res}");
+    print("res.body = ${res.body}");
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Term and Condition get successfully') {
+      var termsAndConditionsData = data['data'] as List;
+      termsAndConditions = termsAndConditionsData.map((termData) => TermsAndConditions.fromJson(termData, language)).toList();
+      print("termsAndConditions id ${termsAndConditions[0].id}");
+      print("termsAndConditions title ${termsAndConditions[0].title}");
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return termsAndConditions;
 }

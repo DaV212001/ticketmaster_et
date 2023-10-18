@@ -6,9 +6,9 @@ import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
 import 'package:ticketmaster_et/screens/login.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/splash_screen.dart';
+import 'main_layout_screen.dart';
 import 'models/translation.dart';
-import 'screens/home_screen.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 
 SettingsProvider settingsProvider = SettingsProvider();
@@ -54,6 +54,20 @@ class TicketMasterET extends StatefulWidget {
 
 class _TicketMasterETState extends State<TicketMasterET>
     with ChangeNotifier, WidgetsBindingObserver {
+
+
+  @override
+  void dispose() {
+    super.dispose(); // This line was missing
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(builder: ((context, snapshot) {
@@ -104,28 +118,56 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
+  bool isFirstTimeUser = true;
+
   @override
   void initState() {
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
     });
+    _checkFirstTimeUser();
   }
-
+  Future<void> _checkFirstTimeUser() async {
+    print("Checking First TimeUser");
+    final prefs = await SharedPreferences.getInstance();
+    final hasLaunchedBefore = prefs.getBool('hasLaunchedBefore') ?? false;
+    if (hasLaunchedBefore) {
+      setState(() {
+        isFirstTimeUser = false;
+      });
+    } else {
+      await prefs.setBool('hasLaunchedBefore', true);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final loginDataProvider = Provider.of<LoginDataProvider>(context);
+    Widget homeScreen;
+    print("First Time User status $isFirstTimeUser");
+    if (isFirstTimeUser) {
+      print("SplashScreen $isFirstTimeUser");
+      homeScreen = SplashScreen();
+    } else if (loginDataProvider.loginData != null) {
+      print("TicketMatserHomePage $isFirstTimeUser");
+      homeScreen = TicketMatserHomePage(title: tr('ticketmaster_name'));
+    } else {
+      print("SignupScreen $isFirstTimeUser");
+      homeScreen = LoginScreen();
+    }
     return MaterialApp(
-      localizationsDelegates: context.localizationDelegates,
-      supportedLocales: context.supportedLocales,
-      locale: context.locale,
-      theme: Styles.themeData(
-          isDarkTheme: settingsProvider.darkTheme,
-          context: context,
-          isM3Enabled: false),
-      home: loginDataProvider.loginData != null?
-      TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: LoginScreen()),
+        localizationsDelegates: context.localizationDelegates,
+        supportedLocales: context.supportedLocales,
+        locale: context.locale,
+        theme: Styles.themeData(
+            isDarkTheme: settingsProvider.darkTheme,
+            context: context,
+            isM3Enabled: false),
+        // home: loginDataProvider.loginData != null?
+        // TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: SignupScreen()),
+        home: homeScreen
     );
   }
 }

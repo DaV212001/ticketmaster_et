@@ -3,7 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketmaster_et/screens/home_screen.dart';
+import 'package:ticketmaster_et/main_layout_screen.dart';
 
 import '../components/fields.dart';
 import '../constants/app_constants.dart';
