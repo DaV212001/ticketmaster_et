@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,187 +15,22 @@ class SubCatDetail extends StatefulWidget {
   const SubCatDetail({required this.subCategory, super.key});
   final SubCategory subCategory;
   @override
-  State<SubCatDetail> createState() => _OrderScreenState();
+  State<SubCatDetail> createState() => _SubCatDetailState();
 }
 
-class _OrderScreenState extends State<SubCatDetail> {
+class _SubCatDetailState extends State<SubCatDetail> {
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.black,
+      statusBarIconBrightness: Brightness.light
+    ));
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 40,
-            systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarColor: Colors.white,
-                statusBarIconBrightness: Brightness.dark),
-            elevation: 0,
-            backgroundColor: Colors.white,
-            title: Center(
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10)),
-                padding:
-                const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 0),
-                child: Text(widget.subCategory.name!,
-                    style: TextStyle(
-                      color: Color(0xFF00A600),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    )),
-              ),
-            ),
-          ),
-        ),
+      backgroundColor: Colors.white,
         body: TabBarAndTabViews(subCategories: widget.subCategory));
   }
 }
 
-// class FavoritesScreen extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Scaffold(
-//       body: Center(child: Text('Favorites Screen')),
-//     );
-//   }
-// }
-
-class InfoCard extends StatelessWidget {
-  final String title;
-  final String body;
-  final Function() onMoreTap;
-
-  final String subInfoTitle;
-  final String subInfoText;
-  final Widget subIcon;
-
-  const InfoCard(
-      {required this.title,
-        this.body = """Delivery boy departed at 20:00""",
-        required this.onMoreTap,
-        this.subIcon = const CircleAvatar(
-          child: Icon(
-            Icons.payment,
-            color: Colors.white,
-          ),
-          backgroundColor: Colors.cyanAccent,
-          radius: 25,
-        ),
-        this.subInfoText = "ETB 545",
-        this.subInfoTitle = "Fee",
-        Key? key})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: Container(
-        padding: const EdgeInsets.all(25.0),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(.05),
-                offset: const Offset(0, 10),
-                blurRadius: 0,
-                spreadRadius: 0,
-              )
-            ],
-            gradient: const RadialGradient(
-              colors: [Colors.cyanAccent, Color(0xFF3AE0C4)],
-              focal: Alignment.topCenter,
-              radius: .85,
-            )),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w400,
-                    fontSize: 26,
-                    fontFamily: 'Oswald',
-                  ),
-                ),
-                Container(
-                  width: 75,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100.0),
-                    gradient: const LinearGradient(
-                        colors: [Colors.white, Colors.white],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter),
-                  ),
-                  child: GestureDetector(
-                    onTap: onMoreTap,
-                    child: const Center(
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w400,
-                              fontFamily: 'Oswald'),
-                        )),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              body,
-              style: TextStyle(
-                color: Colors.black.withOpacity(.75),
-                fontSize: 17,
-                fontWeight: FontWeight.w400,
-                fontFamily: 'Oswald',
-              ),
-            ),
-            const SizedBox(height: 15),
-            Container(
-              width: double.infinity,
-              height: 75,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(25.0),
-                color: Colors.white,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    subIcon,
-                    const SizedBox(width: 10),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(subInfoTitle),
-                        Text(
-                          subInfoText,
-                          style: const TextStyle(
-                            color: Colors.cyanAccent,
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class TabPair {
   final Tab tab;
@@ -214,6 +50,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 List<Event> events = [];
+List<CoverImage> coverimages = [];
   bool _isLoaded = false;
 
   @override
@@ -243,10 +80,26 @@ List<Event> events = [];
   bool _hasError = false;
 
   void updateEvents() async {
+
+    try{
+      if(mounted){
+      final coverimage = await getCoverImagesbySubCatID(widget.subCategories.id!,
+          Provider.of<SettingsProvider>(context, listen: false).languageCode
+      );
+      setState(() {
+        coverimages = coverimage;
+      });
+      }else{
+        return;
+      }
+    } catch(e){
+      print(e);
+    }
     try {
       if (!mounted) {
         return;
       } else {
+
         final value = await getEventsBySubCategoryId(
           widget.subCategories.id!,
           Provider.of<SettingsProvider>(context, listen: false).languageCode,
@@ -258,6 +111,7 @@ List<Event> events = [];
       }
     } catch (e) {
       print(e);
+      if(mounted)
       setState(() {
         _hasError = true;
       });
@@ -338,7 +192,6 @@ List<Event> empty = [];
                         Center(child: Text(events[index].title!)),
                       ],
                     ),
-
                   ],
                 ),
               );
@@ -386,56 +239,94 @@ List<Event> empty = [];
         ),
       ),
     ];
-
+double? deviceheight =MediaQuery.of(context).size.height;
+double? devicewidth =MediaQuery.of(context).size.width;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(top: 20.0),
       child: Column(
         children: [
-      Padding(
-        padding: const EdgeInsets.only(bottom: 15.0),
-        child: Material(
-          elevation: 10,
-          shadowColor: Colors.black,
-          borderRadius: BorderRadius.circular(15),
-          child: Container(
-          height: 200,
-            width: 200,
-            child: Center (
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(10.0),
-              child:
-              CachedNetworkImage(
-                fadeOutDuration:
-                const Duration(milliseconds:
-                300),
-                fadeOutCurve:
-                Curves.easeOut,
-                fadeInDuration:
-                const Duration(milliseconds:
-                700),
-                fadeInCurve:
-                Curves.easeIn,
-                imageUrl:  widget.subCategories.image!,
-                imageBuilder:
-                    (context, imageProvider) =>
+      Stack(
+      children:[CarouselSlider.builder(
+
+            options: CarouselOptions(
+              disableCenter: true,
+              viewportFraction: 1,
+              enlargeCenterPage: false,
+              autoPlay: true,
+            ),
+
+            itemBuilder:
+                (BuildContext context, int index, pageViewIndex) {
+
+              if (events.isNotEmpty&&coverimages.isNotEmpty) {
+                return
                     Container(
-                      decoration:
-                      BoxDecoration(
-                        image:
-                        DecorationImage(
-                          image:
-                          imageProvider,
-                          fit:
-                          BoxFit.cover,
-                        ),
+                      height: deviceheight*0.3,
+                      width: devicewidth,
+                      child: CachedNetworkImage(
+                        fadeOutDuration:
+                        const Duration(milliseconds:
+                        300),
+                        fadeOutCurve:
+                        Curves.easeOut,
+                        fadeInDuration:
+                        const Duration(milliseconds:
+                        700),
+                        fadeInCurve:
+                        Curves.easeIn,
+                        imageUrl:coverimages[index].coverimage!.trim(),
+                        imageBuilder:
+                            (context, imageProvider) =>
+                            Container(
+                              decoration:
+                              BoxDecoration(
+                                image:
+                                DecorationImage(
+                                  image:
+                                  imageProvider,
+                                  fit:
+                                  BoxFit.cover,
+                                ),
+                              ),
+                            ),
                       ),
-                    ),
+                    );
+              } else {
+                return Image.asset(
+                  'assets/images/na_logo.jpg',
+                  fit: BoxFit.cover,
+                );
+              }
+            },
+            itemCount:
+            coverimages.isEmpty ? 4 : coverimages.length,
+          ),
+        if(events.isNotEmpty)if(coverimages.isNotEmpty)Container(
+          height: deviceheight*0.3,
+          width: devicewidth,
+          decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+              )
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Align(
+              alignment: Alignment.topCenter ,
+              child: Text(
+                widget.subCategories.name!,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  fontSize: devicewidth * 0.04
+                ),
               ),
             ),
-    ),
           ),
-        ),
-      ),
+        )
+    ]
+    ),
           Container(
             height: 45,
             decoration: BoxDecoration(
@@ -463,3 +354,5 @@ List<Event> empty = [];
     );
   }
 }
+
+

@@ -13,7 +13,6 @@ import '../models/newmodels.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 import 'login.dart';
-import 'dart:convert';
 
 
 class SignupScreen extends StatefulWidget {
@@ -48,6 +47,7 @@ class _SignupScreenState extends State<SignupScreen> {
       log.firstName=_firstName;
       log.lastName=_lastName;
       log.email=_email;
+      log.password =_password;
       await signupResponse(
           Signup(
               confirmPassword: "$_confirmPassword",
@@ -65,11 +65,12 @@ class _SignupScreenState extends State<SignupScreen> {
             log.firstName = _firstName;
             log.lastName=_lastName;
             log.email=_email;
+            log.phone = '251$_phoneNumber';
             signupProvider.setUserRegistered(true);
             await signupProvider.setLoginData(log); // Use await here
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) {
-                  return const TicketMatserHomePage(title: 'title');
+                  return LoginScreen();
                 }));
           }
         } else {

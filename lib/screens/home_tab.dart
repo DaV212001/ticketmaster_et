@@ -75,7 +75,7 @@ class _HomeTabState extends State<HomeTab>
   @override
   void dispose() {
     languageChange.removeListener(rebuild);
-    Provider.of<SettingsProvider>(context).removeListener(updateCategories);
+    Provider.of<SettingsProvider>(context, listen: false).removeListener(updateCategories);
     super.dispose();
   }
 

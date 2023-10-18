@@ -46,9 +46,10 @@ class _LoginScreenState extends State<LoginScreen> {
           _isLoading = true;
         });
         if (value.responseData != null) {
+
           await loginDataProvider.setLoginData(value.responseData!); // Use await here
           loginDataProvider.setUserLoggedIn(true); // Set user as logged in
-          debugPrint(loginDataProvider.loginData!.firstName!);
+          debugPrint('${loginDataProvider.loginData!.id!}');
           Navigator.push(context, MaterialPageRoute(builder: (context) {
             return TicketMatserHomePage(title: 'title');
           }));

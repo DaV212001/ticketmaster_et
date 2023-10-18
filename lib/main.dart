@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
+import 'package:ticketmaster_et/screens/login.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
 import 'models/translation.dart';
 import 'screens/home_screen.dart';
@@ -29,7 +30,7 @@ Future<void> appInit() async {
 
 
 void main() async {
-  Chapa.configure(privateKey: "CHASECK-aQDv2MqkPRx2Ia9W9WiuC2m69VOGE6OO");
+  Chapa.configure(privateKey: "CHASECK-kSr6JwoZUw0IlZ6maJJqgxiFQMnz4MUX");
   await appInit();
   runApp(EasyLocalization(
     supportedLocales: Translation.all,
@@ -124,7 +125,7 @@ class _LandingPageState extends State<LandingPage> {
           context: context,
           isM3Enabled: false),
       home: loginDataProvider.loginData != null?
-      TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: SignupScreen()),
+      TicketMatserHomePage(title: tr('ticketmaster_name')) : MaterialApp(home: LoginScreen()),
     );
   }
 }

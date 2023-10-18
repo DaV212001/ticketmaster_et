@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_options.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,33 +25,6 @@ class _OrderScreenState extends State<OrganizerDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80.0),
-          child: AppBar(
-            automaticallyImplyLeading: false,
-            leadingWidth: 40,
-            systemOverlayStyle: const SystemUiOverlayStyle(
-                statusBarColor: Colors.white,
-                statusBarIconBrightness: Brightness.dark),
-            elevation: 0,
-            backgroundColor: Colors.white,
-            title: Center(
-              child: Container(
-                decoration: BoxDecoration(
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(10)),
-                padding:
-                const EdgeInsets.only(left: 8, top: 0, right: 8, bottom: 0),
-                child: Text(widget.organizer.name!,
-                    style: TextStyle(
-                      color: Color(0xFF00A600),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                    )),
-              ),
-            ),
-          ),
-        ),
         body: TabBarAndTabViews(organizer: widget.organizer));
   }
 }
@@ -217,7 +192,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
   late TabController _tabController;
   List<Event> events = [];
   bool _isLoaded = false;
-
+List<CoverImage> coverimages = [];
   @override
   void initState() {
     super.initState();
@@ -246,16 +221,33 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
 
   void updateEvents() async {
     try {
+      if (mounted) {
+        final coverimage = await getCoverImagesbyOrganizerID(
+            widget.organizer.id!, Provider
+            .of<SettingsProvider>(context, listen: false)
+            .languageCode);
+        setState(() {
+          coverimages = coverimage;
+        });
+      } else{
+        return;
+      }
+    } catch(e){
+      print(e);
+    }
+
+    try {
       if (!mounted) {
         return;
       } else {
+
         final value = await getEventsByOrganizerId(
           widget.organizer.id!,
           Provider.of<SettingsProvider>(context, listen: false).languageCode,
         );
         setState(() {
           events = value;
-          print('VALUE OF THE events for Subcatdetails: $value');
+          print('VALUE OF THE events for orgDetails: $value');
         });
       }
     } catch (e) {
@@ -389,54 +381,93 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
       ),
     ];
 
+    double? deviceheight =MediaQuery.of(context).size.height;
+    double? devicewidth =MediaQuery.of(context).size.width;
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsets.only(top: 20.0),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 15.0),
-            child: Material(
-              elevation: 10,
-              shadowColor: Colors.black,
-              borderRadius: BorderRadius.circular(15),
-              child: Container(
-                height: 200,
-                width: 200,
-                child: Center (
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10.0),
-                    child:
-                    CachedNetworkImage(
-                      fadeOutDuration:
-                      const Duration(milliseconds:
-                      300),
-                      fadeOutCurve:
-                      Curves.easeOut,
-                      fadeInDuration:
-                      const Duration(milliseconds:
-                      700),
-                      fadeInCurve:
-                      Curves.easeIn,
-                      imageUrl:  widget.organizer.image!,
-                      imageBuilder:
-                          (context, imageProvider) =>
-                          Container(
-                            decoration:
-                            BoxDecoration(
-                              image:
-                              DecorationImage(
-                                image:
-                                imageProvider,
-                                fit:
-                                BoxFit.cover,
+          Stack(
+              children:[CarouselSlider.builder(
+
+                options: CarouselOptions(
+                  disableCenter: true,
+                  viewportFraction: 1,
+                  enlargeCenterPage: false,
+                  autoPlay: true,
+                ),
+
+                itemBuilder:
+                    (BuildContext context, int index, pageViewIndex) {
+
+                  if (events.isNotEmpty&&coverimages.isNotEmpty) {
+                    return
+                      Container(
+                        height: deviceheight*0.3,
+                        width: devicewidth,
+                        child: CachedNetworkImage(
+                          fadeOutDuration:
+                          const Duration(milliseconds:
+                          300),
+                          fadeOutCurve:
+                          Curves.easeOut,
+                          fadeInDuration:
+                          const Duration(milliseconds:
+                          700),
+                          fadeInCurve:
+                          Curves.easeIn,
+                          imageUrl:coverimages[index].coverimage!.trim(),
+                          imageBuilder:
+                              (context, imageProvider) =>
+                              Container(
+                                decoration:
+                                BoxDecoration(
+                                  image:
+                                  DecorationImage(
+                                    image:
+                                    imageProvider,
+                                    fit:
+                                    BoxFit.cover,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                        ),
+                      );
+                  } else {
+                    return Image.asset(
+                      'assets/images/na_logo.jpg',
+                      fit: BoxFit.cover,
+                    );
+                  }
+                },
+                itemCount:
+                coverimages.isEmpty ? 4 : coverimages.length,
+              ),
+                if(events.isNotEmpty)if(coverimages.isNotEmpty)Container(
+                  height: deviceheight*0.3,
+                  width: devicewidth,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      )
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.topCenter ,
+                      child: Text(
+                        widget.organizer.name!,
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: devicewidth * 0.04
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
+                )
+              ]
           ),
           Container(
             height: 45,

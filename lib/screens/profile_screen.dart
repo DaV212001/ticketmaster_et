@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/screens/editprofilescreen.dart';
 import 'package:ticketmaster_et/screens/videotest.dart';
 
 import '../provider/loginpersistence.dart';
@@ -134,70 +135,78 @@ class ProfileWidgetState extends State<ProfileWidget> {
                 ),
               ),
             ),
-            // Padding(
-            //   padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
-            //   child: Text(
-            //     tr('profile'),
-            //     style: Theme.of(context).textTheme.labelLarge!.copyWith(
-            //           color: const Color(0xFF57636C),
-            //           fontSize: 16,
-            //           fontWeight: FontWeight.normal,
-            //         ),
-            //   ),
-            // ),
-            // Padding(
-            //   padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-            //   child: Container(
-            //     width: double.infinity,
-            //     height: 60,
-            //     decoration: BoxDecoration(
-            //       boxShadow: const [
-            //         BoxShadow(
-            //           blurRadius: 0.5,
-            //           color: Color(0x3416202A),
-            //           offset: Offset(0, 2),
-            //         )
-            //       ],
-            //       borderRadius: BorderRadius.circular(12),
-            //       shape: BoxShape.rectangle,
-            //     ),
-            //     child: Padding(
-            //       padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-            //       child: Row(
-            //         mainAxisSize: MainAxisSize.max,
-            //         children: [
-            //           const Icon(
-            //             Icons.account_circle_outlined,
-            //             color: Color(0xFF57636C),
-            //             size: 24,
-            //           ),
-            //           Expanded(
-            //             child: Padding(
-            //               padding:
-            //                   const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-            //               child: Text(
-            //                 tr('editprofile'),
-            //                 style:
-            //                     Theme.of(context).textTheme.bodyLarge!.copyWith(
-            //                           fontSize: 16,
-            //                           fontWeight: FontWeight.normal,
-            //                         ),
-            //               ),
-            //             ),
-            //           ),
-            //           const Align(
-            //             alignment: AlignmentDirectional(0.9, 0),
-            //             child: Icon(
-            //               Icons.arrow_forward_ios,
-            //               color: Color(0xFF57636C),
-            //               size: 18,
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
+              child: Text(
+                tr('profile'),
+                style: Theme.of(context).textTheme.labelLarge!.copyWith(
+                      color: const Color(0xFF57636C),
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+              ),
+            ),
+            GestureDetector(
+              onTap: (){
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) {
+                      return EditProfile();
+                    }));
+              },
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+                child: Container(
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    boxShadow: const [
+                      BoxShadow(
+                        blurRadius: 0.5,
+                        color: Color(0x3416202A),
+                        offset: Offset(0, 2),
+                      )
+                    ],
+                    borderRadius: BorderRadius.circular(12),
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        const Icon(
+                          Icons.account_circle_outlined,
+                          color: Color(0xFF57636C),
+                          size: 24,
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
+                            child: Text(
+                              tr('editprofile'),
+                              style:
+                                  Theme.of(context).textTheme.bodyLarge!.copyWith(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                            ),
+                          ),
+                        ),
+                        const Align(
+                          alignment: AlignmentDirectional(0.9, 0),
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            color: Color(0xFF57636C),
+                            size: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
               child: Text(
@@ -338,10 +347,11 @@ class ProfileWidgetState extends State<ProfileWidget> {
                               }
 
                               // Now call setState()
+                              if(mounted){
                               setState(() {
                                 languageChange.languageCode = value;
                               });
-                            }
+                            }}
                         ),
                       ),
                     ],
@@ -396,66 +406,6 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           Icons.arrow_forward_ios,
                           color: Color(0xFF57636C),
                           size: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
-              child: Container(
-                width: double.infinity,
-                height: 60,
-                decoration: BoxDecoration(
-                  boxShadow: const [
-                    BoxShadow(
-                      blurRadius: 0.5,
-                      color: Color(0x3416202A),
-                      offset: Offset(0, 2),
-                    )
-                  ],
-                  borderRadius: BorderRadius.circular(12),
-                  shape: BoxShape.rectangle,
-                ),
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.fromSTEB(8, 8, 8, 8),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      const Icon(
-                        Icons.video_call_outlined,
-                        color: Color(0xFF57636C),
-                        size: 24,
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding:
-                          const EdgeInsetsDirectional.fromSTEB(12, 0, 0, 0),
-                          child: Text(
-                            'Video Test',
-                            style:
-                            Theme.of(context).textTheme.bodyLarge!.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      ),
-                      Align(
-                        alignment: AlignmentDirectional(0.9, 0),
-                        child: IconButton(
-                          icon: Icon(Icons.arrow_forward_ios),
-                          color: Color(0xFF57636C),
-                          onPressed: (){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VideoTest(),
-                              ),
-                            );
-                          },
                         ),
                       ),
                     ],

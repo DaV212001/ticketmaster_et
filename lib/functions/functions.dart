@@ -56,6 +56,52 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
   return events;
 }
 
+Future<List<CoverImage>> getCoverImagesbySubCatID(int id, String language) async {
+  List<CoverImage> coverimages = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-sub-category/$id")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Cover image By selected Sub category get successfully') {
+      var eventsData = data['data'] as List;
+      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return coverimages;
+}
+
+Future<List<CoverImage>> getCoverImagesbyOrganizerID(int id, String language) async {
+  List<CoverImage> coverimages = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-organizer/$id")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Cover image By selected Organizer get successfully') {
+      var eventsData = data['data'] as List;
+      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return coverimages;
+}
+
 Future<List<Category>> getCategorySubCategory(String language) async {
   List<Category> categories = [];
 
@@ -64,7 +110,7 @@ Future<List<Category>> getCategorySubCategory(String language) async {
           () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/category-sub-category")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-print(res.body);
+    print(res.body);
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event By category get successfully') {
       var categoriesData = data['data'] as List;
@@ -114,6 +160,7 @@ Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event By selected Sub category get successfully') {
       var eventsData = data['data'] as List;
+      print(eventsData);
       events = eventsData.map((eventData) => Event.fromJson(eventData, language)).toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
@@ -305,4 +352,58 @@ Future<List<City>> getCity(String language) async {
   }
 
   return cities;
+}
+
+
+Future<BookingResponse> bookEvent(Booking data) async {
+  BookingResponse bookingData;
+  Map<String, dynamic> jsonData = data.toJson();
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/book'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    bookingData = BookingResponse.formJson(decodeRes);
+  } finally {
+    client.close();
+  }
+
+  return bookingData;
+}
+
+
+Future<UpdatedUserResponse> updateUser( UpdatedUser data) async {
+  UpdatedUserResponse updatedUserData;
+  String requestBody = jsonEncode(data.toJson());
+  try {
+    var res = await retryOptions.retry(
+          () => http.post(
+        Uri.parse("https://api.ticketmaster-et.com/api/update_user"),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (p0) => p0 is SocketException || p0 is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    updatedUserData = UpdatedUserResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+  return updatedUserData;
 }

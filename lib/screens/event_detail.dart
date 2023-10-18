@@ -1,6 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
@@ -9,117 +10,12 @@ import 'package:ticketmaster_et/screens/thankyouscreen.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:math';
 import '../constants/app_constants.dart';
+import '../constants/endpoints.dart';
 import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 
 
-
-// class EventDetail extends StatelessWidget {
-//   EventDetail({required this.event, super.key});
-//   final Event event;
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final loginDataProvider = Provider.of<LoginDataProvider>(context);
-//
-//     return Scaffold(
-//       backgroundColor:
-//           Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
-//       body: Center(
-//         child: SingleChildScrollView(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Container(
-//                 height: 200,
-//                 width: double.infinity * 0.9,
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: ClipRRect(
-//                   borderRadius: BorderRadius.circular(30),
-//                   child: Image.network(
-//                       fit: BoxFit.cover,
-//                     event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25': event.image!.trim(),),
-//                 ),
-//               ),
-//               const SizedBox(
-//                 height: 10,
-//               ),
-//               Padding(
-//                 padding: EdgeInsets.all(8.0),
-//                 child: Text(
-//                     event.desc!),
-//               ),
-//               TicketWidget(
-//                 width: 350,
-//                 height: 415,
-//                 isCornerRounded: true,
-//                 padding: EdgeInsets.all(20),
-//                 child: TicketData(event: event,),
-//               ),
-//               const SizedBox(
-//                 height: 30,
-//               ),
-//               ElevatedButton(
-//                   onPressed: () async {
-//                     String txRef =
-//                         TxRefRandomGenerator.generate(prefix: 'ticketmaster');
-//                     // Access the generated transaction reference
-//                     String storedTxRef = TxRefRandomGenerator.gettxRef;
-//                     // Use the Chapa Flutter SDK to create a new transaction
-//                     loginDataProvider.loginData !=null||loginDataProvider.isUserRegistered == true?
-//                     await Chapa.getInstance.startPayment(
-//                       context: context,
-//                       onInAppPaymentSuccess: (successMsg) async {
-//                         print('PAYMENT SUCCESS!'); // Handle success events
-//
-//                         // Show the pop-up card
-//                         showDialog(
-//                           context: context,
-//                           builder: (BuildContext context) {
-//                             return AlertDialog(
-//                               shape: RoundedRectangleBorder(
-//                                   borderRadius: BorderRadius.circular(20)),
-//                               title: const Text("Ticket Purchase Successful!"),
-//                               content:
-//                                   const Text("300 Birr Paid! Enjoy the event!"),
-//                               actions: [
-//                                 TextButton(
-//                                   child: const Text("OK"),
-//                                   onPressed: () {
-//                                     Navigator.of(context).pop();
-//                                     Navigator.of(context).pop();
-//                                   },
-//                                 ),
-//                               ],
-//                             );
-//                           },
-//                         );
-//                       },
-//                       onInAppPaymentError: (errorMsg) {
-//                         print('PAYMENT FAILURE'); // Handle error
-//                       },
-//                       amount: '300',
-//                       currency: 'ETB',
-//                       txRef: storedTxRef,
-//                       firstName: 'Bamlak',
-//                       lastName: 'Aschalew',
-//                       phoneNumber: '0936648802',
-//                     ) :  Navigator.push(context, MaterialPageRoute(builder: (context) {
-//                       return SignupScreen();
-//                     }));
-//                   },
-//                   style: ButtonStyle(
-//                       minimumSize: MaterialStatePropertyAll(
-//                           Size(MediaQuery.of(context).size.width * 0.9, 50))),
-//                   child: const Text('PAY 300 BIRR')),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 String ticketNum = '';
 
 class EventDetail extends StatefulWidget {
@@ -139,14 +35,17 @@ class _EventDetailState extends State<EventDetail> {
   String? organizername = 'Default';
   String? cityname = 'Default';
   List<Event> events = [];
+
+
   @override
   void initState() {
     super.initState();
-    ticketNum = generateRandomAlphanumeric(7);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
       updatesForEventDetail();
+      ticketNum = generateTicketNumber(widget.event.title!);
     });
+
   }
 
 
@@ -209,6 +108,14 @@ class _EventDetailState extends State<EventDetail> {
     }
     super.dispose();
   }
+  Class? selectedClass;
+  int selectedIndex = -1;
+  void selectClass(Class classe, int index) {
+  setState(() {
+  selectedClass = classe;
+  selectedIndex = index;
+  });
+  }
 
 
 
@@ -217,7 +124,29 @@ class _EventDetailState extends State<EventDetail> {
 
   @override
   Widget build(BuildContext context) {
+
+
+    int? price =
+    events.isNotEmpty?
+    //events is not empty
+    events[0].classes!.isNotEmpty?
+    //events is not empty and the classes list of the event is not empty
+    selectedClass != null?
+    //events is not empty and classes list of the event is not empty and there is a selected class
+    selectedClass?.price:
+    //events is not empty and the classes list of the event is not empty but there is no selected class
+    0
+        :
+    //events is not empty but the classes list of the event is empty
+    0
+        :
+    //events is empty
+    0
+    ;
+double deviceheight = MediaQuery.of(context).size.height;
+double devicewidth = MediaQuery.of(context).size.width;
     final loginDataProvider = Provider.of<LoginDataProvider>(context);
+    bool _isLoading = false;
     return Scaffold(
       backgroundColor:
       Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
@@ -255,91 +184,178 @@ class _EventDetailState extends State<EventDetail> {
                 child: Text(
                     widget.event.desc!),
               ),
-              TicketWidget(
-                width: 350,
-                height: 415,
+              TicketWidget (
+                width: devicewidth/1.1,
+                height: deviceheight/2.4,
                 isCornerRounded: true,
                 padding: EdgeInsets.all(20),
-                child: TicketData(events: events, categoryname: categoryname!, cityname: cityname!, organizername: organizername!,),
+                child: TicketData(events: events, categoryname: categoryname!, cityname: cityname!, organizername: organizername!, selectClass: selectClass, selectedIndex: selectedIndex,),
               ),
               const SizedBox(
                 height: 30,
               ),
-              ElevatedButton(
+              Padding(
+                padding: const EdgeInsets.only(bottom: 40.0),
+                child: ElevatedButton(
                   onPressed: () async {
-
-                    if(events.isNotEmpty &&events[0].classes!.isNotEmpty &&events[0].classes![0].price != 0) {
-
-                      String txRef =
-                      TxRefRandomGenerator.generate(prefix: 'ticketmaster');
-                      // Access the generated transaction reference
-                      String storedTxRef = TxRefRandomGenerator.gettxRef;
-                      // Use the Chapa Flutter SDK to create a new transaction
-                      loginDataProvider.loginData != null ||
-                          loginDataProvider.isUserRegistered == true ?
-                      await Chapa.getInstance.startPayment(
-                        context: context,
-                        onInAppPaymentSuccess: (successMsg) async {
-                          print('PAYMENT SUCCESS!'); // Handle success events
-
-                          // Show the pop-up card
-                          showDialog(
+                    setState(() {
+                      _isLoading = true;
+                    });
+                    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+                    String? phone = accountProvider.loginData?.phone?.replaceFirst("251", "0");
+                    if(events.isNotEmpty && events[0].classes!.isNotEmpty) {
+                      if (selectedClass != null) {
+                        if (selectedClass?.price != 0) {
+                          String txRef =
+                          TxRefRandomGenerator.generate(prefix: 'ticketmaster');
+                          // Access the generated transaction reference
+                          String storedTxRef = TxRefRandomGenerator.gettxRef;
+                          // Use the Chapa Flutter SDK to create a new transaction
+                          loginDataProvider.loginData != null ||
+                              loginDataProvider.isUserRegistered == true ?
+                          await Chapa.getInstance.startPayment(
                             context: context,
-                            builder: (BuildContext context) {
-                              return AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20)),
-                                title: const Text(
-                                    "Ticket Purchase Successful!"),
-                                content:
-                                const Text("300 Birr Paid! Enjoy the event!"),
-                                actions: [
-                                  TextButton(
-                                    child: const Text("OK"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pop();
-                                    },
-                                  ),
-                                ],
+                            onInAppPaymentSuccess: (successMsg) async {
+                              BookingResponse l;
+                              setState(() { // Call setState before bookEvent
+                                _isLoading = true;
+                              });
+                              l = await bookEvent(
+                                Booking(
+                                    customerId: int.parse(phone!.replaceFirst("0", "251")),
+                                    eventId: events[0].id,
+                                    classId: selectedClass?.id,
+                                    phone: phone.replaceFirst("0", "251"),
+                                    ticketNumber: ticketNum, price: price
+                                ),
                               );
+                              setState(() { // Call setState after bookEvent
+                                _isLoading =false;
+                              });
+                              print(
+                                  'PAYMENT SUCCESS!'); // Handle success events
+                              if(l.error==null){
+                                // Show the pop-up card
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              20)),
+                                      title: const Text(
+                                          "Ticket Purchase Successful!"),
+                                      content:
+                                      Text(
+                                          "$price Birr Paid! Enjoy the event!"),
+                                      actions: [
+                                        TextButton(
+                                          child: const Text("OK"),
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            Navigator.of(context).pop();
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );} else{
+                                setState(() {
+                                  _isLoading =false;
+                                });
+                                ScaffoldMessenger.of(context)
+                                    .showSnackBar(
+                                    SnackBar(content: Text('Error Booking your ticket please try again')));
+
+                              }
                             },
+
+                            amount: '$price',
+                            currency: 'ETB',
+                            txRef: storedTxRef,
+                            firstName: accountProvider.loginData?.firstName ?? '',
+                            lastName: accountProvider.loginData?.lastName ?? '',
+                            phoneNumber: '${phone??''}',
+                            onInAppPaymentError: (errorMsg) {
+                              print('PAYMENT FAILURE'); // Handle error
+                            },
+
+                          ) : Navigator.push(
+                              context, MaterialPageRoute(builder: (context) {
+                            return SignupScreen();
+                          }));
+                        }
+
+                        else {
+                          setState(() {
+                            _isLoading = false;
+                          });
+
+                          BookingResponse l = await bookEvent(
+                            Booking(
+                                customerId: int.parse(phone!.replaceFirst("0", "251")),
+                                eventId: events[0].id,
+                                classId: selectedClass?.id,
+                                phone: phone.replaceFirst("0", "251"),
+                                ticketNumber: ticketNum,
+                                price: price
+                            ),
                           );
-                        },
-                        onInAppPaymentError: (errorMsg) {
-                          print('PAYMENT FAILURE'); // Handle error
-                        },
-                        amount: '${
-                            events.isNotEmpty ?
-                            //events is not empty
-                            events[0].classes![0].price! != 0 ?
-                            //events is not empty and class price is not 0
-                            events[0].classes![0].price! :
-                            //events is not empty but class price is 0
-                            '0'
-                                :
-                            //events is empty
-                            '0'}',
-                        currency: 'ETB',
-                        txRef: storedTxRef,
-                        firstName: 'Bamlak',
-                        lastName: 'Aschalew',
-                        phoneNumber: '0936648802',
-                      ) : Navigator.push(
-                          context, MaterialPageRoute(builder: (context) {
-                        return SignupScreen();
-                      }));
-                    } else {
-                      Navigator.push(
-                          context, MaterialPageRoute(builder: (context) {
-                        return ThankYouScreen(event: events[0]);
-                      }));
+                          print(l);
+                          if(l.error==null){
+                            setState(() {
+                              _isLoading = false;
+                            });
+                            Navigator.push(
+                                context, MaterialPageRoute(builder: (context) {
+                              return ThankYouScreen(event: events[0]);
+                            }));
+                          }}
+                      }
+                      else {
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        ScaffoldMessenger.of(context)
+                            .showSnackBar(
+                            SnackBar(content: Text('Please select a Class')));
+                      }
+                    }
+                    else{
+                      setState(() {
+                        _isLoading = false;
+                      });
+                      BookingResponse l = await bookEvent(
+                        Booking(
+                            customerId: int.parse(phone!.replaceFirst("0", "251")),
+                            eventId: events[0].id,
+                            classId: selectedClass?.id,
+                            phone: phone.replaceFirst("0", "251"),
+                            ticketNumber: ticketNum,
+                            price: price
+                        ),
+                      );
+                      print(l);
+                      if(l.error == null){
+                        setState(() {
+                          _isLoading = false;
+                        });
+                        Navigator.push(
+                            context, MaterialPageRoute(builder: (context) {
+                          return ThankYouScreen(event: events[0]);
+                        }));}
                     }
                   },
                   style: ButtonStyle(
                       minimumSize: MaterialStatePropertyAll(
                           Size(MediaQuery.of(context).size.width * 0.9, 50))),
-                  child: Text('PAY ${events.isNotEmpty && events[0].classes!.isNotEmpty?events[0].classes![0].price!:'0'} BIRR')),
+                  child: _isLoading? CircularProgressIndicator(): Text(
+                    selectedClass == null? 'Book Ticket':
+                      'PAY $price BIRR'
+                  ),
+                ),
+
+              ),
             ],
           ),
         ),
@@ -350,27 +366,44 @@ class _EventDetailState extends State<EventDetail> {
 
 
 
-String generateRandomAlphanumeric(int length) {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+String generateTicketNumber(String eventTitle) {
+  const chars = '0123456789';
   Random rnd = Random();
-  return String.fromCharCodes(Iterable.generate(
-      length, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+  String randomDigits = String.fromCharCodes(Iterable.generate(
+      4, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+
+  String firstFourLettersOfTitle = eventTitle.length >= 4
+      ? eventTitle.substring(0, 4).toUpperCase()
+      : eventTitle.toUpperCase();
+
+  return 'TM-$firstFourLettersOfTitle-$randomDigits';
 }
 
 
 
 
-class TicketData extends StatelessWidget {
+
+class TicketData extends StatefulWidget {
   TicketData({
-    Key? key, required this.events, required this.categoryname, required this.organizername, required this.cityname
+    Key? key, required this.events, required this.categoryname, required this.organizername, required this.cityname, required this.selectClass, required this.selectedIndex
   }) : super(key: key);
-final List<Event> events;
-final String categoryname;
-final String organizername;
-final String cityname;
+  final List<Event> events;
+  final String categoryname;
+  final String organizername;
+  final String cityname;
+  final Function(Class, int) selectClass;
+  final int selectedIndex;
 
   @override
+  _TicketDataState createState() => _TicketDataState();
+}
+
+class _TicketDataState extends State<TicketData> {
+
+  bool isSelected= false;
+  @override
   Widget build(BuildContext context) {
+    double devicewidth = MediaQuery.of(context).size.width;
     Class? selectedClass;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -387,7 +420,7 @@ final String cityname;
               ),
               child: Center(
                 child: Text(
-                  categoryname,
+                  widget.categoryname,
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green,),
                 ),
@@ -396,7 +429,7 @@ final String cityname;
             Row(
               children: [
                 Text(
-                  cityname,
+                  widget.cityname,
                   style: TextStyle(
                       color: Colors.black, fontWeight: FontWeight.bold),
                 ),
@@ -407,8 +440,8 @@ final String cityname;
         Padding(
           padding: EdgeInsets.only(top: 20.0),
           child: Text(
-            events.isNotEmpty?
-            events[0].title!: '',
+            widget.events.isNotEmpty?
+            widget.events[0].title!: '',
             style: TextStyle(
                 color: Colors.black,
                 fontSize: 20.0,
@@ -424,14 +457,14 @@ final String cityname;
                 Padding(
                   padding: const EdgeInsets.only(top: 8.0, bottom: 8),
                   child: ticketDetailsWidget(
-                      'Organizer', '${organizername}', 'Date', events.isNotEmpty?events[0].date!:''),
+                      'Organizer', '${widget.organizername}', 'Date', widget.events.isNotEmpty?widget.events[0].date!:''),
                 ),
-                ticketDetailsWidget('Place', events.isNotEmpty?events[0].place!:'', 'Time', events.isNotEmpty?events[0].time!:''),
+                ticketDetailsWidget('Place', widget.events.isNotEmpty?widget.events[0].place!:'', 'Time', widget.events.isNotEmpty?widget.events[0].time!:''),
                 Padding(
-                  padding: const EdgeInsets.only(top: 12.0, right: 52.0),
-                  child: ticketDetailsWidget('Ticket', events.isNotEmpty&&events[0].classes!.isNotEmpty?'$ticketNum, ${events[0].classes?[0].availableTicket} tickets left': '$ticketNum', '', ''),
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ticketDetailsWidget('Ticket', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'$ticketNum': '$ticketNum', 'Available', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'${widget.events[0].classes?[0].availableTicket} tickets left':''),
                 ),
-                events.isNotEmpty? events[0].classes!.isNotEmpty?Padding(
+                widget.events.isNotEmpty? widget.events[0].classes!.isNotEmpty?Padding(
                   padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
                   child: Text('Class',
                   style: TextStyle(color: Colors.grey),),
@@ -439,44 +472,47 @@ final String cityname;
                 Padding(
                   padding: const EdgeInsets.only(top: 0, right: 53.0),
                   child:
-                  events.isNotEmpty?
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: events[0].classes!.map((Class) {
-                      bool isSelected = selectedClass == Class;
-                      return Row(
-                      children: [
-                      ElevatedButton(
-                      onPressed: () {
-                      if (isSelected) {
-                      selectedClass = null;
-                      } else {
-                      selectedClass = Class;
-                      }
-                      ;
+                  widget.events.isNotEmpty?
+                  SizedBox(
+                    height: 50,
+                    width: devicewidth,
+                    child: ListView.builder(
+                      physics: BouncingScrollPhysics(),
+                      itemCount: widget.events[0].classes!.length,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index){
+                        return Row(
+                          children: [
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    widget.selectClass(widget.events[0].classes![index], index);
+                                  },
+                                  style: ButtonStyle(
+                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30.0),
+                                      ),
+                                    ),
+                                    backgroundColor: widget.selectedIndex == index?
+                                         MaterialStatePropertyAll(Colors.green)
+                                        : MaterialStatePropertyAll(Colors.black),
+                                  ),
+                                  child: Center(
+                                    child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
+                                        style: TextStyle(
+                                          color: widget.selectedIndex == index? Colors.black : Colors.white,
+                                        )),
+                                  ),
+                                ),
+                                SizedBox(width: 5,)
+                              ],
+                            )
+                          ]
+                        );
                       },
-                      style: ButtonStyle(
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                      RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      ),
-                      backgroundColor: isSelected
-                      ? MaterialStatePropertyAll(Colors.cyanAccent.withOpacity(0.5))
-                          : MaterialStatePropertyAll(Colors.black),
-                      ),
-                      child: Center(
-                      child: Text('${Class.title} - ${Class.price}',
-                      style: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white,
-                      )),
-                      ),
-                      ),
-                      SizedBox(width: 5,)
-                      ],
-                      );
-                      }).toList(),
+
                     ),
                   ):
                    CircularProgressIndicator()
@@ -485,28 +521,6 @@ final String cityname;
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 15.0, left: 30.0, right: 30.0),
-          child: Container(
-            width: 250.0,
-            height: 60.0,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    image: NetworkImage(
-                        'https://www.computalabel.com/Images/ITFusAlt22x.png'),
-                    fit: BoxFit.cover)),
-          ),
-        ),
-        // const Padding(
-        //   padding: EdgeInsets.only(top: 10.0, left: 75.0, right: 75.0),
-        //   child: Text(
-        //     'Phone number',
-        //     style: TextStyle(
-        //       color: Colors.black,
-        //     ),
-        //   ),
-        // ),
-        // const SizedBox(height: 30),
       ],
     );
   }
@@ -564,8 +578,9 @@ Widget ticketDetailsWidget(String firstTitle, String firstDesc,
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
+  final VideoPlayerController? controller;
 
-  VideoPlayerWidget({Key? key, required this.videoUrl}) : super(key: key);
+  VideoPlayerWidget({Key? key, required this.videoUrl, this.controller}) : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -581,7 +596,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
     _chewieController = ChewieController(
-      videoPlayerController: _controller,
+      videoPlayerController: widget.controller!=null? widget.controller! : _controller,
       aspectRatio: 9 / 16,
       autoPlay: true,
       looping: true,

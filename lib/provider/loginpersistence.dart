@@ -30,6 +30,33 @@ class LoginDataProvider with ChangeNotifier {
     }
   }
 
+  Future<void> updateName(String firstName, String lastName) async {
+    _loginData = LoginData(
+        id: _loginData?.id,
+        email: _loginData?.email,
+        password: _loginData?.password,
+        firstName: firstName,
+        lastName: lastName,
+        profileImage: _loginData?.profileImage,
+        phone: _loginData?.phone,
+        cityId:_loginData?.cityId,
+        emailVerifiedAt:_loginData?.emailVerifiedAt,
+        roleId:_loginData?.roleId,
+        lang:_loginData?.lang,
+        darkMode:_loginData?.darkMode,
+        promocode:_loginData?.promocode,
+        token:_loginData?.token,
+        createdAt:_loginData?.createdAt,
+        updatedAt:_loginData?.updatedAt
+    );
+    if (_loginData != null) {
+      await setLoginData(_loginData!);
+    }
+    notifyListeners();
+  }
+
+
+
   Future<void> clear() async {
     _loginData = null;
 

@@ -19,23 +19,51 @@ class Class {
   });
 
   Class.fromJson(Map<String, dynamic> json, String language) {
-      id= json['id'];
-      eventId= json['event_id'];
-      switch (language) {
-        case 'am':
-          title = json['title_am'];
-          break;
-        case 'en':
-          title = json['title_en'];
-          break;
-        case 'en-AU':
-          title = json['title_or'];
-          break;
-        default:
-          throw Exception('Invalid language: $language');
-      }
-      availableTicket= int.parse(json['available_ticket']);
-      price= int.parse(json['price']);
+    id= json['id'];
+    eventId= json['event_id'];
+    switch (language) {
+      case 'am':
+        title = json['title_am'];
+        break;
+      case 'en':
+        title = json['title_en'];
+        break;
+      case 'en-AU':
+        title = json['title_or'];
+        break;
+      default:
+        throw Exception('Invalid language: $language');
+    }
+    availableTicket= int.parse(json['available_ticket']);
+    price= int.parse(json['price']);
+  }
+}
+
+
+class CoverImage {
+  int? id;
+  String? coverimage;
+  int? categoryId;
+  int? subcategoryId;
+  int? organizerId;
+  int? eventId;
+  DateTime? createdat;
+  DateTime? updatedat;
+
+  CoverImage(
+      { this.id,
+        this.coverimage,
+        required this.categoryId,
+        required this.subcategoryId,
+        this.organizerId});
+
+  CoverImage.fromJson(Map<String, dynamic> json, String language) {
+    id = json["id"];
+    coverimage = baseUrl + json["cover_image"];
+    categoryId = json["category_id"]!=null?int.parse(json["category_id"]):0;
+    subcategoryId = json["sub_category_id"]!=null?int.parse(json["sub_category_id"]):0;
+    organizerId = json["organizer_id"]!=null?int.parse(json["organizer_id"]):0;
+    eventId = json["event_id"]!=null?int.parse(json["event_id"]):0;
   }
 }
 
@@ -58,6 +86,7 @@ class Event {
   DateTime? updatedAt;
   List<Class>? classes;
   String? upcomingImage;
+  List<CoverImage>? coverimages;
 
 
   Event(
@@ -135,6 +164,8 @@ class Event {
     var classData = json["class"] != null? json["class"] as List: [];
     classes = classData.map((data) => Class.fromJson(data, language)).toList();
     upcomingImage = json['upcoming_image'] != null? baseUrl + json['upcoming_image']: json['upcoming_image'] != "" ?'https://i.postimg.cc/VkBQ3FS6/na-logo.png': 'https://i.postimg.cc/VkBQ3FS6/na-logo.png' ;
+    var coverData = json["cover_image"] != null? json["cover_image"] as List: [];
+    coverimages = coverData.map((data) => CoverImage.fromJson(data, language)).toList();
   }
 }
 
@@ -190,7 +221,7 @@ class SubCategory {
         required this.image,
         required this.categoryId,
         required this.name,
-      this.desc});
+        this.desc});
 
   SubCategory.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
@@ -342,6 +373,46 @@ class ErrorData {
   }
 }
 
+
+class Booking {
+  int? customerId, eventId, classId, price;
+  String? phone, ticketNumber;
+
+  Booking({
+    required this.customerId,
+    required this.eventId,
+    required this.classId,
+    required this.phone,
+    required this.ticketNumber,
+    required this.price
+  });
+
+  Map<String, dynamic> toJson() => {
+    'customer_id': customerId,
+    'event_id': eventId,
+    'class_id': classId,
+    'phone': phone,
+    'ticket_number': ticketNumber,
+    'price': price
+  };
+}
+
+class BookingResponse {
+  Map<String, dynamic>? error;
+  String? message;
+  BookingResponse({
+    this.error,
+    this.message
+  });
+  BookingResponse.formJson(Map<String, dynamic> json) {
+    if(json.containsKey('error')){error = json['error'];}
+    if(json.containsKey('message')){message = json['message'];}
+    // Parse your response here
+  }
+}
+
+
+
 class Login {
   String? phoneNumber, password;
   Login({required this.password, required this.phoneNumber});
@@ -383,6 +454,7 @@ class LoginData {
   String? token;
   String? createdAt;
   String? updatedAt;
+  String? password;
 
   LoginData({
     this.id,
@@ -399,7 +471,8 @@ class LoginData {
     this.promocode,
     this.token,
     this.createdAt,
-    this.updatedAt
+    this.updatedAt,
+    this.password
   });
 
   LoginData.fromJson(Map<String, dynamic> json) {
@@ -473,5 +546,54 @@ class City {
     }
     createdAt = json["created_at"]!=null?  DateTime.parse(json["created_at"]): DateTime.parse("-000001-11-30T00:00:00.000000Z");
     updatedAt = DateTime.parse(json["updated_at"]);
+  }
+}
+
+class UpdatedUser {
+  String? firstName, lastName, phone;
+
+  UpdatedUser({required this.firstName, required this.lastName, required this.phone});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'first_name': firstName,
+      'last_name': lastName,
+      'phone': phone,
+    };
+  }
+}
+
+class UpdatedUserResponse {
+  String? message;
+  UpdateError? error;
+
+  UpdatedUserResponse({required this.message, required this.error});
+
+  UpdatedUserResponse.fromJson(Map<String, dynamic> json) {
+    message = json.containsKey('message') ? json['message'] : null;
+    error = json.containsKey('error') ? UpdateError.fromJson(json['error']) : null;
+  }
+}
+
+
+class UpdateError {
+  List<String>? firstName;
+  List<String>? LastName;
+  List<String>? phone;
+
+  UpdateError(
+      {this.phone, this.firstName, this.LastName});
+
+  UpdateError.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('first_name')) {
+      firstName = List<String>.from(json['first_name']);
+    }
+    if (json.containsKey('phone')) {
+      phone = List<String>.from(json['phone']);
+    }
+    if (json.containsKey('last_name')) {
+      phone = List<String>.from(json['last_name']);
+    }
+
   }
 }
