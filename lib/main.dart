@@ -105,7 +105,7 @@ class _TicketMasterETState extends State<TicketMasterET>
           return LandingPage();
         }),
       );
-    }), future: appInit(),);
+    }));
   }
 }
 
