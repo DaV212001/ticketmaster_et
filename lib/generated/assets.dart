@@ -3,6 +3,10 @@ class Assets {
   Assets._();
 
   static const String imagesNaLogo = 'assets/images/na_logo.jpg';
+  static const String imagesTHICKETMASTERLOGO = 'assets/images/THICKET_MASTER_LOGO.png';
+  static const String splashScreensSplash0 = 'assets/images/splash_screens/splash0.jpg';
+  static const String splashScreensSplash1 = 'assets/images/splash_screens/splash1.jpg';
+  static const String splashScreensSplash2 = 'assets/images/splash_screens/splash2.jpg';
   static const String translationsAm = 'assets/translations/am.json';
   static const String translationsEn = 'assets/translations/en.json';
   static const String translationsEnAU = 'assets/translations/en-AU.json';
