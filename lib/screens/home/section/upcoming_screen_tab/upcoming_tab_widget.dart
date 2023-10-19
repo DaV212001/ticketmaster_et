@@ -34,7 +34,7 @@ class UpcomingTabWidget extends StatefulWidget {
 }
 
 class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
-  final List<VideoPlayerController?> _controllers = [];
+  late List<VideoPlayerController?> _controllers = [];
   final List<bool> _isPlaying = [];
   final _pageController = PageController();
 
@@ -60,6 +60,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
     for (var controller in _controllers) {
       controller?.dispose();
     }
+    _controllers = [];
     super.dispose();
   }
 

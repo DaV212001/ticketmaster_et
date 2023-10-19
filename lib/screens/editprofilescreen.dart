@@ -88,11 +88,10 @@ class _EditProfileState extends State<EditProfile> {
     final languageChange = Provider.of<SettingsProvider>(context);
     final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
           color:Colors.grey[100],
-          image: DecorationImage(
-              image: CachedNetworkImageProvider("assets/images/THICKET_MASTER_PATERN_04.png"),
+          image: const DecorationImage(
+              image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
               fit: BoxFit.cover)
       ),
       child: SafeArea(
@@ -158,17 +157,12 @@ class _EditProfileState extends State<EditProfile> {
                         key: _formKey,
                         child: Column(
                           children: [
-                            ClipRRect(
-                              child: CachedNetworkImage(
-                                fadeInDuration: const Duration(milliseconds: 500),
-                                fadeOutDuration:
-                                const Duration(milliseconds: 500),
-                                imageUrl:
-                                'assets/images/THICKET_MASTER_LOGO.png',
-                                width: 200,
-                                height: 200,
-                                fit: BoxFit.cover,
-                              ),
+
+
+                            Image(
+                              image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                              width: 300.0, // Set the desired width
+                              height: 300.0, // Set the desired height
                             ),
                             Text(
                               tr('editprofile'),

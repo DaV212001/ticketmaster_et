@@ -112,7 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
       decoration: BoxDecoration(
           color:Colors.grey[100],
           image: DecorationImage(
-              image: CachedNetworkImageProvider("assets/images/THICKET_MASTER_PATERN_04.png"),
+              image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
               fit: BoxFit.cover)
       ),
       child: SafeArea(
@@ -179,31 +179,35 @@ class _SignupScreenState extends State<SignupScreen> {
                               key: _formKey,
                               child: Column(
                                 children: [
-                                  // Container(
-                                  //   width: 180,
-                                  //   height: 180,
-                                  //   decoration: BoxDecoration(
-                                  //     color: Colors.transparent,
-                                  //     shape: BoxShape.circle,
-                                  //   ),
-                                  //   child: Padding(
-                                  //     padding:
-                                  //     const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
-                                  //     child: ,
-                                  //   ),
-                                  // )
-                                  ClipRRect(
-                                    child: CachedNetworkImage(
-                                      fadeInDuration: const Duration(milliseconds: 500),
-                                      fadeOutDuration:
-                                      const Duration(milliseconds: 500),
-                                      imageUrl:
-                                      'assets/images/THICKET_MASTER_LOGO.png',
-                                      width: 150,
-                                      height: 150,
-                                      fit: BoxFit.cover,
-                                    ),
+
+
+                                  Image(
+                                    image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                                    width: 200.0, // Set the desired width
+                                    height: 200.0, // Set the desired height
                                   ),
+                                  // Container(
+                                  //   height: 150,
+                                  //
+                                  //     decoration: BoxDecoration(
+                                  //         image: DecorationImage(
+                                  //             image: AssetImage("assets/images/THICKET_MASTER_LOGO.png"),
+                                  //             fit: BoxFit.contain
+                                  //           )
+                                  //     )
+                                  // ),
+                                  // ClipRRect(
+                                  //   child: CachedNetworkImage(
+                                  //     fadeInDuration: const Duration(milliseconds: 500),
+                                  //     fadeOutDuration:
+                                  //     const Duration(milliseconds: 500),
+                                  //     imageUrl:
+                                  //     'assets/images/THICKET_MASTER_LOGO.png',
+                                  //     width: 150,
+                                  //     height: 150,
+                                  //     fit: BoxFit.cover,
+                                  //   ),
+                                  // ),
                                   Text(
                                     tr('signup'),
                                     style: TextStyle(
@@ -551,39 +555,39 @@ class _SignupScreenState extends State<SignupScreen> {
                               const SizedBox(
                                 height: 15,
                               ),
-                              Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    // Add a text widget to display "Don't have an account?"
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 8.0),
-                                      child: Text(tr('have_acc'),
-                                          style: TextStyle(
-                                              color: Colors.grey.shade800,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    SizedBox(width: 3,),
-                                    // Add a gesture detector widget to handle the tap event on the link
-                                    GestureDetector(
-                                      onTap: () {
-                                        // Navigate to the RegisterScreen
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => LoginScreen(),
-                                          ),
-                                        );
-                                      },
-                                      // Add a text widget to display "Register" as a link
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(bottom: 8.0),
-                                        child: Text(tr('login'),
-                                            style: TextStyle(
-                                                color: Colors.green,
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                    )
-                                  ]),
+                              // Row(
+                              //     mainAxisAlignment: MainAxisAlignment.center,
+                              //     children: <Widget>[
+                              //       // Add a text widget to display "Don't have an account?"
+                              //       Padding(
+                              //         padding: const EdgeInsets.only(bottom: 8.0),
+                              //         child: Text(tr('have_acc'),
+                              //             style: TextStyle(
+                              //                 color: Colors.grey.shade800,
+                              //                 fontWeight: FontWeight.bold)),
+                              //       ),
+                              //       SizedBox(width: 3,),
+                              //       // Add a gesture detector widget to handle the tap event on the link
+                              //       GestureDetector(
+                              //         onTap: () {
+                              //           // Navigate to the RegisterScreen
+                              //           Navigator.push(
+                              //             context,
+                              //             MaterialPageRoute(
+                              //               builder: (context) => LoginScreen(),
+                              //             ),
+                              //           );
+                              //         },
+                              //         // Add a text widget to display "Register" as a link
+                              //         child: Padding(
+                              //           padding: const EdgeInsets.only(bottom: 8.0),
+                              //           child: Text(tr('login'),
+                              //               style: TextStyle(
+                              //                   color: Colors.green,
+                              //                   fontWeight: FontWeight.bold)),
+                              //         ),
+                              //       )
+                              //     ]),
                             ],
                           ),
                         ),

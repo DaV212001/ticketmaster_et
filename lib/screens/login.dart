@@ -71,11 +71,10 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final languageChange = Provider.of<SettingsProvider>(context);
     return Container(
-      width: double.infinity,
       decoration: BoxDecoration(
           color:Colors.grey[100],
-          image: DecorationImage(
-                image: CachedNetworkImageProvider("assets/images/THICKET_MASTER_PATERN_04.png"),
+          image: const DecorationImage(
+                image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
               fit: BoxFit.cover)
       ),
       child: SafeArea(
@@ -140,18 +139,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                    ClipRRect(
-                    child: CachedNetworkImage(
-                      fadeInDuration: const Duration(milliseconds: 500),
-                      fadeOutDuration:
-                      const Duration(milliseconds: 500),
-                      imageUrl:
-                      'assets/images/THICKET_MASTER_LOGO.png',
-                      width: 200,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+
+                        Image(
+                          image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                          width: 300.0, // Set the desired width
+                          height: 300.0, // Set the desired height
+                        ),
                         Text(
                           tr('login'),
                           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 35),
