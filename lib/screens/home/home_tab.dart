@@ -13,7 +13,9 @@ import '../../provider/settings_provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 class HomeTab extends StatefulWidget {
-  const HomeTab({super.key});
+  final ValueNotifier<int> selectedIndex;
+
+  const HomeTab({Key? key, required this.selectedIndex}) : super(key: key);
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -112,6 +114,7 @@ class _HomeTabState extends State<HomeTab>
             children: [
           HomeTabWidget(),
           UpcomingTabWidget(
+              selectedIndex: widget.selectedIndex,
               modified: modified,
               controller: controller,
               isZoomed: isImageZoomed,

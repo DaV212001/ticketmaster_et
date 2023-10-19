@@ -20,7 +20,7 @@ class TicketMatserHomePage extends StatefulWidget {
 }
 
 class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
-  int selectedIndex = 0;
+  final ValueNotifier<int> selectedIndex = ValueNotifier<int>(0);
   @override
   void initState() {
     print("TicketMatserHomePage");
@@ -33,9 +33,9 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
     return SafeArea(
       child: Scaffold(
         body:IndexedStack(
-          index: selectedIndex,
-          children: const [
-            HomeTab(),
+          index: selectedIndex.value,
+          children:  [
+            HomeTab(selectedIndex: selectedIndex),
              CategoryTab(),
             UserTickets(),
             ProfileWidget()
@@ -51,12 +51,12 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             onButtonPressed: (index) {
               setState(() {
-                selectedIndex = index;
+                selectedIndex.value = index;
               });
             },
             iconSize: 30,
             activeColor: Theme.of(context).primaryColor,
-            selectedIndex: selectedIndex,
+            selectedIndex: selectedIndex.value,
             barItems: [
               BarItem(
                 icon: Icons.home,
