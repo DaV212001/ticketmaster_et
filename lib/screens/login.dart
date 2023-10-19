@@ -70,251 +70,241 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final languageChange = Provider.of<SettingsProvider>(context);
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          actions: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Colors.transparent
-                ),
-                child:  DropdownButton(
-                    value: languageChange.languageCode,
-                    items: const [
-                      DropdownMenuItem(
-                          value: 'en', child: Text('English')),
-                      DropdownMenuItem(
-                          value: 'am', child: Text('Amharic')),
-                      DropdownMenuItem(
-                          value: 'en-AU', child: Text('Afaan Oromo')),
-
-                    ],
-                    onChanged: (String? value) {
-                      setState(() async {
-                        languageChange.languageCode = value!;
-                        List<String> codes = languageChange.languageCode.split('-');
-                        String langCode = codes[0];
-                        String countryCode = codes.length > 1 ? codes[1] : '';
-
-                        // Save langCode and countryCode in shared preferences
-                        SharedPreferences prefs = await SharedPreferences.getInstance();
-                        await prefs.setString('langCode', langCode);
-                        if (countryCode.isNotEmpty) {
-                          await prefs.setString('countryCode', countryCode);
-                        } else {
-                          await prefs.remove('countryCode');
-                        }
-
-                        // Set locale for EasyLocalization
-                        if (countryCode.isNotEmpty) {
-                          EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
-                        } else {
-                          EasyLocalization.of(context)!.setLocale(Locale(langCode));
-                        }
-                      });
-                    }
-                ),
-              ),
-            ),
-          ],
-        ),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Container(
-                      width: 180,
-                      height: 180,
+    return Container(
+      decoration: BoxDecoration(
+          color:Colors.grey[100],
+          image: const DecorationImage(
+                image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
+              fit: BoxFit.cover)
+      ),
+      child: SafeArea(
+        child: Scaffold(
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                actions: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
                       decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.transparent
                       ),
-                      child: Padding(
-                        padding:
-                        const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: CachedNetworkImage(
-                            fadeInDuration: const Duration(milliseconds: 500),
-                            fadeOutDuration:
-                            const Duration(milliseconds: 500),
-                            imageUrl:
-                            'https://i.postimg.cc/rmV731Y4/TICKET-MASTER-ET-LOGO-DESIGN-02.png',
-                            width: 60,
-                            height: 60,
-                            fit: BoxFit.cover,
-                          ),
-                        ),
+                      child:  DropdownButton(
+                          value: languageChange.languageCode,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'en', child: Text('English')),
+                            DropdownMenuItem(
+                                value: 'am', child: Text('Amharic')),
+                            DropdownMenuItem(
+                                value: 'en-AU', child: Text('Afaan Oromo')),
+
+                          ],
+                          onChanged: (String? value) {
+                            setState(() async {
+                              languageChange.languageCode = value!;
+                              List<String> codes = languageChange.languageCode.split('-');
+                              String langCode = codes[0];
+                              String countryCode = codes.length > 1 ? codes[1] : '';
+
+                              // Save langCode and countryCode in shared preferences
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('langCode', langCode);
+                              if (countryCode.isNotEmpty) {
+                                await prefs.setString('countryCode', countryCode);
+                              } else {
+                                await prefs.remove('countryCode');
+                              }
+
+                              // Set locale for EasyLocalization
+                              if (countryCode.isNotEmpty) {
+                                EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
+                              } else {
+                                EasyLocalization.of(context)!.setLocale(Locale(langCode));
+                              }
+                            });
+                          }
                       ),
                     ),
-                    Text(
-                      tr('login'),
-                      style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 35),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    InputHeader(headerName: tr('phone')),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Row(
+                  ),
+                ],
+              ),
+              body: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(30.0),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
+
+                        Image(
+                          image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                          width: 300.0, // Set the desired width
+                          height: 300.0, // Set the desired height
+                        ),
                         Text(
-                          "+251",
-                          style: Theme.of(context).textTheme.bodyLarge,
+                          tr('login'),
+                          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 35),
                         ),
                         const SizedBox(
-                          width: 5,
+                          height: 20,
                         ),
-                        Expanded(
-                            flex: 4,
-                            child: Container(
-                              padding:
-                              const EdgeInsets.symmetric(horizontal: 16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.grey[200], // Background color
-                              ),
-                              child: TextFormField(
-                                key: const ValueKey("phone"),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "phone empty";
-                                  } else if (value.length > 9 ||
-                                      value.length < 9) {
-                                    return "phone number invalid";
-                                  }
-                                  return null;
-                                },
-                                onSaved: (newValue) {
-                                  _phoneNumber = newValue;
-                                },
-                                onChanged: (value) {
-                                  _phoneNumber = value;
-                                },
-                                decoration: const InputDecoration(
-                                  hintText: "9xxx66565",
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.all(16.0),
-                                ),
-                              ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        InputHeader(headerName: tr('phone')),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Row(
+                          children: [
+                            Text(
+                              "+251",
+                              style: Theme.of(context).textTheme.bodyLarge,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Expanded(
+                                flex: 4,
+                                child: Container(
+                                  padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    color: Colors.grey[200], // Background color
+                                  ),
+                                  child: TextFormField(
+                                    key: const ValueKey("phone"),
+                                    validator: (value) {
+                                      if (value!.isEmpty) {
+                                        return "phone empty";
+                                      } else if (value.length > 9 ||
+                                          value.length < 9) {
+                                        return "phone number invalid";
+                                      }
+                                      return null;
+                                    },
+                                    onSaved: (newValue) {
+                                      _phoneNumber = newValue;
+                                    },
+                                    onChanged: (value) {
+                                      _phoneNumber = value;
+                                    },
+                                    decoration: const InputDecoration(
+                                      hintText: "9xxx66565",
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.all(16.0),
+                                    ),
+                                  ),
+                                )),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(tr('password'), style: kTextStyle)),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.grey[200], // Background color
+                          ),
+                          child: TextFormField(
+                            key: const ValueKey("password"),
+                            validator: (value) {
+                              if (value!.isEmpty) {
+                                return "password empty";
+                              } else if (value.length > 40 || value.length < 3) {
+                                return "password too short or too long";
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _password = newValue;
+                            },
+                            onChanged: (value) {
+                              _password = value;
+                            },
+                            decoration: InputDecoration(
+                              hintText: tr('password'),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(16.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : OutlinedButton(
+                            style: const ButtonStyle(
+                                backgroundColor:
+                                MaterialStatePropertyAll(Colors.green),
+                                foregroundColor:
+                                MaterialStatePropertyAll(Colors.white),
+                                minimumSize: MaterialStatePropertyAll(
+                                    Size(double.infinity, 50))),
+                            onPressed: () {
+                              submitForm();
+                            },
+                            child: Text(
+                              tr('submit'),
+                              style: TextStyle(fontSize: 20),
                             )),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              // Add a text widget to display "Don't have an account?"
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Text(tr('no_acc'),
+                                    style: TextStyle(
+                                        color: Colors.grey.shade800,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                              SizedBox(width: 3,),
+                              // Add a gesture detector widget to handle the tap event on the link
+                              GestureDetector(
+                                onTap: () {
+                                  // Navigate to the RegisterScreen
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SignupScreen(),
+                                    ),
+                                  );
+                                },
+                                // Add a text widget to display "Register" as a link
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 8.0),
+                                  child: Text(tr('signup'),
+                                      style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              )
+                            ]),
                       ],
                     ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(tr('password'), style: kTextStyle)),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15.0),
-                        color: Colors.grey[200], // Background color
-                      ),
-                      child: TextFormField(
-                        key: const ValueKey("password"),
-                        validator: (value) {
-                          if (value!.isEmpty) {
-                            return "password empty";
-                          } else if (value.length > 40 || value.length < 8) {
-                            return "password too short or too long";
-                          }
-                          return null;
-                        },
-                        onSaved: (newValue) {
-                          _password = newValue;
-                        },
-                        onChanged: (value) {
-                          _password = value;
-                        },
-                        decoration: InputDecoration(
-                          hintText: tr('password'),
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.all(16.0),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    _isLoading
-                        ? const CircularProgressIndicator()
-                        : OutlinedButton(
-                        style: const ButtonStyle(
-                            backgroundColor:
-                            MaterialStatePropertyAll(Colors.green),
-                            foregroundColor:
-                            MaterialStatePropertyAll(Colors.white),
-                            minimumSize: MaterialStatePropertyAll(
-                                Size(double.infinity, 50))),
-                        onPressed: () {
-                          submitForm();
-                        },
-                        child: Text(
-                          tr('submit'),
-                          style: TextStyle(fontSize: 20),
-                        )),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          // Add a text widget to display "Don't have an account?"
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
-                            child: Text(tr('no_acc'),
-                                style: TextStyle(
-                                    color: Colors.grey.shade800,
-                                    fontWeight: FontWeight.bold)),
-                          ),
-                          SizedBox(width: 3,),
-                          // Add a gesture detector widget to handle the tap event on the link
-                          GestureDetector(
-                            onTap: () {
-                              // Navigate to the RegisterScreen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => SignupScreen(),
-                                ),
-                              );
-                            },
-                            // Add a text widget to display "Register" as a link
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text(tr('signup'),
-                                  style: TextStyle(
-                                      color: Colors.green,
-                                      fontWeight: FontWeight.bold)),
-                            ),
-                          )
-                        ]),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
       ),
+
     );
   }
 }
