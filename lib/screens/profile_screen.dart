@@ -98,7 +98,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                     children: [
                       Container(
                         width: 90,
-                        height: 90,
+                        height: 80,
                         decoration: BoxDecoration(
                           color: Colors.transparent,
                           shape: BoxShape.circle,
@@ -117,7 +117,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                               fadeOutDuration:
                                   const Duration(milliseconds: 500),
                               imageUrl:
-                              'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                              'assets/images/THICKET_MASTER_LOGO.png',
                               width: 60,
                               height: 60,
                               fit: BoxFit.cover,
@@ -168,7 +168,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 9, 0, 0),
               child: Text(
                 tr('profile'),
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
@@ -186,7 +186,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
                     }));
               },
               child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
                 child: Container(
                   width: double.infinity,
                   height: 60,
@@ -240,7 +240,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 0, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 9, 0, 0),
               child: Text(
                 tr('general'),
                 style: Theme.of(context).textTheme.labelLarge!.copyWith(
@@ -252,7 +252,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -310,7 +310,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -393,7 +393,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
             ),
 
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -446,7 +446,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -506,7 +506,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -567,7 +567,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
             ),
 
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -627,7 +627,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,
@@ -684,7 +684,7 @@ class ProfileWidgetState extends State<ProfileWidget> {
               ),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(16, 12, 16, 0),
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 7, 16, 0),
               child: Container(
                 width: double.infinity,
                 height: 60,

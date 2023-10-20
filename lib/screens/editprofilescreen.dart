@@ -156,8 +156,8 @@ class _EditProfileState extends State<EditProfile> {
                               Center(
                                 child: Image(
                                   image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                                  width: 300.0, // Set the desired width
-                                  height: 300.0, // Set the desired height
+                                  width: 170.0, // Set the desired width
+                                  height: 170.0, // Set the desired height
                                 ),
                               ),
                               Text(
@@ -238,7 +238,7 @@ class _EditProfileState extends State<EditProfile> {
                                 ),
                               ),
                               const SizedBox(
-                                height: 25,
+                                height: 15,
                               ),
                             ],
                           ),
@@ -287,11 +287,18 @@ class _EditProfileState extends State<EditProfile> {
                   //           fit: BoxFit.cover)
                   //   ),
                   // ),
-                  Image(
-                    image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                  Container(
                     width: MediaQuery.of(context).size.width,
-                    fit: BoxFit.cover,// Set the desired width
-                    height: 200.0, // Set the desired height
+                    height: 250,
+                    alignment: Alignment.topCenter,
+                    padding: EdgeInsets.all(0),
+                    transformAlignment: Alignment.topCenter,
+                    child: Image(
+                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.fill,// Set the desired width
+                        height: MediaQuery.of(context).size.height // Set the desired height
+                    ),
                   )
                 ],
               )),
