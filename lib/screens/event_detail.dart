@@ -1,7 +1,6 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticket_widget/ticket_widget.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
@@ -9,8 +8,6 @@ import 'package:ticketmaster_et/screens/signup.dart';
 import 'package:ticketmaster_et/screens/thankyouscreen.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:math';
-import '../constants/app_constants.dart';
-import '../constants/endpoints.dart';
 import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
@@ -20,7 +17,7 @@ String ticketNum = '';
 
 class EventDetail extends StatefulWidget {
   EventDetail({super.key, required this.event});
-final Event event;
+  final Event event;
   @override
   State<EventDetail> createState() => _EventDetailState();
 }
@@ -111,10 +108,10 @@ class _EventDetailState extends State<EventDetail> {
   Class? selectedClass;
   int selectedIndex = -1;
   void selectClass(Class classe, int index) {
-  setState(() {
-  selectedClass = classe;
-  selectedIndex = index;
-  });
+    setState(() {
+      selectedClass = classe;
+      selectedIndex = index;
+    });
   }
 
 
@@ -143,8 +140,8 @@ class _EventDetailState extends State<EventDetail> {
     //events is empty
     0
     ;
-double deviceheight = MediaQuery.of(context).size.height;
-double devicewidth = MediaQuery.of(context).size.width;
+    double deviceheight = MediaQuery.of(context).size.height;
+    double devicewidth = MediaQuery.of(context).size.width;
     final loginDataProvider = Provider.of<LoginDataProvider>(context);
     bool _isLoading = false;
     return Scaffold(
@@ -172,8 +169,8 @@ double devicewidth = MediaQuery.of(context).size.width;
                         :
                     widget.event.image!.trim(),
                   )
-                  :
-                  VideoPlayerWidget(videoUrl: widget.event.image!),
+                      :
+                  VideoPlayerWidget(videoUrl: widget.event.image!, selectedIndex: null,),
                 ),
               ),
               const SizedBox(
@@ -350,7 +347,7 @@ double devicewidth = MediaQuery.of(context).size.width;
                       minimumSize: MaterialStatePropertyAll(
                           Size(MediaQuery.of(context).size.width * 0.9, 50))),
                   child: _isLoading? CircularProgressIndicator(): Text(
-                    selectedClass == null? 'Book Ticket':
+                      selectedClass == null? 'Book Ticket':
                       'PAY $price BIRR'
                   ),
                 ),
@@ -467,55 +464,55 @@ class _TicketDataState extends State<TicketData> {
                 widget.events.isNotEmpty? widget.events[0].classes!.isNotEmpty?Padding(
                   padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
                   child: Text('Class',
-                  style: TextStyle(color: Colors.grey),),
+                    style: TextStyle(color: Colors.grey),),
                 ): SizedBox(height: 5,): SizedBox(height: 5,) ,
                 Padding(
-                  padding: const EdgeInsets.only(top: 0, right: 53.0),
-                  child:
-                  widget.events.isNotEmpty?
-                  SizedBox(
-                    height: 50,
-                    width: devicewidth,
-                    child: ListView.builder(
-                      physics: BouncingScrollPhysics(),
-                      itemCount: widget.events[0].classes!.length,
-                      scrollDirection: Axis.horizontal,
-                      itemBuilder: (context, index){
-                        return Row(
-                          children: [
-                            Row(
+                    padding: const EdgeInsets.only(top: 0, right: 53.0),
+                    child:
+                    widget.events.isNotEmpty?
+                    SizedBox(
+                      height: 50,
+                      width: devicewidth,
+                      child: ListView.builder(
+                        physics: BouncingScrollPhysics(),
+                        itemCount: widget.events[0].classes!.length,
+                        scrollDirection: Axis.horizontal,
+                        itemBuilder: (context, index){
+                          return Row(
                               children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    widget.selectClass(widget.events[0].classes![index], index);
-                                  },
-                                  style: ButtonStyle(
-                                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30.0),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        widget.selectClass(widget.events[0].classes![index], index);
+                                      },
+                                      style: ButtonStyle(
+                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(30.0),
+                                          ),
+                                        ),
+                                        backgroundColor: widget.selectedIndex == index?
+                                        MaterialStatePropertyAll(Colors.green)
+                                            : MaterialStatePropertyAll(Colors.black),
+                                      ),
+                                      child: Center(
+                                        child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
+                                            style: TextStyle(
+                                              color: widget.selectedIndex == index? Colors.black : Colors.white,
+                                            )),
                                       ),
                                     ),
-                                    backgroundColor: widget.selectedIndex == index?
-                                         MaterialStatePropertyAll(Colors.green)
-                                        : MaterialStatePropertyAll(Colors.black),
-                                  ),
-                                  child: Center(
-                                    child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
-                                        style: TextStyle(
-                                          color: widget.selectedIndex == index? Colors.black : Colors.white,
-                                        )),
-                                  ),
-                                ),
-                                SizedBox(width: 5,)
-                              ],
-                            )
-                          ]
-                        );
-                      },
+                                    SizedBox(width: 5,)
+                                  ],
+                                )
+                              ]
+                          );
+                        },
 
-                    ),
-                  ):
-                   CircularProgressIndicator()
+                      ),
+                    ):
+                    CircularProgressIndicator()
                 ),
               ],
             ),
@@ -579,8 +576,9 @@ Widget ticketDetailsWidget(String firstTitle, String firstDesc,
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final VideoPlayerController? controller;
+  final ValueNotifier<int>? selectedIndex;
 
-  VideoPlayerWidget({Key? key, required this.videoUrl, this.controller}) : super(key: key);
+  VideoPlayerWidget({Key? key, required this.videoUrl, this.controller, this.selectedIndex}) : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -588,32 +586,105 @@ class VideoPlayerWidget extends StatefulWidget {
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
-  late ChewieController _chewieController;
-
+  late Future<void> _initializeVideoPlayerFuture;
+  bool _isPlaying = true;
+  bool _firstTimeAwayFromHomeTab = true;
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
-    _chewieController = ChewieController(
-      videoPlayerController: widget.controller!=null? widget.controller! : _controller,
-      aspectRatio: 13/24,
-      showControls: false,
-      autoPlay: true,
-      looping: true,
-    );
+    widget.selectedIndex?.addListener(_handleIndexChanged);
+    _initializeVideoPlayerFuture = _controller.initialize();
+
+    _controller.addListener(_videoPlayerListener);
   }
+
+  void _videoPlayerListener() {
+    if (_controller.value.isInitialized) {
+      setState(() {});
+    }
+  }
+int HOME_TAB_INDEX = 0;
+  void _handleIndexChanged() {
+    if (widget.selectedIndex?.value != HOME_TAB_INDEX) {
+      _controller.pause();
+      _controller.dispose();
+      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+      _controller.initialize();
+    } else if (widget.selectedIndex?.value == HOME_TAB_INDEX && !_controller.value.isInitialized) {
+      _controller.initialize();
+    }
+  }
+
+
+
+
 
   @override
   void dispose() {
-    super.dispose();
+    widget.selectedIndex?.removeListener(_handleIndexChanged);
+    _controller.removeListener(_videoPlayerListener);
     _controller.dispose();
-    _chewieController.dispose();
+    super.dispose();
+  }
+
+  void _togglePlayPause() {
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
+
+    if (_isPlaying) {
+      _controller.play();
+    } else {
+      _controller.pause();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Chewie(
-      controller: _chewieController,
+    return FutureBuilder(
+      future: _initializeVideoPlayerFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          // The video has been initialized, now we can display the Chewie widget
+          return GestureDetector(
+            onTap: _togglePlayPause,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Chewie(
+                  controller: ChewieController(
+                    videoPlayerController: _controller,
+                    aspectRatio: _controller.value.isInitialized
+                        ? _controller.value.aspectRatio
+                        : 16 / 9,
+                    autoPlay: _isPlaying,
+                    looping: true,
+                    allowPlaybackSpeedChanging: false,
+                    allowFullScreen: false,
+                    showControls: false
+                  ),
+                ),
+                if (!_isPlaying)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.play_arrow_rounded,
+                      size: 150,
+                      color: Colors.white.withOpacity(0.4),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        } else {
+          // The video is still initializing
+          return Center(child: CircularProgressIndicator());
+        }
+      },
     );
   }
 }
