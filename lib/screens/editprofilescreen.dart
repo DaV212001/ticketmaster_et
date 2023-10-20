@@ -88,206 +88,214 @@ class _EditProfileState extends State<EditProfile> {
     final languageChange = Provider.of<SettingsProvider>(context);
     final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
     return Container(
-      decoration: BoxDecoration(
-          color:Colors.grey[100],
-          image: const DecorationImage(
-              image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
-              fit: BoxFit.cover)
-      ),
-      child: SafeArea(
-        child: Scaffold(
-            appBar: AppBar(
-              backgroundColor: Colors.white,
-              elevation: 0,
-              actions: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(15),
-                        color: Colors.transparent
-                    ),
-                    child:  DropdownButton(
-                        value: languageChange.languageCode,
-                        items: const [
-                          DropdownMenuItem(
-                              value: 'en', child: Text('English')),
-                          DropdownMenuItem(
-                              value: 'am', child: Text('Amharic')),
-                          DropdownMenuItem(
-                              value: 'en-AU', child: Text('Afaan Oromo')),
+      color: Colors.grey[100],
+      child: Scaffold(
+              appBar: AppBar(
+                backgroundColor: Colors.white,
+                elevation: 0,
+                actions: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: Colors.transparent
+                      ),
+                      child:  DropdownButton(
+                          value: languageChange.languageCode,
+                          items: const [
+                            DropdownMenuItem(
+                                value: 'en', child: Text('English')),
+                            DropdownMenuItem(
+                                value: 'am', child: Text('Amharic')),
+                            DropdownMenuItem(
+                                value: 'en-AU', child: Text('Afaan Oromo')),
 
-                        ],
-                        onChanged: (String? value) {
-                          setState(() async {
-                            languageChange.languageCode = value!;
-                            List<String> codes = languageChange.languageCode.split('-');
-                            String langCode = codes[0];
-                            String countryCode = codes.length > 1 ? codes[1] : '';
+                          ],
+                          onChanged: (String? value) {
+                            setState(() async {
+                              languageChange.languageCode = value!;
+                              List<String> codes = languageChange.languageCode.split('-');
+                              String langCode = codes[0];
+                              String countryCode = codes.length > 1 ? codes[1] : '';
 
-                            // Save langCode and countryCode in shared preferences
-                            SharedPreferences prefs = await SharedPreferences.getInstance();
-                            await prefs.setString('langCode', langCode);
-                            if (countryCode.isNotEmpty) {
-                              await prefs.setString('countryCode', countryCode);
-                            } else {
-                              await prefs.remove('countryCode');
-                            }
+                              // Save langCode and countryCode in shared preferences
+                              SharedPreferences prefs = await SharedPreferences.getInstance();
+                              await prefs.setString('langCode', langCode);
+                              if (countryCode.isNotEmpty) {
+                                await prefs.setString('countryCode', countryCode);
+                              } else {
+                                await prefs.remove('countryCode');
+                              }
 
-                            // Set locale for EasyLocalization
-                            if (countryCode.isNotEmpty) {
-                              EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
-                            } else {
-                              EasyLocalization.of(context)!.setLocale(Locale(langCode));
-                            }
-                          });
-                        }
+                              // Set locale for EasyLocalization
+                              if (countryCode.isNotEmpty) {
+                                EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
+                              } else {
+                                EasyLocalization.of(context)!.setLocale(Locale(langCode));
+                              }
+                            });
+                          }
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(30.0),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
+                ],
+              ),
+              body: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(30.0),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
 
 
-                            Image(
-                              image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                              width: 300.0, // Set the desired width
-                              height: 300.0, // Set the desired height
-                            ),
-                            Text(
-                              tr('editprofile'),
-                              style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.bold
-                              ),
-                            ),
-                            const SizedBox(height: 15),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(tr('first_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.grey[200], // Background color
-                              ),
-                              child: TextFormField(
-                                key: const ValueKey("name"),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "name_empty";
-                                  } else if (value.length > 40 || value.length < 2) {
-                                    return "name_short_long";
-                                  }
-                                  return null;
-                                },
-                                onSaved: (newValue) {
-                                  _firstName = newValue;
-                                },
-                                onChanged: (value) {
-                                  _firstName = value;
-                                },
-                                decoration: InputDecoration(
-                                  hintText: accountProvider.loginData?.firstName!,
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.all(16.0),
+                              Center(
+                                child: Image(
+                                  image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                                  width: 300.0, // Set the desired width
+                                  height: 300.0, // Set the desired height
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Align(
-                              alignment: Alignment.topLeft,
-                              child: Text(tr('last_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15.0),
-                                color: Colors.grey[200], // Background color
-                              ),
-                              child: TextFormField(
-                                key: const ValueKey("name"),
-                                validator: (value) {
-                                  if (value!.isEmpty) {
-                                    return "name_empty";
-                                  } else if (value.length > 40 || value.length < 2) {
-                                    return "name_short_long";
-                                  }
-                                  return null;
-                                },
-                                onSaved: (newValue) {
-                                  _lastName = newValue;
-                                },
-                                onChanged: (value) {
-                                  _lastName = value;
-                                },
-                                decoration: InputDecoration(
-                                  hintText: accountProvider.loginData?.lastName,
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.all(16.0),
+                              Text(
+                                tr('editprofile'),
+                                style: TextStyle(
+                                    fontSize: 25,
+                                    fontWeight: FontWeight.bold
                                 ),
                               ),
-                            ),
-                            const SizedBox(
-                              height: 25,
-                            ),
-                          ],
+                              const SizedBox(height: 15),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(tr('first_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.grey[200], // Background color
+                                ),
+                                child: TextFormField(
+                                  key: const ValueKey("name"),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "name_empty";
+                                    } else if (value.length > 40 || value.length < 2) {
+                                      return "name_short_long";
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (newValue) {
+                                    _firstName = newValue;
+                                  },
+                                  onChanged: (value) {
+                                    _firstName = value;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: accountProvider.loginData?.firstName!,
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(16.0),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(tr('last_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.grey[200], // Background color
+                                ),
+                                child: TextFormField(
+                                  key: const ValueKey("name"),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "name_empty";
+                                    } else if (value.length > 40 || value.length < 2) {
+                                      return "name_short_long";
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (newValue) {
+                                    _lastName = newValue;
+                                  },
+                                  onChanged: (value) {
+                                    _lastName = value;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: accountProvider.loginData?.lastName,
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.all(16.0),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 25,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Container(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 15, bottom: 15, right: 30, left: 30),
-                    child: Column(
-                      children: [
-                        _isLoading
-                            ? const CircularProgressIndicator()
-                            : ElevatedButton(
-                            style: const ButtonStyle(
-                                backgroundColor:
-                                MaterialStatePropertyAll(Colors.green),
-                                foregroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                                minimumSize: MaterialStatePropertyAll(
-                                    Size(double.infinity, 50))),
-                            onPressed: () => {
-                              submitForm(),
-                              // Navigator.push(context,
-                              //     MaterialPageRoute(builder: ((context) {
-                              //   return const VerificationScreen();
-                              // })))
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text(tr('submit')),
-                                Icon(Icons.arrow_forward)
-                              ],
-                            )),
+                  Container(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 15, bottom: 15, right: 30, left: 30),
+                      child: Column(
+                        children: [
+                          _isLoading
+                              ? const CircularProgressIndicator()
+                              : ElevatedButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                  MaterialStatePropertyAll(Colors.green),
+                                  foregroundColor:
+                                  MaterialStatePropertyAll(Colors.white),
+                                  minimumSize: MaterialStatePropertyAll(
+                                      Size(double.infinity, 50))),
+                              onPressed: () => {
+                                submitForm(),
+                                // Navigator.push(context,
+                                //     MaterialPageRoute(builder: ((context) {
+                                //   return const VerificationScreen();
+                                // })))
+                              },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(tr('submit')),
+                                  Icon(Icons.arrow_forward)
+                                ],
+                              )),
 
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                )
-              ],
-            )),
-      ),
+                  // Container(
+                  //   decoration: BoxDecoration(
+                  //       image: DecorationImage(image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                  //           fit: BoxFit.cover)
+                  //   ),
+                  // ),
+                  Image(
+                    image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,// Set the desired width
+                    height: 200.0, // Set the desired height
+                  )
+                ],
+              )),
+
     );
   }
 }
