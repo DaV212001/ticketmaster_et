@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
+import 'package:ticketmaster_et/screens/event_ticket.dart';
 
 import '../../../provider/settings_provider.dart';
 import '../../review/sub_category/add_review_sub_cat_screen.dart';
@@ -14,8 +15,9 @@ import '../../review/sub_category/add_review_sub_cat_screen.dart';
 
 
 class SubCatDetail extends StatefulWidget {
-  const SubCatDetail({required this.subCategory, super.key});
+  const SubCatDetail({required this.subCategory, super.key, required this.selectedIndex});
   final SubCategory subCategory;
+  final ValueNotifier<int> selectedIndex;
   @override
   State<SubCatDetail> createState() => _SubCatDetailState();
 }
@@ -29,7 +31,7 @@ class _SubCatDetailState extends State<SubCatDetail> {
     ));
     return Scaffold(
         backgroundColor: Colors.white,
-        body: TabBarAndTabViews(subCategories: widget.subCategory));
+        body: TabBarAndTabViews(subCategories: widget.subCategory, selectedIndex: widget.selectedIndex,));
   }
 }
 
@@ -42,7 +44,8 @@ class TabPair {
 
 class TabBarAndTabViews extends StatefulWidget {
   final SubCategory subCategories;
-  const TabBarAndTabViews({required this.subCategories});
+  final ValueNotifier<int> selectedIndex;
+  const TabBarAndTabViews({required this.subCategories, required this.selectedIndex});
 
   @override
   _TabBarAndTabViewsState createState() => _TabBarAndTabViewsState();
@@ -54,6 +57,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
   List<Event> events = [];
   List<CoverImage> coverimages = [];
   bool _isLoaded = false;
+
 
   @override
   void initState() {
@@ -158,7 +162,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
 
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index]);
+                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index], selectedIndex: widget.selectedIndex,);
                                   }));
                             },
                             child: Container(
@@ -250,115 +254,123 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
     ];
     double? deviceheight =MediaQuery.of(context).size.height;
     double? devicewidth =MediaQuery.of(context).size.width;
-    return Padding(
-      padding: const EdgeInsets.only(top: 20.0),
-      child: Column(
-        children: [
-          Stack(
-              children:[CarouselSlider.builder(
+    return WillPopScope(
+      onWillPop: () async {
+        // Pop the outer Navigator's route
+        Navigator.of(context).pop();
+        // Prevent default behavior of closing the app
+        return false;
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: Column(
+          children: [
+            Stack(
+                children:[CarouselSlider.builder(
 
-                options: CarouselOptions(
-                  disableCenter: true,
-                  viewportFraction: 1,
-                  enlargeCenterPage: false,
-                  autoPlay: true,
-                ),
+                  options: CarouselOptions(
+                    disableCenter: true,
+                    viewportFraction: 1,
+                    enlargeCenterPage: false,
+                    autoPlay: true,
+                  ),
 
-                itemBuilder:
-                    (BuildContext context, int index, pageViewIndex) {
+                  itemBuilder:
+                      (BuildContext context, int index, pageViewIndex) {
 
-                  if (coverimages.isNotEmpty) {
-                    return
-                      Container(
-                        height: deviceheight*0.3,
-                        width: devicewidth,
-                        child: CachedNetworkImage(
-                          fadeOutDuration:
-                          const Duration(milliseconds:
-                          300),
-                          fadeOutCurve:
-                          Curves.easeOut,
-                          fadeInDuration:
-                          const Duration(milliseconds:
-                          700),
-                          fadeInCurve:
-                          Curves.easeIn,
-                          imageUrl:coverimages[index].coverimage!.trim(),
-                          imageBuilder:
-                              (context, imageProvider) =>
-                              Container(
-                                decoration:
-                                BoxDecoration(
-                                  image:
-                                  DecorationImage(
+                    if (coverimages.isNotEmpty) {
+                      return
+                        Container(
+                          height: deviceheight*0.3,
+                          width: devicewidth,
+                          child: CachedNetworkImage(
+                            fadeOutDuration:
+                            const Duration(milliseconds:
+                            300),
+                            fadeOutCurve:
+                            Curves.easeOut,
+                            fadeInDuration:
+                            const Duration(milliseconds:
+                            700),
+                            fadeInCurve:
+                            Curves.easeIn,
+                            imageUrl:coverimages[index].coverimage!.trim(),
+                            imageBuilder:
+                                (context, imageProvider) =>
+                                Container(
+                                  decoration:
+                                  BoxDecoration(
                                     image:
-                                    imageProvider,
-                                    fit:
-                                    BoxFit.cover,
+                                    DecorationImage(
+                                      image:
+                                      imageProvider,
+                                      fit:
+                                      BoxFit.cover,
+                                    ),
                                   ),
                                 ),
-                              ),
-                        ),
+                          ),
+                        );
+                    } else {
+                      return Image.asset(
+                        'assets/images/na_logo.jpg',
+                        fit: BoxFit.cover,
                       );
-                  } else {
-                    return Image.asset(
-                      'assets/images/na_logo.jpg',
-                      fit: BoxFit.cover,
-                    );
-                  }
-                },
-                itemCount:
-                coverimages.isEmpty ? 4 : coverimages.length,
-              ),
-                Container(
-                  height: deviceheight*0.3,
-                  width: devicewidth,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                      )
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.topCenter ,
-                      child: Text(
-                        widget.subCategories.name!,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: devicewidth * 0.04
+                    }
+                  },
+                  itemCount:
+                  coverimages.isEmpty ? 4 : coverimages.length,
+                ),
+                  Container(
+                    height: deviceheight*0.3,
+                    width: devicewidth,
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        )
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.topCenter ,
+                        child: Text(
+                          widget.subCategories.name!,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: devicewidth * 0.04
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                )
-              ]
-          ),
-          Container(
-            height: 45,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(25.0),
+                  )
+                ]
             ),
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: TabBar(
-                  controller: _tabController,
-                  indicator: BoxDecoration(
-                      borderRadius: BorderRadius.circular(25.0),
-                      color: Color(0xFF00A600)),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.black,
-                  tabs: TabPairs.map((tabPair) => tabPair.tab).toList()),
+            Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: Color(0xFF00A600)),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.black,
+                    tabs: TabPairs.map((tabPair) => tabPair.tab).toList()),
+              ),
             ),
-          ),
-          Expanded(
-              child: TabBarView(
-                  controller: _tabController,
-                  children: TabPairs.map((tabPair) => tabPair.view).toList())),
-        ],
+            Expanded(
+                child: TabBarView(
+                    controller: _tabController,
+                    children: TabPairs.map((tabPair) => tabPair.view).toList())),
+          ],
+        ),
       ),
     );
   }

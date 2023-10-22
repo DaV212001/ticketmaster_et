@@ -1,690 +1,338 @@
-import 'package:chewie/chewie.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:carousel_slider/carousel_slider.dart';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:ticket_widget/ticket_widget.dart';
-import 'package:chapa_unofficial/chapa_unofficial.dart';
+import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
-import 'package:ticketmaster_et/screens/thankyouscreen.dart';
-import 'package:video_player/video_player.dart';
-import 'dart:math';
-import '../functions/functions.dart';
-import '../provider/loginpersistence.dart';
+import 'package:ticketmaster_et/screens/event_ticket.dart';
+
 import '../provider/settings_provider.dart';
-
-
-String ticketNum = '';
+import 'category_events.dart';
 
 class EventDetail extends StatefulWidget {
-  EventDetail({super.key, required this.event});
+  final ValueNotifier<int> selectedIndex;
+  const EventDetail({required this.event, super.key, required this.selectedIndex});
   final Event event;
   @override
   State<EventDetail> createState() => _EventDetailState();
 }
 
 class _EventDetailState extends State<EventDetail> {
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+        statusBarColor: Colors.black,
+        statusBarIconBrightness: Brightness.light
+    ));
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: TabBarAndTabViews(event: widget.event, selectedIndex: widget.selectedIndex,));
+  }
+}
 
-  List<Category> categories = [];
-  List<City> cities = [];
-  List<Organizer> organizers = [];
-  bool _isLoading = true;
-  String? categoryname = 'Default';
-  String? organizername = 'Default';
-  String? cityname = 'Default';
+
+class TabPair {
+  final Tab tab;
+  final Widget view;
+  TabPair({required this.tab, required this.view});
+}
+
+class TabBarAndTabViews extends StatefulWidget {
+  final ValueNotifier<int> selectedIndex;
+  final Event event;
+  const TabBarAndTabViews({required this.event, required this.selectedIndex});
+
+  @override
+  _TabBarAndTabViewsState createState() => _TabBarAndTabViewsState();
+}
+
+class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   List<Event> events = [];
-
+  List<CoverImage> coverimages = [];
+  bool _isLoaded = false;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
-      updatesForEventDetail();
-      ticketNum = generateTicketNumber(widget.event.title!);
+    _tabController = TabController(length: 3, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      updateEvents();
     });
-
   }
-
-
-  void updatesForEventDetail() async {
-    setState(() {
-      _isLoading = true;
-    });
-    await getEventsbyID(widget.event.id!, Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-      events = value;
-      print( 'VALUE OF THE EVENTS for event details page: $value');
-    }));
-    await getCategorySubCategory(Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) => setState(() {
-      categories = value;
-      print('VALUE OF THE CATEGORY for event details page: $value');
-    }));
-    for (Category cat in categories){
-      if(int.parse(widget.event.categoryId!) == 2? cat.id == 7: cat.id == int.parse(widget.event.categoryId!)){
-        setState(() {
-          categoryname = cat.name == 'Cinemas and Teather'? 'Cinema': cat.name;
-        });
-      }
-    }
-    await getCity(Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) => setState(() {
-      cities = value;
-      print('VALUE OF THE CATEGORY for event details page: $value');
-    }));
-    for (City city in cities){
-      if( city.id == int.parse(widget.event.cityId!)){
-        setState(() {
-          cityname = city.name;
-        });
-      }
-    }
-    await getOrganizers(Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-      organizers = value;
-      print( 'VALUE OF THE ORGANIZERS for cat events: $value');
-    }));
-    for (Organizer org in organizers){
-      if( org.id == int.parse(widget.event.organizerId!)){
-        setState(() {
-          organizername = org.name;
-        });
-      }
-    }
-  }
-
+  late final  _settingsProvider;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Here we start listening to changes in SettingsProvider
-    Provider.of<SettingsProvider>(context).addListener(updatesForEventDetail);
+    // Now it's safe to listen to SettingsProvider
+    _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    _settingsProvider.addListener(updateEvents);
   }
-
   @override
   void dispose() {
-    if (mounted) {
-      Provider.of<SettingsProvider>(context, listen: false).removeListener(updatesForEventDetail);
+    if (_settingsProvider != null) {
+      _settingsProvider!.removeListener(updateEvents);
     }
+    _tabController.dispose();
     super.dispose();
   }
-  Class? selectedClass;
-  int selectedIndex = -1;
-  void selectClass(Class classe, int index) {
-    setState(() {
-      selectedClass = classe;
-      selectedIndex = index;
-    });
+  bool _hasError = false;
+
+  void updateEvents() async {
+
+    try{
+      if(mounted){
+        final coverimage = await getCoverImagesbySubCatID(widget.event.id!,
+            Provider.of<SettingsProvider>(context, listen: false).languageCode
+        );
+        setState(() {
+          coverimages = coverimage;
+        });
+      }else{
+        return;
+      }
+    } catch(e){
+      print(e);
+    }
+    try {
+      if (!mounted) {
+        return;
+      } else {
+
+        final value = await getEventsbyID(
+          widget.event.id!,
+          Provider.of<SettingsProvider>(context, listen: false).languageCode,
+        );
+        setState(() {
+          events = value;
+          print('VALUE OF THE events for eventdetails: $value');
+        });
+      }
+    } catch (e) {
+      print(e);
+      if(mounted)
+        setState(() {
+          _hasError = true;
+        });
+    }
   }
 
 
 
-
-
-
+  List<Event> empty = [];
   @override
   Widget build(BuildContext context) {
-
-
-    int? price =
-    events.isNotEmpty?
-    //events is not empty
-    events[0].classes!.isNotEmpty?
-    //events is not empty and the classes list of the event is not empty
-    selectedClass != null?
-    //events is not empty and classes list of the event is not empty and there is a selected class
-    selectedClass?.price:
-    //events is not empty and the classes list of the event is not empty but there is no selected class
-    0
-        :
-    //events is not empty but the classes list of the event is empty
-    0
-        :
-    //events is empty
-    0
-    ;
-    double deviceheight = MediaQuery.of(context).size.height;
-    double devicewidth = MediaQuery.of(context).size.width;
-    final loginDataProvider = Provider.of<LoginDataProvider>(context);
-    bool _isLoading = false;
-    return Scaffold(
-      backgroundColor:
-      Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 200,
-                width: double.infinity * 0.9,
-                padding: const EdgeInsets.all(8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(30),
-                  child: !widget.event.image!.endsWith('.mp4')?Image.network(
-                    fit: BoxFit.cover,
-                    widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage'
-                        || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D'
-                        || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'
-                        ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'
-                        ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
-                    'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-                        :
-                    widget.event.image!.trim(),
-                  )
-                      :
-                  VideoPlayerWidget(videoUrl: widget.event.image!, selectedIndex: null,),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Text(
-                    widget.event.desc!),
-              ),
-              TicketWidget (
-                width: devicewidth/1.1,
-                height: deviceheight/2.4,
-                isCornerRounded: true,
-                padding: EdgeInsets.all(20),
-                child: TicketData(events: events, categoryname: categoryname!, cityname: cityname!, organizername: organizername!, selectClass: selectClass, selectedIndex: selectedIndex,),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 40.0),
-                child: ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      _isLoading = true;
-                    });
-                    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
-                    String? phone = accountProvider.loginData?.phone?.replaceFirst("251", "0");
-                    if(events.isNotEmpty && events[0].classes!.isNotEmpty) {
-                      if (selectedClass != null) {
-                        if (selectedClass?.price != 0) {
-                          String txRef =
-                          TxRefRandomGenerator.generate(prefix: 'ticketmaster');
-                          // Access the generated transaction reference
-                          String storedTxRef = TxRefRandomGenerator.gettxRef;
-                          // Use the Chapa Flutter SDK to create a new transaction
-                          loginDataProvider.loginData != null ||
-                              loginDataProvider.isUserRegistered == true ?
-                          await Chapa.getInstance.startPayment(
-                            context: context,
-                            onInAppPaymentSuccess: (successMsg) async {
-                              BookingResponse l;
-                              setState(() { // Call setState before bookEvent
-                                _isLoading = true;
-                              });
-                              l = await bookEvent(
-                                Booking(
-                                    customerId: int.parse(phone!.replaceFirst("0", "251")),
-                                    eventId: events[0].id,
-                                    classId: selectedClass?.id,
-                                    phone: phone.replaceFirst("0", "251"),
-                                    ticketNumber: ticketNum, price: price
-                                ),
-                              );
-                              setState(() { // Call setState after bookEvent
-                                _isLoading =false;
-                              });
-                              print(
-                                  'PAYMENT SUCCESS!'); // Handle success events
-                              if(l.error==null){
-                                // Show the pop-up card
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                              20)),
-                                      title: const Text(
-                                          "Ticket Purchase Successful!"),
-                                      content:
-                                      Text(
-                                          "$price Birr Paid! Enjoy the event!"),
-                                      actions: [
-                                        TextButton(
-                                          child: const Text("OK"),
-                                          onPressed: () {
-                                            Navigator.of(context).pop();
-                                            Navigator.of(context).pop();
-                                          },
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );} else{
-                                setState(() {
-                                  _isLoading =false;
-                                });
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(
-                                    SnackBar(content: Text('Error Booking your ticket please try again')));
-
-                              }
-                            },
-
-                            amount: '$price',
-                            currency: 'ETB',
-                            txRef: storedTxRef,
-                            firstName: accountProvider.loginData?.firstName ?? '',
-                            lastName: accountProvider.loginData?.lastName ?? '',
-                            phoneNumber: '${phone??''}',
-                            onInAppPaymentError: (errorMsg) {
-                              print('PAYMENT FAILURE'); // Handle error
-                            },
-
-                          ) : Navigator.push(
-                              context, MaterialPageRoute(builder: (context) {
-                            return SignupScreen();
-                          }));
-                        }
-
-                        else {
-                          setState(() {
-                            _isLoading = false;
-                          });
-
-                          BookingResponse l = await bookEvent(
-                            Booking(
-                                customerId: int.parse(phone!.replaceFirst("0", "251")),
-                                eventId: events[0].id,
-                                classId: selectedClass?.id,
-                                phone: phone.replaceFirst("0", "251"),
-                                ticketNumber: ticketNum,
-                                price: price
-                            ),
-                          );
-                          print(l);
-                          if(l.error==null){
-                            setState(() {
-                              _isLoading = false;
-                            });
-                            Navigator.push(
-                                context, MaterialPageRoute(builder: (context) {
-                              return ThankYouScreen(event: events[0]);
-                            }));
-                          }}
-                      }
-                      else {
-                        setState(() {
-                          _isLoading = false;
-                        });
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(
-                            SnackBar(content: Text('Please select a Class')));
-                      }
-                    }
-                    else{
-                      setState(() {
-                        _isLoading = false;
-                      });
-                      BookingResponse l = await bookEvent(
-                        Booking(
-                            customerId: int.parse(phone!.replaceFirst("0", "251")),
-                            eventId: events[0].id,
-                            classId: selectedClass?.id,
-                            phone: phone.replaceFirst("0", "251"),
-                            ticketNumber: ticketNum,
-                            price: price
-                        ),
-                      );
-                      print(l);
-                      if(l.error == null){
-                        setState(() {
-                          _isLoading = false;
-                        });
-                        Navigator.push(
-                            context, MaterialPageRoute(builder: (context) {
-                          return ThankYouScreen(event: events[0]);
-                        }));}
-                    }
-                  },
-                  style: ButtonStyle(
-                      minimumSize: MaterialStatePropertyAll(
-                          Size(MediaQuery.of(context).size.width * 0.9, 50))),
-                  child: _isLoading? CircularProgressIndicator(): Text(
-                      selectedClass == null? 'Book Ticket':
-                      'PAY $price BIRR'
-                  ),
-                ),
-
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-String generateTicketNumber(String eventTitle) {
-  const chars = '0123456789';
-  Random rnd = Random();
-  String randomDigits = String.fromCharCodes(Iterable.generate(
-      4, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-
-  String firstFourLettersOfTitle = eventTitle.length >= 4
-      ? eventTitle.substring(0, 4).toUpperCase()
-      : eventTitle.toUpperCase();
-
-  return 'TM-$firstFourLettersOfTitle-$randomDigits';
-}
-
-
-
-
-
-class TicketData extends StatefulWidget {
-  TicketData({
-    Key? key, required this.events, required this.categoryname, required this.organizername, required this.cityname, required this.selectClass, required this.selectedIndex
-  }) : super(key: key);
-  final List<Event> events;
-  final String categoryname;
-  final String organizername;
-  final String cityname;
-  final Function(Class, int) selectClass;
-  final int selectedIndex;
-
-  @override
-  _TicketDataState createState() => _TicketDataState();
-}
-
-class _TicketDataState extends State<TicketData> {
-
-  bool isSelected= false;
-  @override
-  Widget build(BuildContext context) {
-    double devicewidth = MediaQuery.of(context).size.width;
-    Class? selectedClass;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Container(
-              width: 120.0,
-              height: 35.0,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                border: Border.all(width: 1.0, color: Colors.green),
-              ),
-              child: Center(
-                child: Text(
-                  widget.categoryname,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.green,),
-                ),
-              ),
+    // Define the TabPairs list inside the build method
+    final isPlaying = ValueNotifier<bool>(true);
+    List<TabPair> TabPairs = [
+      TabPair(
+          tab: Tab(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [ Flexible(child: Text(tr('events')))],
             ),
-            Row(
-              children: [
-                Text(
-                  widget.cityname,
-                  style: TextStyle(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ],
-            )
-          ],
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 20.0),
-          child: Text(
-            widget.events.isNotEmpty?
-            widget.events[0].title!: '',
-            style: TextStyle(
-                color: Colors.black,
-                fontSize: 20.0,
-                fontWeight: FontWeight.bold),
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 15.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0, bottom: 8),
-                  child: ticketDetailsWidget(
-                      'Organizer', '${widget.organizername}', 'Date', widget.events.isNotEmpty?widget.events[0].date!:''),
-                ),
-                ticketDetailsWidget('Place', widget.events.isNotEmpty?widget.events[0].place!:'', 'Time', widget.events.isNotEmpty?widget.events[0].time!:''),
-                Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: ticketDetailsWidget('Ticket', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'$ticketNum': '$ticketNum', 'Available', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'${widget.events[0].classes?[0].availableTicket} tickets left':''),
-                ),
-                widget.events.isNotEmpty? widget.events[0].classes!.isNotEmpty?Padding(
-                  padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
-                  child: Text('Class',
-                    style: TextStyle(color: Colors.grey),),
-                ): SizedBox(height: 5,): SizedBox(height: 5,) ,
-                Padding(
-                    padding: const EdgeInsets.only(top: 0, right: 53.0),
-                    child:
-                    widget.events.isNotEmpty?
-                    SizedBox(
-                      height: 50,
-                      width: devicewidth,
-                      child: ListView.builder(
-                        physics: BouncingScrollPhysics(),
-                        itemCount: widget.events[0].classes!.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index){
-                          return Row(
-                              children: [
-                                Row(
-                                  children: [
-                                    ElevatedButton(
-                                      onPressed: () {
-                                        widget.selectClass(widget.events[0].classes![index], index);
-                                      },
-                                      style: ButtonStyle(
-                                        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(30.0),
+          view:  events.isNotEmpty & !_hasError?
+              events[0].classes!.isNotEmpty?
+          ListView.builder(
+              scrollDirection: Axis.vertical,
+              itemCount: events[0].classes!.length,
+              itemBuilder: (context, index) {
+
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              isPlaying.value = false;
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                    return EventTicket(event: events[0], classId: events[0].classes![index].id);
+                                  }));
+                            },
+                            child: Container(
+                              height: 100,
+                              width: 100,
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.cyan),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10.0),
+                                child:
+                                CachedNetworkImage(
+                                  fadeOutDuration:
+                                  const Duration(milliseconds:
+                                  300),
+                                  fadeOutCurve:
+                                  Curves.easeOut,
+                                  fadeInDuration:
+                                  const Duration(milliseconds:
+                                  700),
+                                  fadeInCurve:
+                                  Curves.easeIn,
+                                  imageUrl:events[0].image!.trim(),
+                                  imageBuilder:
+                                      (context, imageProvider) =>
+                                      Container(
+                                        decoration:
+                                        BoxDecoration(
+                                          image:
+                                          DecorationImage(
+                                            image:
+                                            imageProvider,
+                                            fit:
+                                            BoxFit.cover,
                                           ),
                                         ),
-                                        backgroundColor: widget.selectedIndex == index?
-                                        MaterialStatePropertyAll(Colors.green)
-                                          : MaterialStatePropertyAll(Colors.black),
-                                    ),
-                                    child: Center(
-                                      child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
-                                          style: TextStyle(
-                                            color: widget.selectedIndex == index? Colors.black : Colors.white,
-                                          )),
-                                    ),
-                                  ),
-                                  SizedBox(width: 5,)
-                                ],
-                              )
-                            ]
-                        );
-                      },
+                                      ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Center(child: Text(events[0].classes![index].title!)),
+                              Center(child: Text(events[0].classes![index].price! != 1?'${events[0].classes![index].price!} available tickets':'${events[0].classes![index].price!} available ticket')),
+                            ],
+                          )
 
-                    ),
-                  ):
-                  CircularProgressIndicator()
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              }
+          )
+              :Center (
+            child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+          ):Center (
+            child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+          )
+      ),
+      TabPair(
+        tab: Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [Flexible(child: Text(tr('desc')))],
+          ),
+        ),
+        view: widget.event.desc=='0'||widget.event.desc==null?Center(
+            child: Center (
+              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+            )
+        ):Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: Container(
+              child: Text(
+                widget.event.desc!,
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
-            ],
+            ),
           ),
         ),
       ),
-    ],
-  );
-  }
-}
-
-
-
-Widget ticketDetailsWidget(String firstTitle, String firstDesc,
-    String secondTitle, String secondDesc) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Padding(
-        padding: const EdgeInsets.only(left: 12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              firstTitle,
-              style: const TextStyle(color: Colors.grey),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                firstDesc,
-                style: const TextStyle(color: Colors.black),
-              ),
+      TabPair(
+        tab: Tab(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [ Flexible(child: Text(tr('review')))],
+          ),
+        ),
+        view: Center(
+            child: Center (
+              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
             )
+        ),
+      ),
+    ];
+
+    double? deviceheight =MediaQuery.of(context).size.height;
+    double? devicewidth =MediaQuery.of(context).size.width;
+    return WillPopScope(
+      onWillPop: () async {
+        // Pop the outer Navigator's route
+        Navigator.of(context).pop();
+        // Prevent default behavior of closing the app
+        return false;
+      },
+      child: Padding(
+        padding: const EdgeInsets.only(top: 20.0),
+        child: Column(
+          children: [
+            Container(
+              color: Colors.black,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  IconButton(onPressed: (){Navigator.pop(context);},
+                      icon: Icon(Icons.chevron_left)),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      widget.event.title!,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          fontSize: devicewidth * 0.04
+                      ),
+                    ),
+
+                  )
+                ],
+              ),
+            ),
+            Stack(
+                children:[
+                  Container(
+                    height: deviceheight*0.3,
+                    width: devicewidth,
+                    color: Colors.black,
+                  ),
+                  Container(
+                    height: deviceheight*0.3,
+                    width: devicewidth,
+                    child: VideoPlayerWidget(
+                        selectedIndex: widget.selectedIndex,
+                        videoUrl: widget.event.upcomingImage!,
+                    ),
+                  ),
+                ]
+            ),
+            Container(
+              height: 45,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(25.0),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: TabBar(
+                    controller: _tabController,
+                    indicator: BoxDecoration(
+                        borderRadius: BorderRadius.circular(25.0),
+                        color: Color(0xFF00A600)),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.black,
+                    tabs: TabPairs.map((tabPair) => tabPair.tab).toList()),
+              ),
+            ),
+            Expanded(
+                child: TabBarView(
+                    controller: _tabController,
+                    children: TabPairs.map((tabPair) => tabPair.view).toList())),
           ],
         ),
       ),
-      Padding(
-        padding: const EdgeInsets.only(right: 20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              secondTitle,
-              style: const TextStyle(color: Colors.grey),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 4.0),
-              child: Text(
-                secondDesc,
-                style: const TextStyle(color: Colors.black),
-              ),
-            )
-          ],
-        ),
-      )
-    ],
-  );
-}
-
-
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoUrl;
-  final VideoPlayerController? controller;
-  final ValueNotifier<int>? selectedIndex;
-
-  VideoPlayerWidget({Key? key, required this.videoUrl, this.controller, this.selectedIndex}) : super(key: key);
-
-  @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
-}
-
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
-  late Future<void> _initializeVideoPlayerFuture;
-  bool _isPlaying = true;
-  bool _firstTimeAwayFromHomeTab = true;
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
-    widget.selectedIndex?.addListener(_handleIndexChanged);
-    _initializeVideoPlayerFuture = _controller.initialize();
-
-    _controller.addListener(_videoPlayerListener);
-  }
-
-  void _videoPlayerListener() {
-    if (_controller.value.isInitialized) {
-      setState(() {});
-    }
-  }
-int HOME_TAB_INDEX = 0;
-  void _handleIndexChanged() {
-    if (widget.selectedIndex?.value != HOME_TAB_INDEX) {
-      _controller.pause();
-      _controller.dispose();
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
-      _controller.initialize();
-    } else if (widget.selectedIndex?.value == HOME_TAB_INDEX && !_controller.value.isInitialized) {
-      _controller.initialize();
-    }
-  }
-
-
-
-
-
-  @override
-  void dispose() {
-    widget.selectedIndex?.removeListener(_handleIndexChanged);
-    _controller.removeListener(_videoPlayerListener);
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _togglePlayPause() {
-    setState(() {
-      _isPlaying = !_isPlaying;
-    });
-
-    if (_isPlaying) {
-      _controller.play();
-    } else {
-      _controller.pause();
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _initializeVideoPlayerFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          // The video has been initialized, now we can display the Chewie widget
-          return GestureDetector(
-            onTap: _togglePlayPause,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Chewie(
-                  controller: ChewieController(
-                    videoPlayerController: _controller,
-                    aspectRatio: _controller.value.isInitialized
-                        ? _controller.value.aspectRatio
-                        : 16 / 9,
-                    autoPlay: _isPlaying,
-                    looping: true,
-                    allowPlaybackSpeedChanging: false,
-                    allowFullScreen: false,
-                    showControls: false
-                  ),
-                ),
-                if (!_isPlaying)
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.transparent,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.play_arrow_rounded,
-                      size: 150,
-                      color: Colors.white.withOpacity(0.4),
-                    ),
-                  ),
-              ],
-            ),
-          );
-        } else {
-          // The video is still initializing
-          return Center(child: CircularProgressIndicator());
-        }
-      },
     );
   }
 }
+
+

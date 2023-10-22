@@ -8,7 +8,7 @@ import '../constants/app_constants.dart';
 import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
-import 'event_detail.dart';
+import 'event_ticket.dart';
 
 class UserTickets extends StatefulWidget {
   const UserTickets({super.key});

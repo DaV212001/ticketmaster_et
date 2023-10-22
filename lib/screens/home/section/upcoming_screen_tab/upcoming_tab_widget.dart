@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:ticketmaster_et/screens/event_detail.dart';
+import 'package:ticketmaster_et/screens/event_ticket.dart';
+import 'package:ticketmaster_et/screens/organizerdetail.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 import 'package:video_player/video_player.dart';
 
@@ -13,7 +15,7 @@ class UpcomingTabWidget extends StatefulWidget {
         required this.controller,
         required this.isZoomed,
         required this.toggleZoom,
-        required this.selectedIndex
+        required this.selectedIndex, required this.modifiedOrg
 
       });
 
@@ -22,6 +24,7 @@ class UpcomingTabWidget extends StatefulWidget {
   final bool isZoomed;
   final VoidCallback toggleZoom;
   final ValueNotifier<int> selectedIndex;
+  final List<Organizer> modifiedOrg;
 
   @override
   State<UpcomingTabWidget> createState() => _UpcomingTabWidgetState();
@@ -85,7 +88,24 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
         itemCount: widget.modified.length,
         controller: _pageController,
         itemBuilder: (BuildContext context, int iindex) {
+          Organizer? organizer;
 
+
+if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
+  for(Organizer org in widget.modifiedOrg){
+
+    if(org.id == int.parse(widget.modified[iindex].organizerId!) ){
+
+
+  organizer = org;
+
+
+
+      break;
+    }
+  }
+}
+          final isPlaying = ValueNotifier<bool>(true);
           if (_controllers[iindex] != null) {
             return Stack(
               alignment: Alignment.center,
@@ -93,7 +113,42 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                 VideoPlayerWidget(
                     selectedIndex: widget.selectedIndex,
                     videoUrl: widget.modified[iindex].upcomingImage!,
-                    controller: _controllers[iindex]
+                ),
+                Positioned(
+                    right: 8,
+                    child: Column(
+                  children: [
+                    if(widget.modifiedOrg.isNotEmpty) Padding(
+                      padding: const EdgeInsets.only(right: 8.0, top: 30),
+                      child: GestureDetector(
+
+                        onTap: (){
+                          isPlaying.value=false;
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: ((context) {
+                                return OrganizerDetail(
+                                  organizer: organizer!, selectedIndex: widget.selectedIndex,
+                                );
+                              })));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.green, width: 2),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.network(
+                              organizer?.image??'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                              width: 65,
+                              height: 65,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
                 ),
                 Positioned(
                   bottom: 0.5,
@@ -166,26 +221,36 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                               ),
                             ),
                             SizedBox(width: MediaQuery.of(context).size.width*0.16),
-                            ElevatedButton(
-                                onPressed: () async {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: ((context) {
-                                        return EventDetail(
-                                          event: widget.modified[iindex],
-                                        );
-                                      })));
-                                },
-                                style: ButtonStyle(
-                                    side: MaterialStatePropertyAll(BorderSide(
-                                        style: BorderStyle.solid,
-                                        color: Theme
-                                            .of(context)
-                                            .primaryColor)),
-                                    shadowColor: MaterialStatePropertyAll(
-                                        Colors.white.withOpacity(0.5)),
-                                    backgroundColor: const MaterialStatePropertyAll(
-                                        Colors.transparent)),
-                                child: Text(tr('buy_tickets'))),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                IconButton(onPressed: (){
+                                 },
+                                    icon: Icon(Icons.share,size: 40,)),
+                                SizedBox(height: 25,),
+                                ElevatedButton(
+                                    onPressed: () async {
+                                      isPlaying.value = false;
+                                      Navigator.push(context,
+                                          MaterialPageRoute(builder: ((context) {
+                                            return EventTicket(
+                                              event: widget.modified[iindex],
+                                            );
+                                          })));
+                                    },
+                                    style: ButtonStyle(
+                                        side: MaterialStatePropertyAll(BorderSide(
+                                            style: BorderStyle.solid,
+                                            color: Theme
+                                                .of(context)
+                                                .primaryColor)),
+                                        shadowColor: MaterialStatePropertyAll(
+                                            Colors.white.withOpacity(0.5)),
+                                        backgroundColor: const MaterialStatePropertyAll(
+                                            Colors.transparent)),
+                                    child: Text(tr('buy_tickets'))),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -306,9 +371,10 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                           ),
                           ElevatedButton(
                               onPressed: () {
+                                isPlaying.value = false;
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: ((context) {
-                                      return EventDetail(
+                                      return EventTicket(
                                         event: widget.modified[iindex],
                                       );
                                     })));

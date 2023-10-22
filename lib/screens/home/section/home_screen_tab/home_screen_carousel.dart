@@ -14,11 +14,12 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_detail.dart';
+import '../../../event_ticket.dart';
 import '../../../organizerdetail.dart';
 import '../../../category/section/subcategorydetails.dart';
 class HomeScreenCarouselSlider extends StatefulWidget {
-  const HomeScreenCarouselSlider({super.key});
+  final ValueNotifier<int> selectedIndex;
+  const HomeScreenCarouselSlider({super.key, required this.selectedIndex});
 
   @override
   State<HomeScreenCarouselSlider> createState() => _HomeScreenCarouselSliderState();
@@ -112,7 +113,7 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => EventDetail(
+                      builder: (context) => EventTicket(
                         event: popularevents[index],
                       )));
             },

@@ -10,8 +10,9 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 
 
 class CategoryChild extends StatefulWidget {
-  const CategoryChild({required this.subCategories,super.key});
+  const CategoryChild({required this.subCategories,super.key, required this.selectedIndex});
   final List<SubCategory> subCategories;
+  final ValueNotifier<int> selectedIndex;
 
   @override
   State<CategoryChild> createState() => _CategoryChildState();
@@ -39,7 +40,7 @@ class _CategoryChildState extends State<CategoryChild> {
                       () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                          return SubCatDetail(subCategory: widget.subCategories[index],);
+                          return SubCatDetail(subCategory: widget.subCategories[index], selectedIndex: widget.selectedIndex,);
                         }));
                   },
                   child:

@@ -11,7 +11,8 @@ import '../../functions/functions.dart';
 import '../../provider/settings_provider.dart';
 
 class CategoryTab extends StatefulWidget {
-  const CategoryTab({super.key});
+  final ValueNotifier<int> selectedIndex;
+  const CategoryTab({super.key, required this.selectedIndex});
 
   @override
   State<CategoryTab> createState() => _CategoryTabState();
@@ -91,14 +92,14 @@ for(Category cat in categories) {
         Column(
             children: [
               CategoryChild(
-                  subCategories: filteredSubcategories
+                  subCategories: filteredSubcategories, selectedIndex: widget.selectedIndex,
               ),
               const SizedBox( height: 15,
               ),
               Expanded(
                   child:
                   CategoryChildList(
-                      subCategories: filteredSubcategories))
+                      subCategories: filteredSubcategories, selectedIndex: widget.selectedIndex,))
             ]
         )
     );
