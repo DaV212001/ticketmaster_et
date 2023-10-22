@@ -287,7 +287,7 @@ class _EditProfileState extends State<EditProfile> {
                   //           fit: BoxFit.cover)
                   //   ),
                   // ),
-                  Contaner(
+                  Container(
                     width: MediaQuery.of(context).size.width,
                     height: 250,
                     alignment: Alignment.topCenter,

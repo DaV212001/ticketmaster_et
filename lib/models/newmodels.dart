@@ -11,11 +11,11 @@ class Class {
   int? price;
 
   Class({
-    required this.id,
-    required this.eventId,
-    required this.title,
-    required this.availableTicket,
-    required this.price
+    this.id,
+    this.eventId,
+    this.title,
+    this.availableTicket,
+    this.price
   });
 
   Class.fromJson(Map<String, dynamic> json, String language) {

@@ -85,7 +85,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
 
     try{
       if(mounted){
-        final coverimage = await getCoverImagesbySubCatID(widget.event.id!,
+        final coverimage = await getCoverImagesbyEventID(widget.event.id!,
             Provider.of<SettingsProvider>(context, listen: false).languageCode
         );
         setState(() {
@@ -197,8 +197,19 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Center(child: Text(events[0].classes![index].title!)),
-                              Center(child: Text(events[0].classes![index].price! != 1?'${events[0].classes![index].price!} available tickets':'${events[0].classes![index].price!} available ticket')),
+                              Center(
+                                  child: Text(
+                                      events[0].classes![index].title!
+                                  ),
+                              ),
+                              Center(
+                                  child: Text(
+                                      events[0].classes![index].availableTicket! != 1?
+                                      '${events[0].classes![index].availableTicket!} available tickets'
+                                          :
+                                      '${events[0].classes![index].availableTicket!} available ticket'
+                                  ),
+                              ),
                             ],
                           )
 
@@ -290,20 +301,90 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
               ),
             ),
             Stack(
-                children:[
-                  Container(
-                    height: deviceheight*0.3,
-                    width: devicewidth,
-                    color: Colors.black,
+                children:[CarouselSlider.builder(
+
+                  options: CarouselOptions(
+                    disableCenter: true,
+                    viewportFraction: 1,
+                    enlargeCenterPage: false,
+                    autoPlay: true,
                   ),
+
+                  itemBuilder:
+                      (BuildContext context, int index, pageViewIndex) {
+
+                    if (coverimages.isNotEmpty) {
+                      return
+                        Container(
+                          height: deviceheight*0.3,
+                          width: devicewidth,
+                          child: !coverimages[index].coverimage!.trim().endsWith('.mp4')?
+                          CachedNetworkImage(
+                            fadeOutDuration:
+                            const Duration(milliseconds:
+                            300),
+                            fadeOutCurve:
+                            Curves.easeOut,
+                            fadeInDuration:
+                            const Duration(milliseconds:
+                            700),
+                            fadeInCurve:
+                            Curves.easeIn,
+                            imageUrl:coverimages[index].coverimage!.trim(),
+                            imageBuilder:
+                                (context, imageProvider) =>
+                                Container(
+                                  decoration:
+                                  BoxDecoration(
+                                    image:
+                                    DecorationImage(
+                                      image:
+                                      imageProvider,
+                                      fit:
+                                      BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                          ) : Container(
+                            height: deviceheight*0.3,
+                            width: devicewidth,
+                            child: VideoPlayerWidget(videoUrl: coverimages[index].coverimage!.trim()),
+                          ),
+                        );
+                    } else {
+                      return Image.asset(
+                        'assets/images/na_logo.jpg',
+                        fit: BoxFit.cover,
+                      );
+                    }
+                  },
+                  itemCount:
+                  coverimages.isEmpty ? 4 : coverimages.length,
+                ),
                   Container(
                     height: deviceheight*0.3,
                     width: devicewidth,
-                    child: VideoPlayerWidget(
-                        selectedIndex: widget.selectedIndex,
-                        videoUrl: widget.event.upcomingImage!,
+                    decoration: BoxDecoration(
+                        gradient: LinearGradient(colors: [Colors.black, Colors.transparent],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        )
                     ),
-                  ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Align(
+                        alignment: Alignment.topCenter ,
+                        child: Text(
+                          widget.event.title!,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: devicewidth * 0.04
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 ]
             ),
             Container(

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +8,7 @@ import 'package:ticketmaster_et/screens/editprofilescreen.dart';
 import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
 import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
 import 'package:ticketmaster_et/screens/videotest.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../functions/functions.dart';
 import '../models/faq.dart';
@@ -112,15 +114,8 @@ class ProfileWidgetState extends State<ProfileWidget> {
                               const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(50),
-                            child: CachedNetworkImage(
-                              fadeInDuration: const Duration(milliseconds: 500),
-                              fadeOutDuration:
-                                  const Duration(milliseconds: 500),
-                              imageUrl:
+                            child: Image.asset(
                               'assets/images/THICKET_MASTER_LOGO.png',
-                              width: 60,
-                              height: 60,
-                              fit: BoxFit.cover,
                             ),
                           ),
                         ),
@@ -437,7 +432,14 @@ class ProfileWidgetState extends State<ProfileWidget> {
                         child: IconButton(
                           icon: Icon(Icons.arrow_forward_ios),
                           color: Color(0xFF57636C),
-                          onPressed: () { },
+                          onPressed: () async {
+                            const url = "tel:6810"; // replace with the actual number
+                            if (await canLaunchUrl(Uri.parse(url))) {
+                            await launchUrl(Uri.parse(url));
+                            } else {
+                            throw 'Could not launch $url';
+                            }
+                          },
                         ),
                       ),
                     ],
@@ -723,10 +725,15 @@ class ProfileWidgetState extends State<ProfileWidget> {
                           ),
                         ),
                       ),
-                      const Icon(
-                        Icons.arrow_forward_ios,
-                        color: Color(0xFF57636C),
-                        size: 18,
+                       Align(
+                        alignment: AlignmentDirectional(0.9, 0),
+                        child: IconButton(
+                          icon: Icon(Icons.arrow_forward_ios),
+                          color: Color(0xFF57636C),
+                          onPressed: (){
+                            Share.text('Check out my app on the Play Store', 'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret', 'text/plain');
+                          },
+                        ),
                       ),
                     ],
                   ),

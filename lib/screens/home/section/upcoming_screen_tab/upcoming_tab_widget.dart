@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:easy_localization/easy_localization.dart';
+import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/screens/organizerdetail.dart';
@@ -8,16 +9,16 @@ import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../../../models/newmodels.dart';
+
 class UpcomingTabWidget extends StatefulWidget {
   const UpcomingTabWidget(
       {super.key,
-        required this.modified,
-        required this.controller,
-        required this.isZoomed,
-        required this.toggleZoom,
-        required this.selectedIndex, required this.modifiedOrg
-
-      });
+      required this.modified,
+      required this.controller,
+      required this.isZoomed,
+      required this.toggleZoom,
+      required this.selectedIndex,
+      required this.modifiedOrg});
 
   final List<Event> modified;
   final Controller controller;
@@ -90,65 +91,62 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
         itemBuilder: (BuildContext context, int iindex) {
           Organizer? organizer;
 
+          if (widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty) {
+            for (Organizer org in widget.modifiedOrg) {
+              if (org.id == int.parse(widget.modified[iindex].organizerId!)) {
+                organizer = org;
 
-if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
-  for(Organizer org in widget.modifiedOrg){
-
-    if(org.id == int.parse(widget.modified[iindex].organizerId!) ){
-
-
-  organizer = org;
-
-
-
-      break;
-    }
-  }
-}
+                break;
+              }
+            }
+          }
           final isPlaying = ValueNotifier<bool>(true);
           if (_controllers[iindex] != null) {
             return Stack(
               alignment: Alignment.center,
               children: [
                 VideoPlayerWidget(
-                    selectedIndex: widget.selectedIndex,
-                    videoUrl: widget.modified[iindex].upcomingImage!,
+                  selectedIndex: widget.selectedIndex,
+                  videoUrl: widget.modified[iindex].upcomingImage!,
                 ),
                 Positioned(
-                    right: 8,
-                    child: Column(
-                  children: [
-                    if(widget.modifiedOrg.isNotEmpty) Padding(
-                      padding: const EdgeInsets.only(right: 8.0, top: 30),
-                      child: GestureDetector(
-
-                        onTap: (){
-                          isPlaying.value=false;
-                          Navigator.push(context,
-                              MaterialPageRoute(builder: ((context) {
+                  right: 8,
+                  child: Column(
+                    children: [
+                      if (widget.modifiedOrg.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8.0, top: 30),
+                          child: GestureDetector(
+                            onTap: () {
+                              isPlaying.value = false;
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: ((context) {
                                 return OrganizerDetail(
-                                  organizer: organizer!, selectedIndex: widget.selectedIndex,
+                                  organizer: organizer!,
+                                  selectedIndex: widget.selectedIndex,
                                 );
                               })));
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.green, width: 2),
-                              borderRadius: BorderRadius.circular(50)),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(50),
-                            child: Image.network(
-                              organizer?.image??'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
-                              width: 65,
-                              height: 65,
-                              fit: BoxFit.cover,
+                            },
+                            child: Container(
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.green, width: 2),
+                                  borderRadius: BorderRadius.circular(50)),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Image.network(
+                                  organizer?.image ??
+                                      'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                                  width: 65,
+                                  height: 65,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
                 ),
                 Positioned(
                   bottom: 0.5,
@@ -162,12 +160,14 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                               gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
-                                  stops: [0.0, 0.2],
+                                  stops: [
+                                0.0,
+                                0.2
+                              ],
                                   colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7)
-                                  ])
-                          ),
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7)
+                              ])),
                         ),
                       ),
                       Container(
@@ -178,10 +178,7 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
                             SizedBox(
-                              width: MediaQuery
-                                  .of(context)
-                                  .size
-                                  .width * 0.5,
+                              width: MediaQuery.of(context).size.width * 0.5,
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -192,8 +189,8 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                                         itemCount: 3,
                                         itemBuilder: (context, index) {
                                           return Column(
-                                            crossAxisAlignment: CrossAxisAlignment
-                                                .start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 widget.modified[iindex].desc!,
@@ -205,49 +202,63 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                                               Text(
                                                 widget.modified[iindex].place!,
                                                 style: TextStyle(
-                                                    fontSize: 15, color: Colors.white),
+                                                    fontSize: 15,
+                                                    color: Colors.white),
                                               ),
                                               Text(
                                                 widget.modified[iindex].date!,
                                                 style: TextStyle(
-                                                    fontSize: 15, color: Colors.white),
+                                                    fontSize: 15,
+                                                    color: Colors.white),
                                               ),
                                             ],
                                           );
                                         }),
                                   )
-
                                 ],
                               ),
                             ),
-                            SizedBox(width: MediaQuery.of(context).size.width*0.16),
+                            SizedBox(
+                                width:
+                                    MediaQuery.of(context).size.width * 0.16),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                IconButton(onPressed: (){
-                                 },
-                                    icon: Icon(Icons.share,size: 40,)),
-                                SizedBox(height: 25,),
+                                IconButton(
+                                    onPressed: () {
+                                      Share.text(
+                                          'Check out Ticketmaster ET on the Play Store to book a ticket for ${widget.modified[iindex].title}',
+                                          'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
+                                          'text/plain');
+                                    },
+                                    icon: Icon(
+                                      Icons.share,
+                                      size: 40,
+                                    )),
+                                SizedBox(
+                                  height: 25,
+                                ),
                                 ElevatedButton(
                                     onPressed: () async {
                                       isPlaying.value = false;
-                                      Navigator.push(context,
-                                          MaterialPageRoute(builder: ((context) {
-                                            return EventTicket(
-                                              event: widget.modified[iindex],
-                                            );
-                                          })));
+                                      Navigator.push(context, MaterialPageRoute(
+                                          builder: ((context) {
+                                        return EventTicket(
+                                          event: widget.modified[iindex],
+                                        );
+                                      })));
                                     },
                                     style: ButtonStyle(
-                                        side: MaterialStatePropertyAll(BorderSide(
-                                            style: BorderStyle.solid,
-                                            color: Theme
-                                                .of(context)
-                                                .primaryColor)),
+                                        side: MaterialStatePropertyAll(
+                                            BorderSide(
+                                                style: BorderStyle.solid,
+                                                color: Theme.of(context)
+                                                    .primaryColor)),
                                         shadowColor: MaterialStatePropertyAll(
                                             Colors.white.withOpacity(0.5)),
-                                        backgroundColor: const MaterialStatePropertyAll(
-                                            Colors.transparent)),
+                                        backgroundColor:
+                                            const MaterialStatePropertyAll(
+                                                Colors.transparent)),
                                     child: Text(tr('buy_tickets'))),
                               ],
                             ),
@@ -259,7 +270,7 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                 ),
               ],
             );
-          }else {
+          } else {
             return Stack(
               alignment: Alignment.bottomLeft,
               children: [
@@ -267,8 +278,7 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                   child: AnimatedContainer(
                     //alignment: Alignment.center,
                     transformAlignment: Alignment.topCenter,
-                    duration:
-                    const Duration(seconds: 2),
+                    duration: const Duration(seconds: 2),
                     // Change the duration here
                     curve: Curves.easeInOut,
                     transform: Matrix4.identity()
@@ -279,24 +289,25 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                           image: DecorationImage(
                               fit: BoxFit.cover,
                               image: NetworkImage(widget
-                                  .modified[iindex].upcomingImage !=
-                                  null
-                                  ? widget.modified[iindex].upcomingImage!.trim() ==
-                                  'https://admin.ticketmaster-et.com/public/storage' ||
-                                  widget.modified[iindex].upcomingImage!
-                                      .trim() ==
-                                      'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
-                                  widget.modified[iindex].upcomingImage!
-                                      .trim() ==
-                                      'https://admin.ticketmaster-et.com/public/storage/aaa' ||
-                                  widget.modified[iindex].upcomingImage!
-                                      .trim() ==
-                                      'https://admin.ticketmaster-et.com/public/storage/' ||
-                                  widget.modified[iindex].upcomingImage!
-                                      .trim() ==
-                                      'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                                  ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-                                  : widget.modified[iindex].image!.trim()
+                                          .modified[iindex].upcomingImage !=
+                                      null
+                                  ? widget.modified[iindex].upcomingImage!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage' ||
+                                          widget.modified[iindex].upcomingImage!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
+                                          widget.modified[iindex].upcomingImage!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/aaa' ||
+                                          widget.modified[iindex].upcomingImage!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/' ||
+                                          widget.modified[iindex].upcomingImage!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/[value-2]'
+                                      ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+                                      : widget.modified[iindex].image!.trim()
                                   : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'))),
                     ),
                   ),
@@ -311,12 +322,14 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                             gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                stops: [0.0, 0.2],
+                                stops: [
+                              0.0,
+                              0.2
+                            ],
                                 colors: [
-                                  Colors.transparent,
-                                  Colors.black.withOpacity(0.7)
-                                ])
-                        ),
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.7)
+                            ])),
                       ),
                     ),
                     Container(
@@ -327,10 +340,7 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           SizedBox(
-                            width: MediaQuery
-                                .of(context)
-                                .size
-                                .width * 0.5,
+                            width: MediaQuery.of(context).size.width * 0.5,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -341,8 +351,8 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                                       itemCount: 3,
                                       itemBuilder: (context, index) {
                                         return Column(
-                                          crossAxisAlignment: CrossAxisAlignment
-                                              .start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               widget.modified[iindex].desc!,
@@ -354,18 +364,19 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                                             Text(
                                               widget.modified[iindex].place!,
                                               style: TextStyle(
-                                                  fontSize: 15, color: Colors.white),
+                                                  fontSize: 15,
+                                                  color: Colors.white),
                                             ),
                                             Text(
                                               widget.modified[iindex].date!,
                                               style: TextStyle(
-                                                  fontSize: 15, color: Colors.white),
+                                                  fontSize: 15,
+                                                  color: Colors.white),
                                             ),
                                           ],
                                         );
                                       }),
                                 )
-
                               ],
                             ),
                           ),
@@ -374,21 +385,20 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
                                 isPlaying.value = false;
                                 Navigator.push(context,
                                     MaterialPageRoute(builder: ((context) {
-                                      return EventTicket(
-                                        event: widget.modified[iindex],
-                                      );
-                                    })));
+                                  return EventTicket(
+                                    event: widget.modified[iindex],
+                                  );
+                                })));
                               },
                               style: ButtonStyle(
                                   side: MaterialStatePropertyAll(BorderSide(
                                       style: BorderStyle.solid,
-                                      color: Theme
-                                          .of(context)
-                                          .primaryColor)),
+                                      color: Theme.of(context).primaryColor)),
                                   shadowColor: MaterialStatePropertyAll(
                                       Colors.white.withOpacity(0.5)),
-                                  backgroundColor: const MaterialStatePropertyAll(
-                                      Colors.transparent)),
+                                  backgroundColor:
+                                      const MaterialStatePropertyAll(
+                                          Colors.transparent)),
                               child: Text(tr('buy_tickets'))),
                         ],
                       ),
@@ -398,9 +408,6 @@ if(widget.modified.isNotEmpty && widget.modifiedOrg.isNotEmpty){
               ],
             );
           }
-
-
-
         },
       ),
     );

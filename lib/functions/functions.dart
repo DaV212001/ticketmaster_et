@@ -82,6 +82,32 @@ Future<List<CoverImage>> getCoverImagesbySubCatID(int id, String language) async
   return coverimages;
 }
 
+
+Future<List<CoverImage>> getCoverImagesbyEventID(int id, String language) async {
+  List<CoverImage> coverimages = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-event/$id")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Cover image By selected Event get successfully') {
+      var eventsData = data['data'] as List;
+      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return coverimages;
+}
+
+
+
 Future<List<CoverImage>> getCoverImagesbyOrganizerID(int id, String language) async {
   List<CoverImage> coverimages = [];
 

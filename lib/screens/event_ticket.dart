@@ -13,7 +13,7 @@ import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 
-
+Class? selectedClass;
 String ticketNum = '';
 
 class EventTicket extends StatefulWidget {
@@ -108,7 +108,7 @@ class _EventTicketState extends State<EventTicket> {
     }
     super.dispose();
   }
-  Class? selectedClass;
+
   int selectedIndex = -1;
   void selectClass(Class classe, int index) {
     setState(() {
@@ -125,6 +125,9 @@ class _EventTicketState extends State<EventTicket> {
           break;
         }
       }
+    }
+    else{
+      selectClass(events[0].classes![0], 0);
     }
   }
 
@@ -414,7 +417,7 @@ class _TicketDataState extends State<TicketData> {
   @override
   Widget build(BuildContext context) {
     double devicewidth = MediaQuery.of(context).size.width;
-    Class? selectedClass;
+ValueNotifier<Class>? selectedlocalClass = ValueNotifier(widget.events.isNotEmpty?widget.events[0].classes![0]:Class());
     return WillPopScope(
         onWillPop: () async {
         // Pop the outer Navigator's route
@@ -479,7 +482,11 @@ class _TicketDataState extends State<TicketData> {
                   ticketDetailsWidget('Place', widget.events.isNotEmpty?widget.events[0].place!:'', 'Time', widget.events.isNotEmpty?widget.events[0].time!:''),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
-                    child: ticketDetailsWidget('Ticket', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'$ticketNum': '$ticketNum', 'Available', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'${widget.events[0].classes?[0].availableTicket} tickets left':''),
+                    child: ValueListenableBuilder(
+    valueListenable: selectedlocalClass,
+    builder: (context, Class value, child) {
+      print('CHECKING AVAILABLE TICKET NUMBER ${value.availableTicket}');
+    return ticketDetailsWidget('Ticket', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'$ticketNum': '$ticketNum', 'Available', '${value.availableTicket??''} tickets left');}),
                   ),
                   widget.events.isNotEmpty? widget.events[0].classes!.isNotEmpty?Padding(
                     padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
@@ -505,6 +512,9 @@ class _TicketDataState extends State<TicketData> {
                                       ElevatedButton(
                                         onPressed: () {
                                           widget.selectClass(widget.events[0].classes![index], index);
+                                          setState(() {
+                                            selectedlocalClass.value = widget.events[0].classes![index];
+                                          });
                                         },
                                         style: ButtonStyle(
                                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -672,7 +682,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             key: const Key('unique key'),
             onVisibilityChanged: (VisibilityInfo info) {
               if (info.visibleFraction == 0 && this.mounted) {
-                _togglePlayPause();
+                setState(() {
+                  _isPlaying = false;
+                });
+                _controller.pause();
               }
             },
             child: GestureDetector(
