@@ -78,6 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: AppBar(
+                  toolbarHeight: 27,
                   backgroundColor: Colors.white,
                   elevation: 0,
                   actions: [
@@ -134,15 +135,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     Form(
                       key: _formKey,
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
 
                           Center(
                             child: Image(
                               image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                              width: 200.0, // Set the desired width
-                              height: 200.0, // Set the desired height
+                              width: 170.0, // Set the desired width
+                              height: 170.0, // Set the desired height
                             ),
                           ),
 
@@ -157,11 +156,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                 ),
                                 const SizedBox(
-                                  height: 15,
+                                  height: 10,
                                 ),
                                 InputHeader(headerName: tr('phone')),
                                 const SizedBox(
-                                  height: 10,
+                                  height: 7,
                                 ),
                                 Row(
                                   children: [
@@ -208,13 +207,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ],
                                 ),
                                 const SizedBox(
-                                  height: 15,
+                                  height: 7,
                                 ),
                                 Align(
                                     alignment: Alignment.centerLeft,
                                     child: Text(tr('password'), style: kTextStyle)),
                                 const SizedBox(
-                                  height: 10,
+                                  height: 7,
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -266,7 +265,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
 
                                 const SizedBox(
-                                  height: 25,
+                                  height: 7,
                                 ),
                                 _isLoading
                                     ? const CircularProgressIndicator()
@@ -283,10 +282,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     },
                                     child: Text(
                                       tr('submit'),
-                                      style: TextStyle(fontSize: 20),
+                                      style: TextStyle(fontSize: 18),
                                     )),
                                 const SizedBox(
-                                  height: 15,
+                                  height: 7,
                                 ),
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -331,13 +330,17 @@ class _LoginScreenState extends State<LoginScreen> {
                           //         fit: BoxFit.cover)
                           //   ),
                           // ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
+                          Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 250,
+                            alignment: Alignment.topCenter,
+                            padding: EdgeInsets.all(0),
+                            transformAlignment: Alignment.topCenter,
                             child: Image(
-                              image: AssetImage('assets/images/pattern.jpg'),
-                              width: MediaQuery.of(context).size.width*1.6,
-                              fit: BoxFit.cover,// Set the desired width
-                              height: 350.0, // Set the desired height
+                                image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                                width: MediaQuery.of(context).size.width,
+                                fit: BoxFit.fill,// Set the desired width
+                                height: MediaQuery.of(context).size.height // Set the desired height
                             ),
                           )
                         ],

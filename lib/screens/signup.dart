@@ -110,15 +110,13 @@ class _SignupScreenState extends State<SignupScreen> {
     final languageChange = Provider.of<SettingsProvider>(context);
     return Container(
       decoration: BoxDecoration(
-          color:Colors.grey[100],
-          image: DecorationImage(
-              image: AssetImage("assets/images/THICKET_MASTER_PATERN_04.png"),
-              fit: BoxFit.cover)
+          color:Colors.grey[100]
       ),
       child: SafeArea(
             child: Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
+                toolbarHeight: 32,
                 backgroundColor: Colors.white,
                 elevation: 0,
                 actions: [
@@ -183,8 +181,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
                                   Image(
                                     image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                                    width: 200.0, // Set the desired width
-                                    height: 200.0, // Set the desired height
+                                    width: 170.0, // Set the desired width
+                                    height: 170.0, // Set the desired height
                                   ),
                                   // Container(
                                   //   height: 150,
