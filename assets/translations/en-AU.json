@@ -38,5 +38,22 @@
   "submit": "Qalchuu",
   "events" : "Taateewwan",
   "desc": "Ibsa",
-  "review": "Keessa deebi'uu"
+  "review": "Keessa deebi'uu",
+  "please_rate": "Mee sadarkaa kenni",
+  "give_a_review": "Gamaaggama kenni",
+  "give_a_comment": "Yaada kennaa",
+  "thank_you_for_adding_a_review": "Gamaaggama itti dabaluu keessaniif galatoomaa",
+  "failed_to_add_review": "Gamaaggama dabaluu hin dandeenye",
+  "add_review": "Irra Deebi'uu Dabaluu",
+  "be_the_first_to_add_a_review": "Jalqaba gamaaggama itti dabali",
+  "other_reviews": "Gamaaggama biroo",
+  "forgot_password": "Jecha icciitii dagadhe",
+  "phone_empty": "Bilbilli duwwaa",
+  "phone_number_invalid": "Lakkoofsi bilbilaa sirrii miti",
+  "phone_number_is_not_found": "Lakkoofsi bilbilaa hin argamne"
+,
+  "please_enter_the_5_digit_code_sent_to_your_phone_number": "Mee koodii dijiitii 5 kan lakkoofsa bilbila keessaniif ergamu galchaa",
+  "code": "koodii",
+  "chances_left": "Carraan hafe",
+  "enter_your_phone_number_again_please": "Lakkoofsa bilbila keessanii irra deebi'aa galchaa mee"
 }

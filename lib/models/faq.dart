@@ -10,7 +10,7 @@ class FAQ{
   });
 
   FAQ.fromJson(Map<String, dynamic> json, String language) {
-    print("FAQ.fromJson $json");
+    // print("FAQ.fromJson $json");
     id = json['id'];
     switch (language) {
       case 'am':

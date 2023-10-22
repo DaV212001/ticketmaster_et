@@ -14,4 +14,7 @@ class EventModel {
   String date;
   String location;
   String description;
+
+
+
 }

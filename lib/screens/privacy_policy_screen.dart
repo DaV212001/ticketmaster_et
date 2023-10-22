@@ -26,9 +26,9 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
 
-      print('PrivacyPolicyScreen privacyPolicy: ${widget.privacyPolicy}');
-      print('PrivacyPolicyScreen privacyPolicy title: ${widget.privacyPolicy[0].title}');
-      print('PrivacyPolicyScreen privacyPolicy id: ${widget.privacyPolicy[0].id}');
+      // print('PrivacyPolicyScreen privacyPolicy: ${widget.privacyPolicy}');
+      // print('PrivacyPolicyScreen privacyPolicy title: ${widget.privacyPolicy[0].title}');
+      // print('PrivacyPolicyScreen privacyPolicy id: ${widget.privacyPolicy[0].id}');
     });
   }
 

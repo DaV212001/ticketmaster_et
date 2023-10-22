@@ -10,7 +10,7 @@ class PrivacyPolicy{
   });
 
   PrivacyPolicy.fromJson(Map<String, dynamic> json, String language) {
-    print("PrivacyPolicy.fromJson $json");
+    // print("PrivacyPolicy.fromJson $json");
     id = json['id'];
     switch (language) {
       case 'am':

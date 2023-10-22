@@ -51,6 +51,7 @@ dependencies:
   esys_flutter_share_plus: ^2.2.0
   visibility_detector: ^0.4.0+2
   url_launcher: ^6.1.14
+  flutter_rating_bar: ^4.0.1
 
 dev_dependencies:
   flutter_test:

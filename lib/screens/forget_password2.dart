@@ -1,0 +1,288 @@
+import 'dart:convert';
+
+import 'package:easy_localization/easy_localization.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main_layout_screen.dart';
+import '../models/newmodels.dart';
+import '../provider/settings_provider.dart';
+import 'login.dart';
+
+class ForgetPassword2 extends StatefulWidget {
+  String phone;
+  ForgetPassword2({super.key, required this.phone});
+
+  @override
+  State<ForgetPassword2> createState() => _ForgetPassword2State();
+}
+
+class _ForgetPassword2State extends State<ForgetPassword2> {
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
+  final formKey = GlobalKey<FormState>(); //key for form
+  bool passwordToggle = true;
+  bool _isLoading = false;
+
+
+
+  Future submitPassword(String password) async{
+
+    print("submitPassword = ${password}  and  ${widget.phone}");
+   String password_confirmation = password ;
+   String phone = "251"+widget.phone;
+    Map<String, dynamic> jsonData = {
+      'phone': phone,
+      'password': password,
+      'password_confirmation': password_confirmation
+    };
+
+    String requestBody = jsonEncode(jsonData);
+    var response;
+    try {
+      print("jsonData $jsonData");
+      print("requestBody $requestBody");
+      response = http.post(
+          Uri.parse("https://api.ticketmaster-et.com/api/change-password"),
+          body: requestBody,
+          headers: {
+            "Content-type": "application/json",
+          }
+      );
+    } catch(e) {
+      print("Error in forgetPassword $e");
+    }
+
+    return response;
+
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final languageChange = Provider.of<SettingsProvider>(context);
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      color: Colors.grey[100],
+      child: SafeArea(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            leading: IconButton(
+            onPressed: (){
+              Navigator.of(context).pop();
+            },
+            icon: Icon(Icons.arrow_back),
+          ),
+            toolbarHeight: 27,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.transparent
+                  ),
+                  child:  DropdownButton(
+                      value: languageChange.languageCode,
+                      items: const [
+                        DropdownMenuItem(
+                            value: 'en', child: Text('English')),
+                        DropdownMenuItem(
+                            value: 'am', child: Text('Amharic')),
+                        DropdownMenuItem(
+                            value: 'en-AU', child: Text('Afaan Oromo')),
+
+                      ],
+                      onChanged: (String? value) {
+                        setState(() async {
+                          languageChange.languageCode = value!;
+                          List<String> codes = languageChange.languageCode.split('-');
+                          String langCode = codes[0];
+                          String countryCode = codes.length > 1 ? codes[1] : '';
+
+                          // Save langCode and countryCode in shared preferences
+                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          await prefs.setString('langCode', langCode);
+                          if (countryCode.isNotEmpty) {
+                            await prefs.setString('countryCode', countryCode);
+                          } else {
+                            await prefs.remove('countryCode');
+                          }
+
+                          // Set locale for EasyLocalization
+                          if (countryCode.isNotEmpty) {
+                            EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
+                          } else {
+                            EasyLocalization.of(context)!.setLocale(Locale(langCode));
+                          }
+                        });
+                      }
+                  ),
+                ),
+              ),
+            ],
+          ),
+          body: SingleChildScrollView(
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+
+                  Center(
+                    child: Image(
+                      image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                      width: 160.0, // Set the desired width
+                      height: 160.0, // Set the desired height
+                    ),
+                  ),
+
+
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                    child: Column(
+                      children: [
+                        Center(
+                          child: Text(
+                            tr('password'),
+                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(tr('password'), style: TextStyle(color: Colors.black, fontSize: 18))),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.grey[200], // Background color
+                          ),
+                          child: TextFormField(
+                            controller: passwordController,
+                            key: const ValueKey("password"),
+                            validator: (value) {
+                              if (passwordController.text.isEmpty) {
+                                return "password empty";
+                              } else if (passwordController.text.length > 40 || passwordController.text.length < 3) {
+                                return "password too short or too long";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              hintText: tr('password'),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(16.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(tr('confirm_pass'), style: TextStyle(color: Colors.black, fontSize: 18))),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15.0),
+                            color: Colors.grey[200], // Background color
+                          ),
+                          child: TextFormField(
+                            controller: confirmPasswordController,
+                            key: const ValueKey("password_confirm"),
+                            validator: (value) {
+                              if (confirmPasswordController.text.isEmpty) {
+                                return "password empty";
+                              } else if (passwordController.text != confirmPasswordController.text) {
+                                return "passwords don't match";
+                              }
+                              return null;
+                            },
+                            decoration: InputDecoration(
+                              hintText: tr('confirm_pass'),
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.all(16.0),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 25,
+                        ),
+                        _isLoading?
+                        CircularProgressIndicator():
+                        OutlinedButton(
+                            style: const ButtonStyle(
+                                backgroundColor:
+                                MaterialStatePropertyAll(Colors.green),
+                                foregroundColor:
+                                MaterialStatePropertyAll(Colors.white),
+                                minimumSize: MaterialStatePropertyAll(
+                                    Size(double.infinity, 50))),
+                            onPressed: () async {
+
+                              setState(() {
+                                _isLoading = true;
+                              });
+                              var res = await submitPassword(passwordController.text);
+                              print("Returned");
+                              print(res.body);
+                              print(res);
+                              print("pressed");
+
+                              Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          LoginScreen()));
+                            },
+                            child: Text(
+                              tr('submit'),
+                              style: TextStyle(fontSize: 20),
+                            )),
+
+                      ],
+                    ),
+                  ),
+                  //   Image(
+                  //
+                  //   image: AssetImage('assets/images/THICKET_MASTER_PATERN_05.png'),
+                  //   width: MediaQuery.of(context).size.width,
+                  //   fit: BoxFit.cover,// Set the desired width
+                  //   height:  300// Set the desired height
+                  // ),
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 250,
+                    alignment: Alignment.topCenter,
+                    padding: EdgeInsets.all(0),
+                    transformAlignment: Alignment.topCenter,
+                    child: Image(
+                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                        width: MediaQuery.of(context).size.width,
+                        fit: BoxFit.fill,// Set the desired width
+                        height: MediaQuery.of(context).size.height // Set the desired height
+                    ),
+                  )
+                ],
+              ),
+            ),
+
+          ),
+        ),
+
+      ),
+    );
+  }
+}

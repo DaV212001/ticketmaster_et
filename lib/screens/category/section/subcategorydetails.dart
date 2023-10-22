@@ -10,6 +10,8 @@ import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 
 import '../../../provider/settings_provider.dart';
+import '../../review/sub_category/add_review_sub_cat_screen.dart';
+
 
 
 class SubCatDetail extends StatefulWidget {
@@ -150,6 +152,14 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                         children: [
                           GestureDetector(
                             onTap: () {
+                              print("Event INDEX = ${index}");
+                              print("Event ID = ${events[index].id}");
+                              print("Event title = ${events[index].title}");
+                              print("Event categoryId = ${events[index].categoryId}");
+                              print("Event subCategoryId = ${events[index].subCategoryId}");
+                              print("Event organizerId = ${events[index].organizerId}");
+                              print("=================================");
+
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
                                     return EventDetail(event: events.isNotEmpty?events[index]: empty[index], selectedIndex: widget.selectedIndex,);
@@ -236,11 +246,10 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
             children: [ Flexible(child: Text(tr('review')))],
           ),
         ),
-        view: Center(
-            child: Center (
-              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
-            )
+        view: SubCategoryReview(
+          subCategories: widget.subCategories
         ),
+
       ),
     ];
     double? deviceheight =MediaQuery.of(context).size.height;

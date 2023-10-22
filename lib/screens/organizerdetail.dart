@@ -9,6 +9,7 @@ import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
+import 'package:ticketmaster_et/screens/review/organizer/add_review_organizer_screen.dart';
 
 import '../models/newmodels.dart';
 import '../models/newmodels.dart';
@@ -243,11 +244,7 @@ List<CoverImage> coverimages = [];
             children: [ Flexible(child: Text(tr('review')))],
           ),
         ),
-        view: Center(
-            child: Center (
-              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
-            )
-        ),
+        view: OrganizerReview(organizer: widget.organizer),
       ),
     ];
 

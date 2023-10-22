@@ -85,6 +85,7 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
+    final loginDataProvider = Provider.of<LoginDataProvider>(context, listen: false);
     final languageChange = Provider.of<SettingsProvider>(context);
     final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
     return Container(
@@ -179,6 +180,7 @@ class _EditProfileState extends State<EditProfile> {
                                   color: Colors.grey[200], // Background color
                                 ),
                                 child: TextFormField(
+                                  initialValue: loginDataProvider.loginData?.firstName,
                                   key: const ValueKey("name"),
                                   validator: (value) {
                                     if (value!.isEmpty) {
@@ -215,6 +217,7 @@ class _EditProfileState extends State<EditProfile> {
                                   color: Colors.grey[200], // Background color
                                 ),
                                 child: TextFormField(
+                                  initialValue: loginDataProvider.loginData?.lastName,
                                   key: const ValueKey("name"),
                                   validator: (value) {
                                     if (value!.isEmpty) {
@@ -281,12 +284,6 @@ class _EditProfileState extends State<EditProfile> {
                       ),
                     ),
                   ),
-                  // Container(
-                  //   decoration: BoxDecoration(
-                  //       image: DecorationImage(image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
-                  //           fit: BoxFit.cover)
-                  //   ),
-                  // ),
                   Container(
                     width: MediaQuery.of(context).size.width,
                     height: 250,
