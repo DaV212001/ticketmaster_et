@@ -118,9 +118,6 @@ class _OrganizerReviewState extends State<OrganizerReview> {
       child: ListView(
           scrollDirection: Axis.vertical,
           children:[
-            Text(widget.organizer.id!.toString()),
-            Text(widget.organizer.name.toString()),
-            Text(widget.organizer.desc.toString()),
             Row(
               children: [
                 Text(
