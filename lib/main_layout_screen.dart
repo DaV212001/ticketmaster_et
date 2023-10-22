@@ -36,7 +36,7 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
           index: selectedIndex.value,
           children:  [
             HomeTab(selectedIndex: selectedIndex),
-             CategoryTab(),
+             CategoryTab(selectedIndex: selectedIndex,),
             UserTickets(),
             ProfileWidget()
           ],

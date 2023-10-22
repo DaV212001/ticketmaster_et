@@ -288,7 +288,7 @@ class _EditProfileState extends State<EditProfile> {
                   //   ),
                   // ),
                   Image(
-                    image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                    image: AssetImage('assets/images/pattern.jpg'),
                     width: MediaQuery.of(context).size.width,
                     fit: BoxFit.cover,// Set the desired width
                     height: 200.0, // Set the desired height

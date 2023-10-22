@@ -31,7 +31,7 @@ class _HomeTabState extends State<HomeTab>
       isImageZoomed = !isImageZoomed;
     });
   }
-
+List<Organizer> modifiedOrg = [];
   late TabController tabController;
   List<Event> events = [];
 
@@ -57,6 +57,12 @@ class _HomeTabState extends State<HomeTab>
       _isLoading = true;
     });
     print("updateCategories Called 2");
+    getOrganizers(Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
+      print("updateCategories Called 3.1");
+      modifiedOrg = value;
+      //  print( 'VALUE OF THE EVENTS: $value');
+      print("updateCategories Called 3.2");
+    }));
     getEvents('$apiUrl/upcoming', Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
       print("updateCategories Called 3.1");
       events = value;
@@ -112,10 +118,11 @@ class _HomeTabState extends State<HomeTab>
       children: [
         TabBarView(controller: tabController,
             children: [
-          HomeTabWidget(),
+          HomeTabWidget(selectedIndex: widget.selectedIndex,),
           UpcomingTabWidget(
               selectedIndex: widget.selectedIndex,
               modified: modified,
+              modifiedOrg: modifiedOrg,
               controller: controller,
               isZoomed: isImageZoomed,
               toggleZoom: toggleImageZoom

@@ -138,14 +138,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
 
-                          Padding(
-                            padding: const EdgeInsets.only(top: 5.0),
-                            child: Center(
-                              child: Image(
-                                image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                                width: 200.0, // Set the desired width
-                                height: 200.0, // Set the desired height
-                              ),
+                          Center(
+                            child: Image(
+                              image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                              width: 200.0, // Set the desired width
+                              height: 200.0, // Set the desired height
                             ),
                           ),
 
@@ -334,11 +331,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           //         fit: BoxFit.cover)
                           //   ),
                           // ),
-                          Image(
-                            image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
-                            width: MediaQuery.of(context).size.width,
-                            fit: BoxFit.cover,// Set the desired width
-                            height: 200.0, // Set the desired height
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 8.0),
+                            child: Image(
+                              image: AssetImage('assets/images/pattern.jpg'),
+                              width: MediaQuery.of(context).size.width*1.6,
+                              fit: BoxFit.cover,// Set the desired width
+                              height: 350.0, // Set the desired height
+                            ),
                           )
                         ],
                       ),

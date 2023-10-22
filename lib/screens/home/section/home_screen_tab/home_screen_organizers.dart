@@ -14,11 +14,12 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_detail.dart';
+import '../../../event_ticket.dart';
 import '../../../organizerdetail.dart';
 import '../../../category/section/subcategorydetails.dart';
 class HomeScreenOrganizers extends StatefulWidget {
-  const HomeScreenOrganizers({super.key});
+  final ValueNotifier<int> selectedIndex;
+  const HomeScreenOrganizers({super.key, required this.selectedIndex});
 
   @override
   State<HomeScreenOrganizers> createState() => _HomeScreenOrganizersState();
@@ -124,7 +125,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                         onTap: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                                return OrganizerDetail(organizer: ep[index]);
+                                return OrganizerDetail(organizer: ep[index], selectedIndex: widget.selectedIndex,);
                               }));
                         },
                         child: Container(

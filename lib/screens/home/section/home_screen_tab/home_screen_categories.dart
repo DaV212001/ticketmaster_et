@@ -14,11 +14,12 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_detail.dart';
+import '../../../event_ticket.dart';
 import '../../../organizerdetail.dart';
 import '../../../category/section/subcategorydetails.dart';
 class HomeScreenCategories extends StatefulWidget {
-  const HomeScreenCategories({super.key});
+  final ValueNotifier<int> selectedIndex;
+  const HomeScreenCategories({super.key, required this.selectedIndex});
 
   @override
   State<HomeScreenCategories> createState() => _HomeScreenCategoriesState();
@@ -139,7 +140,7 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
                                     builder: (context) {
                                       return SubCatDetail(
                                           subCategory: categories[index]
-                                              .subCategory![subIndex]
+                                              .subCategory![subIndex], selectedIndex: widget.selectedIndex,
                                       );
                                     }));
                           },

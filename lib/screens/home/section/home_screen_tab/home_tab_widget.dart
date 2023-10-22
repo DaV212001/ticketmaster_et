@@ -12,15 +12,16 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_detail.dart';
+import '../../../event_ticket.dart';
 import '../../../organizerdetail.dart';
 import '../../../category/section/subcategorydetails.dart';
 import 'home_screen_carousel.dart';
 import 'home_screen_categories.dart';
 import 'home_screen_organizers.dart';
 class HomeTabWidget extends StatefulWidget {
+  final ValueNotifier<int> selectedIndex;
   const HomeTabWidget({
-    super.key,
+    super.key, required this.selectedIndex,
   });
 
   @override
@@ -115,14 +116,14 @@ class _HomeTabWidgetState extends State<HomeTabWidget> {
                   ? CircularProgressIndicator()
                   : SizedBox(
                 height: 350,
-                child: HomeScreenCarouselSlider(),
+                child: HomeScreenCarouselSlider(selectedIndex: widget.selectedIndex,),
               ),
               categories.length != 0?
-              HomeScreenCategories(): Center(
+              HomeScreenCategories(selectedIndex: widget.selectedIndex,): Center(
                 child: Image.network(
                     'https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
               ),
-              HomeScreenOrganizers()
+              HomeScreenOrganizers(selectedIndex: widget.selectedIndex,)
             ],
           ),
         ),
