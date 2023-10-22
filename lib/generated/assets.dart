@@ -3,7 +3,9 @@ class Assets {
   Assets._();
 
   static const String imagesNaLogo = 'assets/images/na_logo.jpg';
+  static const String imagesPattern = 'assets/images/pattern.jpg';
   static const String imagesTHICKETMASTERLOGO = 'assets/images/THICKET_MASTER_LOGO.png';
+  static const String imagesTHICKETMASTERPATERN04 = 'assets/images/THICKET_MASTER_PATERN_04.png';
   static const String splashScreensSplash0 = 'assets/images/splash_screens/splash0.jpg';
   static const String splashScreensSplash1 = 'assets/images/splash_screens/splash1.jpg';
   static const String splashScreensSplash2 = 'assets/images/splash_screens/splash2.jpg';

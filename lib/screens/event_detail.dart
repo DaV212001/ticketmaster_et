@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
+import 'package:ticketmaster_et/screens/review/event/add_review_event_screen.dart';
 
 import '../provider/settings_provider.dart';
 import 'category_events.dart';
@@ -246,11 +247,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
             children: [ Flexible(child: Text(tr('review')))],
           ),
         ),
-        view: Center(
-            child: Center (
-              child: Image.network('https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
-            )
-        ),
+        view: EventReview(event: widget.event),
       ),
     ];
 

@@ -23,7 +23,7 @@ Future<void> appInit() async {
   countryCode = await preferences.getString('countryCode')??'';
   print('COUNTRY CODE $countryCode');
   await settingsProvider.getCurrentThemeMode();
-  // settingsProvider.languageCode = langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
+  settingsProvider.languageCode = langCode + (countryCode.isNotEmpty ? '-' + countryCode : '');
   await settingsProvider.getLanguageCode();
   print(settingsProvider.languageCode);
 }
@@ -36,8 +36,7 @@ void main() async {
     supportedLocales: Translation.all,
     path: 'assets/translations',
     fallbackLocale: const Locale('en'),
-    // startLocale: Locale(langCode, countryCode),
-    startLocale: Locale('en'),
+    startLocale: Locale(langCode, countryCode),
     child: TicketMasterET(
       settingsProvider: settingsProvider,
     ),

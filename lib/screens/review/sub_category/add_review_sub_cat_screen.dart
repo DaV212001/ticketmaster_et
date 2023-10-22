@@ -249,7 +249,7 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                       commentController.text = '';
                       ratingController = 1;
                     });
-                    getReviewBySubCategory(widget.subCategories.id!.toString());
+                  getReviewBySubCategory(widget.subCategories.id!.toString());
                     print("Back");
 
 

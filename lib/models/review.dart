@@ -31,7 +31,7 @@ class Review{
 
 
   Review.fromEventJson(Map<String, dynamic> json){
-    user_id = json['id'];
+    user_id = json['user_id'];
     event_id = json['event_id'];
     star = json['star'];
     comment = json['comment'];
@@ -48,7 +48,7 @@ class Review{
   }
 
   Review.fromOrganizerJson(Map<String, dynamic> json){
-    user_id = json['id'];
+    user_id = json['user_id'];
     organizer_id = json['organizer_id'];
     star = json['star'];
     comment = json['comment'];
