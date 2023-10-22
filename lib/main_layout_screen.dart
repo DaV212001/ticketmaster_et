@@ -6,6 +6,7 @@ import 'package:ticketmaster_et/screens/category/category_tab.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/user_ticket_details.dart';
 import 'package:ticketmaster_et/screens/user_tickets.dart';
 
 import 'provider/loginpersistence.dart';

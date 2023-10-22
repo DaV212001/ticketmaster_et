@@ -38,5 +38,22 @@
     "submit": "አስረክብ",
     "events" : "ዝግጅቶች",
     "desc": "መግለጫ",
-    "review": "ግምገማ"
+    "review": "ግምገማ",
+    "please_rate": "እባክዎን ደረጃ ይስጡ",
+    "give_a_review": "ግምገማ ስጥ",
+    "give_a_comment": "አስተያየት ስጡ",
+    "thank_you_for_adding_a_review": "ግምገማ ስላከልክ እናመሰግናለን",
+    "failed_to_add_review": "ግምገማ ማከል አልተሳካም።",
+    "add_review": "ግምገማ ያክሉ",
+    "be_the_first_to_add_a_review": "ግምገማ ለማከል የመጀመሪያው ይሁኑ",
+    "other_reviews": "ሌሎች ግምገማዎች",
+    "forget_password": "መክፈቻ ቁልፉን ረሳኽው",
+    "phone_empty": "ስልኩ ባዶ ነው።",
+    "phone_number_invalid": "ስልክ ቁጥር ልክ ያልሆነ",
+    "phone_number_is_not_found": "ስልክ ቁጥር አልተገኘም።",
+
+    "please_enter_the_5_digit_code_sent_to_your_phone_number": "እባክህ ወደ ስልክ ቁጥርህ የተላከውን ባለ 5 አሃዝ ኮድ አስገባ",
+    "code": "ኮድ",
+    "chances_left": "ዕድሎች ቀርተዋል።",
+    "enter_your_phone_number_again_please": "እባክዎን ስልክ ቁጥርዎን እንደገና ያስገቡ"
 }

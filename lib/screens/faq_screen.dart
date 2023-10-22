@@ -22,9 +22,9 @@ class _FAQScreenState extends State<FAQScreen> {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
 
-      print('FAQScreen faq title: ${widget.faq[0].title}');
-      print('FAQScreen faq id: ${widget.faq[0].id}');
-      print('FAQScreen faq description: ${widget.faq[0].description}');
+      // print('FAQScreen faq title: ${widget.faq[0].title}');
+      // print('FAQScreen faq id: ${widget.faq[0].id}');
+      // print('FAQScreen faq description: ${widget.faq[0].description}');
 
 
     });

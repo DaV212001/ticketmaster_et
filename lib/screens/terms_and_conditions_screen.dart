@@ -27,9 +27,9 @@ class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
       // Load login data after the widget has been built
       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
 
-      print('TermsAndConditionsScreen termsAndConditions: ${widget.termsAndConditions}');
-      print('TermsAndConditionsScreen termsAndConditions title: ${widget.termsAndConditions[0].title}');
-      print('TermsAndConditionsScreen termsAndConditions id: ${widget.termsAndConditions[0].id}');
+      // print('TermsAndConditionsScreen termsAndConditions: ${widget.termsAndConditions}');
+      // print('TermsAndConditionsScreen termsAndConditions title: ${widget.termsAndConditions[0].title}');
+      // print('TermsAndConditionsScreen termsAndConditions id: ${widget.termsAndConditions[0].id}');
 
     });
   }

@@ -494,32 +494,32 @@ class _TicketDataState extends State<TicketData> {
                                         ),
                                         backgroundColor: widget.selectedIndex == index?
                                         MaterialStatePropertyAll(Colors.green)
-                                            : MaterialStatePropertyAll(Colors.black),
-                                      ),
-                                      child: Center(
-                                        child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
-                                            style: TextStyle(
-                                              color: widget.selectedIndex == index? Colors.black : Colors.white,
-                                            )),
-                                      ),
+                                          : MaterialStatePropertyAll(Colors.black),
                                     ),
-                                    SizedBox(width: 5,)
-                                  ],
-                                )
-                              ]
-                          );
-                        },
+                                    child: Center(
+                                      child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
+                                          style: TextStyle(
+                                            color: widget.selectedIndex == index? Colors.black : Colors.white,
+                                          )),
+                                    ),
+                                  ),
+                                  SizedBox(width: 5,)
+                                ],
+                              )
+                            ]
+                        );
+                      },
 
-                      ),
-                    ):
-                    CircularProgressIndicator()
-                ),
-              ],
-            ),
+                    ),
+                  ):
+                  CircularProgressIndicator()
+              ),
+            ],
           ),
         ),
-      ],
-    );
+      ),
+    ],
+  );
   }
 }
 

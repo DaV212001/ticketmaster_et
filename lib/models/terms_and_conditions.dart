@@ -10,7 +10,7 @@ class TermsAndConditions{
   });
 
   TermsAndConditions.fromJson(Map<String, dynamic> json, String language) {
-    print("TermsAndConditions.fromJson $json");
+    // print("TermsAndConditions.fromJson $json");
     id = json['id'];
     switch (language) {
       case 'am':

@@ -38,5 +38,24 @@
     "submit" : "Submit",
     "events" : "Events",
     "desc": "Description",
-    "review": "Review"
+    "review": "Review",
+
+    "please_rate": "Please rate",
+    "give_a_review": "Give a review",
+    "give_a_comment": "Give a comment",
+    "thank_you_for_adding_a_review": "Thank you for adding a review",
+    "failed_to_add_review": "Failed to add review",
+    "add_review": "Add Review",
+    "be_the_first_to_add_a_review": "Be the first to add a review",
+    "other_reviews": "Other reviews",
+
+    "forgot_password": "Forgot password",
+    "phone_empty": "Phone empty",
+    "phone_number_invalid": "Phone number invalid",
+    "phone_number_is_not_found": "Phone number is not found",
+
+    "please_enter_the_5_digit_code_sent_to_your_phone_number": "Please enter the 5 digit code sent to your phone number",
+    "code": "code",
+    "chances_left": "Chances left",
+    "enter_your_phone_number_again_please": "Enter your phone number again please"
 }

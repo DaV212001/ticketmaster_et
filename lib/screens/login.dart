@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketmaster_et/main_layout_screen.dart';
 import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/forget_password0.dart';
 
 import '../components/fields.dart';
 import '../constants/app_constants.dart';
@@ -54,6 +55,9 @@ class _LoginScreenState extends State<LoginScreen> {
             return TicketMatserHomePage(title: 'title');
           }));
         } else if (value.error != null) {
+          setState(() {
+            _isLoading = false;
+          });
           print(value.error);
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(value.error!)));
@@ -69,6 +73,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loginDataProvider = Provider.of<LoginDataProvider>(context, listen: false);
+    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
     final languageChange = Provider.of<SettingsProvider>(context);
     Icon icon = Icon(Icons.visibility);
     bool obscure = true;
@@ -78,6 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Scaffold(
                 backgroundColor: Colors.transparent,
                 appBar: AppBar(
+                  leading: null,
                   toolbarHeight: 27,
                   backgroundColor: Colors.white,
                   elevation: 0,
@@ -158,7 +165,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
-                                InputHeader(headerName: tr('phone')),
+                                Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(tr('phone'), style: kTextStyle)),
                                 const SizedBox(
                                   height: 7,
                                 ),
@@ -181,6 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                             color: Colors.grey[200], // Background color
                                           ),
                                           child: TextFormField(
+
                                             key: const ValueKey("phone"),
                                             validator: (value) {
                                               if (value!.isEmpty) {
@@ -201,6 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                               hintText: "9xxx66565",
                                               border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(16.0),
+
                                             ),
                                           ),
                                         )),
@@ -213,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     alignment: Alignment.centerLeft,
                                     child: Text(tr('password'), style: kTextStyle)),
                                 const SizedBox(
-                                  height: 7,
+                                  height: 5,
                                 ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -239,24 +250,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                       _password = value;
                                     },
                                     decoration: InputDecoration(
+
+                                      fillColor: Colors.grey[200],
                                       hintText: tr('password'),
-                                      border: InputBorder.none,
+                                      border: const OutlineInputBorder(),
                                       contentPadding: EdgeInsets.all(16.0),
                                       // suffixIcon: IconButton(
                                       //     onPressed: () {
-                                      //       setState(() {
-                                      //         if (obscure == true) {
-                                      //           setState(() {
-                                      //             obscure = false;
-                                      //             icon = Icon(Icons.visibility_off);
-                                      //           });
-                                      //         } else {
-                                      //           setState(() {
-                                      //             obscure = true;
-                                      //             icon = Icon(Icons.visibility);
-                                      //           });
-                                      //         }
-                                      //       });
+                                      //       if (obscure == true) {
+                                      //         setState(() {
+                                      //           obscure = false;
+                                      //           icon = Icon(Icons.visibility_off);
+                                      //         });
+                                      //
+                                      //       } else {
+                                      //         setState(() {
+                                      //           obscure = true;
+                                      //           icon = Icon(Icons.visibility);
+                                      //         });
+                                      //       }
+                                      //
                                       //     },
                                       //     icon: icon
                                       // ),
@@ -265,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
 
                                 const SizedBox(
-                                  height: 7,
+                                  height: 5,
                                 ),
                                 _isLoading
                                     ? const CircularProgressIndicator()
@@ -285,7 +298,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       style: TextStyle(fontSize: 18),
                                     )),
                                 const SizedBox(
-                                  height: 7,
+                                  height: 5,
                                 ),
                                 Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -320,7 +333,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                         ),
                                       )
                                     ]),
-
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: MaterialButton(onPressed: (){
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ForgetPassword0()));
+                                    },child: Text(tr("forgot_password"))))
                               ],
                             ),
                           ),

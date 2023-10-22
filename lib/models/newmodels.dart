@@ -635,6 +635,7 @@ class UpdatedUser {
   }
 }
 
+
 class UpdatedUserResponse {
   String? message;
   UpdateError? error;

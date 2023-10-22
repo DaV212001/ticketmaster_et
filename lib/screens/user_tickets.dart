@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/screens/user_ticket_details.dart';
 import '../constants/app_constants.dart';
 import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
@@ -62,14 +63,19 @@ class _UserTicketsState extends State<UserTickets> {
     final ScrollController scrollController = ScrollController();
 
 
-    return Scaffold(
-        body: ListView.builder(
+    return ListView.builder(
             controller: scrollController,
             physics: const BouncingScrollPhysics(),
             itemCount: tickets.length,
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              UserTicketDetails(ticket: tickets[index])
+                      ));
                 },
                 child: Container(
                   color: Colors.transparent,
@@ -171,6 +177,6 @@ class _UserTicketsState extends State<UserTickets> {
                   ),
                 ),
               );
-            }));
+            });
   }
 }
