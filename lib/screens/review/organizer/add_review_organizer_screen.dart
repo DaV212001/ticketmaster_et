@@ -128,7 +128,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
                     )
                 ),
                 RatingBar.builder(
-                  itemSize: 17,
+                  itemSize: 20,
                   initialRating: 3,
                   minRating: 1,
                   direction: Axis.horizontal,
