@@ -241,6 +241,8 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                 minimumSize: MaterialStatePropertyAll(
                                     Size(double.infinity, 50))),
                             onPressed: () async {
+                              if(phoneController.text.length != 0){
+
                               setState(() {
                                 _isLoading = true;
                               });
@@ -293,6 +295,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                     duration: Duration(seconds: 3),
                                   ),
                                 );
+                              }
                               }
                             },
                             child: Text(

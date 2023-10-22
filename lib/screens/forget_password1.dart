@@ -166,6 +166,8 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                                 minimumSize: MaterialStatePropertyAll(
                                     Size(double.infinity, 50))),
                             onPressed: () async {
+                              if(otpController.text.length!=0){
+
                               setState(() {
                                 pressed--;
                               });
@@ -211,6 +213,7 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                                   Navigator.pop(context);
 
                                 }
+                              }
                               }
                             },
                             child: Text(

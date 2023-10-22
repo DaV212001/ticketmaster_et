@@ -255,24 +255,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       hintText: tr('password'),
                                       border: const OutlineInputBorder(),
                                       contentPadding: EdgeInsets.all(16.0),
-                                      // suffixIcon: IconButton(
-                                      //     onPressed: () {
-                                      //       if (obscure == true) {
-                                      //         setState(() {
-                                      //           obscure = false;
-                                      //           icon = Icon(Icons.visibility_off);
-                                      //         });
-                                      //
-                                      //       } else {
-                                      //         setState(() {
-                                      //           obscure = true;
-                                      //           icon = Icon(Icons.visibility);
-                                      //         });
-                                      //       }
-                                      //
-                                      //     },
-                                      //     icon: icon
-                                      // ),
+
                                     ),
                                   ),
                                 ),
