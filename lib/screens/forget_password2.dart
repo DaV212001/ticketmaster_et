@@ -249,7 +249,7 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                                     duration: Duration(seconds: 3),
                                   ),
                                 );
-                              }else if(confirmPasswordController.text.isEmpty){
+                              }else if(passwordController.text.isEmpty){
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
