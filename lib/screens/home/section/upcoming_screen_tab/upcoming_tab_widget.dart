@@ -16,14 +16,12 @@ class UpcomingTabWidget extends StatefulWidget {
       required this.modified,
       required this.controller,
       required this.isZoomed,
-      required this.toggleZoom,
       required this.selectedIndex,
       required this.modifiedOrg});
 
   final List<Event> modified;
   final Controller controller;
   final bool isZoomed;
-  final VoidCallback toggleZoom;
   final ValueNotifier<int> selectedIndex;
   final List<Organizer> modifiedOrg;
 
@@ -226,9 +224,10 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                               children: [
                                 IconButton(
                                     onPressed: () {
+                                      String videofilename = widget.modified[iindex].upcomingImage!.replaceFirst("https://admin.ticketmaster-et.com/public/storage/upcoming", '');
                                       Share.text(
-                                          'Check out Ticketmaster ET on the Play Store to book a ticket for ${widget.modified[iindex].title}',
-                                          'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
+                                          'Check out Ticketmaster ET to book a ticket for ${widget.modified[iindex].title}',
+                                          'https://www.ticketmaster.et$videofilename',
                                           'text/plain');
                                     },
                                     icon: Icon(

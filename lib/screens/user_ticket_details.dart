@@ -6,7 +6,7 @@ import '../functions/functions.dart';
 import '../provider/settings_provider.dart';
 
 class UserTicketDetails extends StatefulWidget {
-  Ticket ticket;
+  final Ticket ticket;
 
   UserTicketDetails({super.key, required this.ticket});
 

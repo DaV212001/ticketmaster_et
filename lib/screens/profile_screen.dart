@@ -16,6 +16,7 @@ import '../models/privacy_policy.dart';
 import '../models/terms_and_conditions.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
+import 'event_ticket.dart';
 import 'faq_screen.dart';
 
 class ProfileWidget extends StatefulWidget {

@@ -125,7 +125,6 @@ List<Organizer> modifiedOrg = [];
               modifiedOrg: modifiedOrg,
               controller: controller,
               isZoomed: isImageZoomed,
-              toggleZoom: toggleImageZoom
           )
         ]),
         Padding(

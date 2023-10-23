@@ -17,9 +17,9 @@ import '../provider/settings_provider.dart';
 import 'category_events.dart';
 
 class OrganizerDetail extends StatefulWidget {
-  const OrganizerDetail({required this.organizer, super.key, required this.selectedIndex});
+  const OrganizerDetail({required this.organizer, super.key,  this.selectedIndex});
   final Organizer organizer;
-  final ValueNotifier<int> selectedIndex;
+  final ValueNotifier<int>? selectedIndex;
   @override
   State<OrganizerDetail> createState() => _OrderScreenState();
 }
@@ -28,7 +28,7 @@ class _OrderScreenState extends State<OrganizerDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: TabBarAndTabViews(organizer: widget.organizer, selectedIndex: widget.selectedIndex,));
+        body: TabBarAndTabViews(organizer: widget.organizer, selectedIndex: widget.selectedIndex!,));
   }
 }
 

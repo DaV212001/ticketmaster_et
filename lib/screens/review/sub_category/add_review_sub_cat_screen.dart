@@ -263,6 +263,7 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
             ),
             ListView.builder(
               scrollDirection: Axis.vertical,
+              physics: BouncingScrollPhysics(),
               shrinkWrap: true,
               itemCount: reviews.length,
               itemBuilder: (context, index) {
