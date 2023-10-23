@@ -231,11 +231,20 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                                 minimumSize: MaterialStatePropertyAll(
                                     Size(double.infinity, 50))),
                             onPressed: () async {
-                              if(passwordController.text != confirmPasswordController.text){
+                              if(passwordController.text.length <3){
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Password should be greater than 3"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              }
+                              else if(passwordController.text != confirmPasswordController.text){
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("Confirm password not correct"),
+                                    content: Text("Confirm password please"),
                                     backgroundColor: Colors.green,
                                     duration: Duration(seconds: 3),
                                   ),

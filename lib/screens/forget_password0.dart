@@ -241,7 +241,24 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                 minimumSize: MaterialStatePropertyAll(
                                     Size(double.infinity, 50))),
                             onPressed: () async {
-                              if(phoneController.text.length != 0){
+                              if(phoneController.text.length == 0){
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Please enter your phone number"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              }else if(phoneController.text.length > 9 || phoneController.text.length< 9){
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Invalid amount"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              }
+                              else{
 
                               setState(() {
                                 _isLoading = true;
@@ -268,13 +285,6 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                 setState(() {
                                   _isLoading = false;
                                 });
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Password changed"),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
