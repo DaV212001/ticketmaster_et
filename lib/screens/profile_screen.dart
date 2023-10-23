@@ -4,6 +4,7 @@ import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/main.dart';
 import 'package:ticketmaster_et/screens/editprofilescreen.dart';
 import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
 import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';

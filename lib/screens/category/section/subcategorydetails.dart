@@ -162,7 +162,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
 
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index], selectedIndex: widget.selectedIndex,);
+                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index],);
                                   }));
                             },
                             child: Container(

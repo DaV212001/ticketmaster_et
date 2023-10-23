@@ -13,8 +13,7 @@ import '../provider/settings_provider.dart';
 import 'category_events.dart';
 
 class EventDetail extends StatefulWidget {
-  final ValueNotifier<int> selectedIndex;
-  const EventDetail({required this.event, super.key, required this.selectedIndex});
+  const EventDetail({required this.event, super.key});
   final Event event;
   @override
   State<EventDetail> createState() => _EventDetailState();
@@ -29,7 +28,7 @@ class _EventDetailState extends State<EventDetail> {
     ));
     return Scaffold(
         backgroundColor: Colors.white,
-        body: TabBarAndTabViews(event: widget.event, selectedIndex: widget.selectedIndex,));
+        body: TabBarAndTabViews(event: widget.event, ));
   }
 }
 
@@ -41,9 +40,8 @@ class TabPair {
 }
 
 class TabBarAndTabViews extends StatefulWidget {
-  final ValueNotifier<int> selectedIndex;
   final Event event;
-  const TabBarAndTabViews({required this.event, required this.selectedIndex});
+  const TabBarAndTabViews({required this.event, });
 
   @override
   _TabBarAndTabViewsState createState() => _TabBarAndTabViewsState();

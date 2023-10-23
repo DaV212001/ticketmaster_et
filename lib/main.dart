@@ -263,7 +263,7 @@ print('CHECKING FOR ORIGINALLL URL CORRECTNESS!!!!!: $_latestUri');
 
           // Navigate to VideoPlayerWidget with the video URL
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => VideoPlayerWidget(videoUrl: videoUrl)));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => DeepLinkNavigation(videoUrl: videoUrl)));
           });
 _navigated = true;
         }
@@ -308,7 +308,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
     super.didChangeDependencies();
     Provider.of<SettingsProvider>(context).addListener(updateEvents);
   }
-  void updateEvents () async {
+  Future<void> updateEvents () async {
    print('CHECKING IDDDDDDDD VIDEO URL PASSED ISSSS: ${widget.videoUrl}');
     initial = await getEvents('https://api.ticketmaster-et.com/api/event', Provider.of<SettingsProvider>(context, listen: false).languageCode);
     for(Event eve in initial){
@@ -341,172 +341,186 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
       }
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        VideoPlayerWidget(
-          videoUrl: modified[0].upcomingImage!,
-        ),
-        Positioned(
-          right: 8,
-          child: Column(
-            children: [
-              if (modifiedOrg.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0, top: 30),
-                  child: GestureDetector(
-                    onTap: () {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: ((context) {
-                            return OrganizerDetail(
-                              organizer: organizer!,
-                            );
-                          })));
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                          border:
-                          Border.all(color: Colors.green, width: 2),
-                          borderRadius: BorderRadius.circular(50)),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(50),
-                        child: Image.network(
-                          organizer?.image ??
-                              'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
-                          width: 65,
-                          height: 65,
-                          fit: BoxFit.cover,
+    return
+
+
+      FutureBuilder(
+        future: updateEvents(),
+
+        builder:((context, snapshot){
+          if(snapshot.connectionState == ConnectionState.done){
+          return Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          alignment: Alignment.center,
+          children: [
+            VideoPlayerWidget(
+              videoUrl: modified[0].upcomingImage!,
+            ),
+            Positioned(
+              right: 8,
+              child: Column(
+                children: [
+                  if (modifiedOrg.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0, top: 30),
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.push(context,
+                              MaterialPageRoute(builder: ((context) {
+                                return OrganizerDetail(
+                                  organizer: organizer!,
+                                );
+                              })));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              border:
+                              Border.all(color: Colors.green, width: 2),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.network(
+                              organizer?.image ??
+                                  'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                              width: 65,
+                              height: 65,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
                     ),
+                ],
+              ),
+            ),
+            Positioned(
+              bottom: 0.5,
+              child: Stack(
+                children: [
+                  ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                    child: Container(
+                      height: 150,
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [
+                                0.0,
+                                0.2
+                              ],
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7)
+                              ])),
+                    ),
                   ),
-                ),
-            ],
-          ),
-        ),
-        Positioned(
-          bottom: 0.5,
-          child: Stack(
-            children: [
-              ImageFiltered(
-                imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [
-                            0.0,
-                            0.2
-                          ],
-                          colors: [
-                            Colors.transparent,
-                            Colors.black.withOpacity(0.7)
-                          ])),
-                ),
-              ),
-              Container(
-                color: Colors.transparent,
-                height: 150,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 120,
-                            child: ListView.builder(
-                                itemCount: 3,
-                                itemBuilder: (context, index) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        modified[0].desc!,
-                                        style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white),
-                                      ),
-                                      Text(
-                                        modified[0].place!,
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white),
-                                      ),
-                                      Text(
-                                        modified[0].date!,
-                                        style: TextStyle(
-                                            fontSize: 15,
-                                            color: Colors.white),
-                                      ),
-                                    ],
-                                  );
-                                }),
-                          )
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                        width:
-                        MediaQuery.of(context).size.width * 0.16),
-                    Flexible(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          IconButton(
-                              onPressed: () {
-                                String videofilename = modified[0].upcomingImage!.replaceFirst("https://admin.ticketmaster-et.com/public/storage/upcoming", '');
-                                Share.text(
-                                    'Check out Ticketmaster ET to book a ticket for ${modified[0].title}',
-                                    'https://www.ticketmaster.et$videofilename',
-                                    'text/plain');
-                              },
-                              icon: Icon(
-                                Icons.share,
-                                size: 20,
-                              )),
-                          SizedBox(
-                            height: 25,
-                          ),
-                          ElevatedButton(
-                              onPressed: () async {
-                                Navigator.push(context, MaterialPageRoute(
-                                    builder: ((context) {
-                                      return EventTicket(
-                                        event: modified[0],
+                  Container(
+                    color: Colors.transparent,
+                    height: 150,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.5,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 120,
+                                child: ListView.builder(
+                                    itemCount: 3,
+                                    itemBuilder: (context, index) {
+                                      return Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            modified[0].desc!,
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white),
+                                          ),
+                                          Text(
+                                            modified[0].place!,
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.white),
+                                          ),
+                                          Text(
+                                            modified[0].date!,
+                                            style: TextStyle(
+                                                fontSize: 15,
+                                                color: Colors.white),
+                                          ),
+                                        ],
                                       );
-                                    })));
-                              },
-                              style: ButtonStyle(
-                                  side: MaterialStatePropertyAll(
-                                      BorderSide(
-                                          style: BorderStyle.solid,
-                                          color: Theme.of(context)
-                                              .primaryColor)),
-                                  shadowColor: MaterialStatePropertyAll(
-                                      Colors.white.withOpacity(0.5)),
-                                  backgroundColor:
-                                  const MaterialStatePropertyAll(
-                                      Colors.transparent)),
-                              child: Text(tr('buy_tickets'))),
-                        ],
-                      ),
+                                    }),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                            width:
+                            MediaQuery.of(context).size.width * 0.16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  String videofilename = modified[0].upcomingImage!.replaceFirst("https://admin.ticketmaster-et.com/public/storage/upcoming", '');
+                                  Share.text(
+                                      'Check out Ticketmaster ET to book a ticket for ${modified[0].title}',
+                                      'https://www.ticketmaster.et$videofilename',
+                                      'text/plain');
+                                },
+                                icon: Icon(
+                                  Icons.share,
+                                  size: 20,
+                                )),
+                            SizedBox(
+                              height: 25,
+                            ),
+                            ElevatedButton(
+                                onPressed: () async {
+                                  Navigator.push(context, MaterialPageRoute(
+                                      builder: ((context) {
+                                        return EventTicket(
+                                          event: modified[0],
+                                        );
+                                      })));
+                                },
+                                style: ButtonStyle(
+                                    side: MaterialStatePropertyAll(
+                                        BorderSide(
+                                            style: BorderStyle.solid,
+                                            color: Theme.of(context)
+                                                .primaryColor)),
+                                    shadowColor: MaterialStatePropertyAll(
+                                        Colors.white.withOpacity(0.5)),
+                                    backgroundColor:
+                                    const MaterialStatePropertyAll(
+                                        Colors.transparent)),
+                                child: Text(tr('buy_tickets'))),
+                          ],
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
-    );
+    );}else{
+            return Center(child: CircularProgressIndicator());
+          }
+        }
+        ),
+      );
   }
 }

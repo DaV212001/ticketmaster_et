@@ -28,7 +28,7 @@ class _OrderScreenState extends State<OrganizerDetail> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: TabBarAndTabViews(organizer: widget.organizer, selectedIndex: widget.selectedIndex!,));
+        body: TabBarAndTabViews(organizer: widget.organizer));
   }
 }
 
@@ -51,8 +51,7 @@ class TabPair {
 
 class TabBarAndTabViews extends StatefulWidget {
   final Organizer organizer;
-  final ValueNotifier<int> selectedIndex;
-  const TabBarAndTabViews({required this.organizer, required this.selectedIndex});
+  const TabBarAndTabViews({required this.organizer,});
 
   @override
   _TabBarAndTabViewsState createState() => _TabBarAndTabViewsState();
@@ -159,7 +158,7 @@ List<CoverImage> coverimages = [];
                             onTap: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index], selectedIndex: widget.selectedIndex,);
+                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index], );
                                   }));
                             },
                             child: Container(
