@@ -268,6 +268,13 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                 setState(() {
                                   _isLoading = false;
                                 });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Password changed"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

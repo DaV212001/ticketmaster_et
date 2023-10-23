@@ -231,21 +231,41 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                                 minimumSize: MaterialStatePropertyAll(
                                     Size(double.infinity, 50))),
                             onPressed: () async {
+                              if(passwordController.text != confirmPasswordController.text){
 
-                              setState(() {
-                                _isLoading = true;
-                              });
-                              var res = await submitPassword(passwordController.text);
-                              print("Returned");
-                              print(res.body);
-                              print(res);
-                              print("pressed");
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Confirm password not correct"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              }else if(confirmPasswordController.text.isEmpty){
 
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          LoginScreen()));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("Please enter password"),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 3),
+                                  ),
+                                );
+                              }else {
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                var res = await submitPassword(
+                                    passwordController.text);
+                                print("Returned");
+                                print(res.body);
+                                print(res);
+                                print("pressed");
+
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            LoginScreen()));
+                              }
                             },
                             child: Text(
                               tr('submit'),
