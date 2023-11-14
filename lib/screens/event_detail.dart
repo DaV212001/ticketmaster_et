@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:chapa_unofficial/chapa_unofficial.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,9 +11,15 @@ import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/screens/review/event/add_review_event_screen.dart';
+import 'package:ticketmaster_et/screens/signup.dart';
+import 'package:ticketmaster_et/screens/thankyouscreen.dart';
 
+import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 import 'category_events.dart';
+
+
+String ticketNum = '';
 
 class EventDetail extends StatefulWidget {
   const EventDetail({required this.event, super.key});
@@ -61,6 +70,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateEvents();
     });
+    ticketNum = generateTicketNumber(widget.event.title!);
   }
   late final  _settingsProvider;
   @override
@@ -119,6 +129,18 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
     }
   }
 
+  String generateTicketNumber(String eventTitle) {
+    const chars = '0123456789';
+    Random rnd = Random();
+    String randomDigits = String.fromCharCodes(Iterable.generate(
+        4, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
+
+    String firstFourLettersOfTitle = eventTitle.length >= 4
+        ? eventTitle.substring(0, 4).toUpperCase()
+        : eventTitle.toUpperCase();
+
+    return 'TM-$firstFourLettersOfTitle-$randomDigits';
+  }
 
 
   List<Event> empty = [];
@@ -140,80 +162,260 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
               scrollDirection: Axis.vertical,
               itemCount: events[0].classes!.length,
               itemBuilder: (context, index) {
+                double deviceheight = MediaQuery.of(context).size.height;
+                double devicewidth = MediaQuery.of(context).size.width;
+                final loginDataProvider = Provider.of<LoginDataProvider>(context);
 
+                bool _isLoading = false;
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Column(
+
                     children: [
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          GestureDetector(
-                            onTap: () {
-                              isPlaying.value = false;
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return EventTicket(event: events[0], classId: events[0].classes![index].id);
-                                  }));
-                            },
-                            child: Container(
-                              height: 100,
-                              width: 100,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.cyan),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10.0),
-                                child:
-                                CachedNetworkImage(
-                                  fadeOutDuration:
-                                  const Duration(milliseconds:
-                                  300),
-                                  fadeOutCurve:
-                                  Curves.easeOut,
-                                  fadeInDuration:
-                                  const Duration(milliseconds:
-                                  700),
-                                  fadeInCurve:
-                                  Curves.easeIn,
-                                  imageUrl:events[0].image!.trim(),
-                                  imageBuilder:
-                                      (context, imageProvider) =>
-                                      Container(
-                                        decoration:
-                                        BoxDecoration(
-                                          image:
-                                          DecorationImage(
-                                            image:
-                                            imageProvider,
-                                            fit:
-                                            BoxFit.cover,
+                          Row(
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  isPlaying.value = false;
+                                },
+                                child: Container(
+                                  height: 100,
+                                  width: 100,
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(15), color: Colors.cyan),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    child:
+                                    CachedNetworkImage(
+                                      fadeOutDuration:
+                                      const Duration(milliseconds:
+                                      300),
+                                      fadeOutCurve:
+                                      Curves.easeOut,
+                                      fadeInDuration:
+                                      const Duration(milliseconds:
+                                      700),
+                                      fadeInCurve:
+                                      Curves.easeIn,
+                                      imageUrl:events[0].image!.trim(),
+                                      imageBuilder:
+                                          (context, imageProvider) =>
+                                          Container(
+                                            decoration:
+                                            BoxDecoration(
+                                              image:
+                                              DecorationImage(
+                                                image:
+                                                imageProvider,
+                                                fit:
+                                                BoxFit.cover,
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
+                                    ),
+                                  ),
                                 ),
+                              ),
+                              const SizedBox(height: 8),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Center(
+                                    child: Text(
+                                        events[0].classes![index].title!
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                        events[0].classes![index].availableTicket! != 1?
+                                        '${events[0].classes![index].availableTicket!} available tickets'
+                                            :
+                                        '${events[0].classes![index].availableTicket!} available ticket'
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: MediaQuery.of(context).size.width*0.25,
+
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                setState(() {
+                                  _isLoading = true;
+                                });
+                                final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+                                String? phone = accountProvider.loginData?.phone?.replaceFirst("251", "0");
+                                if(events.isNotEmpty && events[0].classes!.isNotEmpty) {
+                                  print('CHECKING PHONE NUMBER: $phone');
+                                  print('CHECKING PRICE: ${events[0].classes![index].price!}');
+                                  if(events[0].classes![index].price! != 0) {
+                                    String txRef =
+                                    TxRefRandomGenerator.generate(
+                                        prefix: 'ticketmaster');
+                                    // Access the generated transaction reference
+                                    String storedTxRef = TxRefRandomGenerator
+                                        .gettxRef;
+                                    // Use the Chapa Flutter SDK to create a new transaction
+                                    loginDataProvider.loginData != null ||
+                                        loginDataProvider.isUserRegistered ==
+                                            true ?
+                                    await Chapa.getInstance.startPayment(
+                                      context: context,
+                                      onInAppPaymentSuccess: (
+                                          successMsg) async {
+                                        BookingResponse l;
+                                        setState(() { // Call setState before bookEvent
+                                          _isLoading = true;
+                                        });
+                                        l = await bookEvent(
+                                          Booking(
+                                              customerId: int.parse(
+                                                  phone!.replaceFirst(
+                                                      "0", "251")),
+                                              eventId: events[0].id,
+                                              classId: events[0].classes![index]
+                                                  .id,
+                                              phone: phone.replaceFirst(
+                                                  "0", "251"),
+                                              ticketNumber: ticketNum,
+                                              price: events[0].classes![index]
+                                                  .price!
+                                          ),
+                                        );
+                                        setState(() { // Call setState after bookEvent
+                                          _isLoading = false;
+                                        });
+                                        print(
+                                            'PAYMENT SUCCESS!'); // Handle success events
+                                        if (l.error == null) {
+                                          // Show the pop-up card
+                                          showDialog(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return AlertDialog(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius
+                                                        .circular(
+                                                        20)),
+                                                title: const Text(
+                                                    "Ticket Purchase Successful!"),
+                                                content:
+                                                Text(
+                                                    "${events[0].classes![index].price!} Birr Paid! Enjoy the event!"),
+                                                actions: [
+                                                  TextButton(
+                                                    child: const Text("OK"),
+                                                    onPressed: () {
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                      Navigator.of(context)
+                                                          .pop();
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        } else {
+                                          setState(() {
+                                            _isLoading = false;
+                                          });
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                              SnackBar(content: Text(
+                                                  'Error Booking your ticket please try again')));
+                                        }
+                                      },
+
+                                      amount: '${events[0].classes![index]
+                                          .price!}',
+                                      currency: 'ETB',
+                                      txRef: storedTxRef,
+                                      firstName: accountProvider.loginData
+                                          ?.firstName ?? '',
+                                      lastName: accountProvider.loginData
+                                          ?.lastName ?? '',
+                                      phoneNumber: '${phone ?? ''}',
+                                      onInAppPaymentError: (errorMsg) {
+                                        print(
+                                            'PAYMENT FAILURE'); // Handle error
+                                      },
+
+                                    ) : Navigator.push(
+                                        context,
+                                        MaterialPageRoute(builder: (context) {
+                                          return SignupScreen();
+                                        }));
+                                  }else{
+                setState(() {
+                _isLoading = false;
+                });
+                BookingResponse l = await bookEvent(
+                Booking(
+                customerId: int.parse(phone!.replaceFirst("0", "251")),
+                eventId: events[0].id,
+                classId: events[0].classes![index].id,
+                phone: phone.replaceFirst("0", "251"),
+                ticketNumber: ticketNum,
+                price: events[0].classes![index].price!
+                ),
+                );
+                print(l);
+                if(l.error == null){
+                setState(() {
+                _isLoading = false;
+                });
+                Navigator.push(
+                context, MaterialPageRoute(builder: (context) {
+                return ThankYouScreen(event: events[0]);
+                }));}
+                                  }
+
+
+
+                                    }
+
+
+                                else{
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                  BookingResponse l = await bookEvent(
+                                    Booking(
+                                        customerId: int.parse(phone!.replaceFirst("0", "251")),
+                                        eventId: events[0].id,
+                                        classId: events[0].classes![index].id,
+                                        phone: phone.replaceFirst("0", "251"),
+                                        ticketNumber: ticketNum,
+                                        price: events[0].classes![index].price!
+                                    ),
+                                  );
+                                  print(l);
+                                  if(l.error == null){
+                                    setState(() {
+                                      _isLoading = false;
+                                    });
+                                    Navigator.push(
+                                        context, MaterialPageRoute(builder: (context) {
+                                      return ThankYouScreen(event: events[0]);
+                                    }));}
+                                }
+                              },
+                              style: ButtonStyle(
+                                  minimumSize: MaterialStatePropertyAll(
+                                      Size(MediaQuery.of(context).size.width * 0.9, 50))),
+                              child: _isLoading? CircularProgressIndicator(): Text(
+                                  'Pay ETB ${events[0].classes![index].price!}'
                               ),
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Center(
-                                  child: Text(
-                                      events[0].classes![index].title!
-                                  ),
-                              ),
-                              Center(
-                                  child: Text(
-                                      events[0].classes![index].availableTicket! != 1?
-                                      '${events[0].classes![index].availableTicket!} available tickets'
-                                          :
-                                      '${events[0].classes![index].availableTicket!} available ticket'
-                                  ),
-                              ),
-                            ],
-                          )
-
                         ],
-                      ),
+                      )
+
                     ],
                   ),
                 );

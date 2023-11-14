@@ -7,6 +7,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
+import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 
 import 'package:ticketmaster_et/models/newmodels.dart';
@@ -113,7 +114,7 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => EventTicket(
+                      builder: (context) => EventDetail(
                         event: popularevents[index],
                       )));
             },

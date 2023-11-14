@@ -423,6 +423,42 @@ Future<BookingResponse> bookEvent(Booking data) async {
 }
 
 
+
+Future<CommentResponse> commentonEvent(int eventID, int userID, Comment data) async {
+  CommentResponse commentData;
+  Map<String, dynamic> jsonData = {
+    'event_id': eventID,
+    'user_id': userID,
+    'coment': data.comment,
+  };
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+  print('${data.comment}, ${data.firstName}, ${data.lastName}');
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/coment-event'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    commentData = CommentResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+ print(commentData);
+  return commentData;
+}
+
+
+
 Future<UpdatedUserResponse> updateUser( UpdatedUser data) async {
   UpdatedUserResponse updatedUserData;
   String requestBody = jsonEncode(data.toJson());
@@ -627,4 +663,149 @@ Future<List<Review>> getReviewByOrganizer(String id) async {
   }
 
   return review;
+}
+
+
+Future<LikeEventResponse> LikeE(LikeEvent data) async {
+  LikeEventResponse likeEventData;
+  Map<String, dynamic> jsonData = data.toJson();
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/like-event'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    likeEventData = LikeEventResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+
+  return likeEventData;
+}
+
+
+Future<DisLikeEventResponse> DisLikeE(DisLikeEvent data) async {
+  DisLikeEventResponse DislikeEventData;
+  Map<String, dynamic> jsonData = data.toJson();
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/dis-like-event'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    DislikeEventData = DisLikeEventResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+
+  return DislikeEventData;
+}
+
+
+Future<List<Comment>> getCommentsByEventId(int id) async {
+  List<Comment> comments = [];
+
+  try {
+    var res = await retryOptions.retry(
+          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/coment-list/$id")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'coment on specific event get successfully') {
+      var commentsData = data['data'] as List;
+      comments = commentsData.map((commentData) => Comment.fromJson(commentData)).toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return comments;
+}
+
+
+
+Future<InterestEventResponse> InterestE(InterestEvent data) async {
+  InterestEventResponse InterestEventData;
+  Map<String, dynamic> jsonData = data.toJson();
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/interested-event'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    InterestEventData = InterestEventResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+
+  return InterestEventData;
+}
+
+
+Future<DisInterestEventResponse> DisInterestE(DisInterestEvent data) async {
+  DisInterestEventResponse DisInterestEventData;
+  Map<String, dynamic> jsonData = data.toJson();
+
+  String requestBody = jsonEncode(jsonData);
+  var client = http.Client();
+  var retryOptions = RetryOptions(maxAttempts: 3);
+
+  try {
+    var res = await retryOptions.retry(
+          () => client.post(
+        Uri.parse('https://api.ticketmaster-et.com/api/dis-interested-event'),
+        body: requestBody,
+        headers: <String, String>{
+          'content-type': 'application/json',
+        },
+      ),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    var decodeRes = jsonDecode(res.body);
+    print(res.body);
+    DisInterestEventData = DisInterestEventResponse.fromJson(decodeRes);
+  } finally {
+    client.close();
+  }
+
+  return DisInterestEventData;
 }

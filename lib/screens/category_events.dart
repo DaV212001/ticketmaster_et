@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/event_model.dart';
+import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import '../constants/app_constants.dart';
@@ -272,7 +273,7 @@ class _CategoryEventsState extends State<CategoryEvents> {
                 onTap: () {
                   !widget.organizers?print('No Organizer Detail Available'):
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return EventTicket(event: events[index],);
+                    return EventDetail(event: events[index],);
                   }));
                 },
                 child: Container(

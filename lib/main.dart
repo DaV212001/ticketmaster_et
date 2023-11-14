@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/provider/settings_provider.dart';
+import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/screens/home/section/upcoming_screen_tab/upcoming_tab_widget.dart';
 import 'package:ticketmaster_et/screens/login.dart';
@@ -109,6 +110,8 @@ class _TicketMasterETState extends State<TicketMasterET>
       ChangeNotifierProvider(
       create: (context) => LoginDataProvider(),
       ),
+      ChangeNotifierProvider(
+      create: (context) => CommentsModel(),),
         ],
         child: Consumer<SettingsProvider>(
             builder: (context, settingsProvider, snapshot) {
@@ -489,7 +492,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                 onPressed: () async {
                                   Navigator.push(context, MaterialPageRoute(
                                       builder: ((context) {
-                                        return EventTicket(
+                                        return EventDetail(
                                           event: modified[0],
                                         );
                                       })));

@@ -94,3 +94,21 @@ class LoginDataProvider with ChangeNotifier {
   }
 
 }
+
+
+
+class CommentsModel extends ChangeNotifier {
+  List<Comment> _comments = [];
+
+  List<Comment> get comments => _comments;
+
+  void addComment(Comment comment) {
+    _comments.add(comment);
+    notifyListeners();
+  }
+
+  void addAllComments(List<Comment> newComments) {
+    _comments.addAll(newComments);
+    notifyListeners();
+  }
+}

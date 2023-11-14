@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 
 import '../../../provider/settings_provider.dart';
@@ -104,7 +105,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                             onTap: () {
                               Navigator.push(context,
                                   MaterialPageRoute(builder: (context) {
-                                    return EventTicket(event: events.isNotEmpty?events[index]: empty[index]);
+                                    return EventDetail(event: events.isNotEmpty?events[index]: empty[index]);
                                   }));
                             },
                             child: Container(

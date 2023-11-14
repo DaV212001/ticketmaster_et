@@ -1,7 +1,15 @@
 
 
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:ticketmaster_et/functions/functions.dart';
+
 import '../constants/app_constants.dart';
+import 'package:http/http.dart' as http;
+
 
 class Class {
   int? id;
@@ -87,7 +95,9 @@ class Event {
   List<Class>? classes;
   String? upcomingImage;
   List<CoverImage>? coverimages;
-
+  int? like;
+  int? comments;
+  int? interests;
 
   Event(
       {required this.id,
@@ -106,17 +116,86 @@ class Event {
         required this.time,
         required this.isPopular,
         required this.createdAt,
-        required this.updatedAt});
+        required this.updatedAt}) {
+    getNumberofLikes(id!).then((value) => like = value);
+    getNumberofComments(id!).then((value) => comments = value);
+    getNumberofInterests(id!).then((value) => interests = value);
+  }
+
+  Future<int> getNumberofLikes(int id) async {
+    int likes = 0;
+    try {
+      var res = await retryOptions.retry(
+            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-like/$id")),
+        retryIf: (e) => e is SocketException || e is TimeoutException,
+      );
+      var data = jsonDecode(res.body);
+      if (data['message'] == 'Number of like get successfully') {
+        likes = data['data'];
+      } else {
+        throw Exception('Unexpected message from API: ${data['message']}');
+      }
+    } finally {
+      client.close();
+    }
+    return likes;
+  }
+
+
+  Future<int> getNumberofInterests(int id) async {
+    int interests = 0;
+    try {
+      var res = await retryOptions.retry(
+            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-interested/$id")),
+        retryIf: (e) => e is SocketException || e is TimeoutException,
+      );
+      var data = jsonDecode(res.body);
+      print('CHECKING DATA OF INTEREST: ${data}');
+      if (data['message'] == 'Number of Interested customers get successfully') {
+        interests = data['data'];
+      } else {
+        throw Exception('Unexpected message from API: ${data['message']}');
+      }
+    } finally {
+      client.close();
+    }
+    return interests;
+  }
+
+
+
+  Future<int> getNumberofComments(int id) async {
+    int comments = 0;
+    try {
+      var res = await retryOptions.retry(
+            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-coment/$id")),
+        retryIf: (e) => e is SocketException || e is TimeoutException,
+      );
+      var data = jsonDecode(res.body);
+      if (data['message'] == 'Number of coment get successfully') {
+        comments = data['data'];
+      } else {
+        throw Exception('Unexpected message from API: ${data['message']}');
+      }
+    } finally {
+      client.close();
+    }
+    return comments;
+  }
+
+
+
 
   Event.fromJson(Map<String, dynamic> json, String language) {
     id = json['id'];
-    image = json['image'] != null? baseUrl + json['image']: json['image'] != "" ?'https://i.postimg.cc/VkBQ3FS6/na-logo.png': 'https://i.postimg.cc/VkBQ3FS6/na-logo.png' ;
-    popularImage = json['popular_image'] != null? baseUrl + json['popular_image']: 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
+    image = json['image'] != null ? baseUrl + json['image'] : json['image'] != "" ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png' : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+    popularImage = json['popular_image'] != null ? baseUrl + json['popular_image'] : 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
     categoryId = json['category_id'];
     subCategoryId = json['sub_category_id'];
     organizerId = json['organizer_id'];
     countryId = json['country_id'];
     cityId = json['city_id'];
+
     switch (language) {
       case 'am':
         title = json['title_am'];
@@ -130,6 +209,7 @@ class Event {
       default:
         throw Exception('Invalid language: $language');
     }
+
     switch (language) {
       case 'am':
         desc = json['desc_am'];
@@ -143,6 +223,7 @@ class Event {
       default:
         throw Exception('Invalid language: $language');
     }
+
     switch (language) {
       case 'am':
         place = json['place_am'];
@@ -156,15 +237,20 @@ class Event {
       default:
         throw Exception('Invalid language: $language');
     }
+
     date = json['date'];
     time = json['time'];
     isPopular = json['is_popular'];
-    createdAt = json["created_at"]!=null?  DateTime.parse(json["created_at"]): DateTime.parse("-000001-11-30T00:00:00.000000Z");
+
+    createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
-    var classData = json["class"] != null? json["class"] as List: [];
+
+    var classData = json["class"] != null ? json["class"] as List : [];
     classes = classData.map((data) => Class.fromJson(data, language)).toList();
-    upcomingImage = json['upcoming_image'] != null? baseUrl + json['upcoming_image']: json['upcoming_image'] != "" ?'https://i.postimg.cc/VkBQ3FS6/na-logo.png': 'https://i.postimg.cc/VkBQ3FS6/na-logo.png' ;
-    var coverData = json["cover_image"] != null? json["cover_image"] as List: [];
+
+    upcomingImage = json['upcoming_image'] != null ? baseUrl + json['upcoming_image'] : json['upcoming_image'] != "" ?'https://i.postimg.cc/VkBQ3FS6/na-logo.png': 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+
+    var coverData = json["cover_image"] != null ? json["cover_image"] as List : [];
     coverimages = coverData.map((data) => CoverImage.fromJson(data, language)).toList();
   }
 }
@@ -668,5 +754,149 @@ class UpdateError {
       phone = List<String>.from(json['last_name']);
     }
 
+  }
+}
+
+
+class LikeEvent {
+  final int? eventId;
+  final int? userId;
+
+  LikeEvent({required this.eventId, required this.userId});
+
+  Map<String, dynamic> toJson() => {
+    'event_id': eventId,
+    'user_id': userId,
+  };
+}
+
+class LikeEventResponse {
+  Map<String, dynamic>? error;
+  String? message;
+
+  LikeEventResponse({this.error, this.message});
+
+  LikeEventResponse.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('error')) {
+      error = json['error'];
+    }
+    if (json.containsKey('message')) {
+      message = json['message'];
+    }
+  }
+}
+
+
+class DisLikeEvent {
+  final int? eventId;
+  final int? userId;
+
+  DisLikeEvent({required this.eventId, required this.userId});
+
+  Map<String, dynamic> toJson() => {
+    'event_id': eventId,
+    'user_id': userId,
+  };
+}
+
+class DisLikeEventResponse {
+  Map<String, dynamic>? error;
+  Map<String, dynamic>? message;
+
+  DisLikeEventResponse({this.error, this.message});
+
+  DisLikeEventResponse.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('error')) {
+      error = json['error'];
+    } else {
+      message = json;
+    }
+  }
+}
+
+
+class Comment {
+  String? firstName;
+  String? lastName;
+  String? comment;
+
+  Comment({this.firstName, this.lastName, this.comment});
+
+  Comment.fromJson(Map<String, dynamic> json) {
+    firstName = json['first_name'];
+    lastName = json['last_name'];
+    comment = json['coment'];
+  }
+}
+
+class CommentResponse {
+  Map<String, dynamic>? error;
+  Map<String, dynamic>? message;
+
+  CommentResponse({this.error, this.message});
+
+   CommentResponse.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('error')) {
+      error = json['error'];
+    } else {
+      message = json;
+    }
+  }
+}
+
+
+class InterestEvent {
+  final int? eventId;
+  final int? userId;
+
+  InterestEvent({required this.eventId, required this.userId});
+
+  Map<String, dynamic> toJson() => {
+    'event_id': eventId,
+    'user_id': userId,
+  };
+}
+
+class InterestEventResponse {
+  Map<String, dynamic>? error;
+  String? message;
+
+  InterestEventResponse({this.error, this.message});
+
+  InterestEventResponse.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('error')) {
+      error = json['error'];
+    }
+    if (json.containsKey('message')) {
+      message = json['message'];
+    }
+  }
+}
+
+
+class DisInterestEvent {
+  final int? eventId;
+  final int? userId;
+
+  DisInterestEvent({required this.eventId, required this.userId});
+
+  Map<String, dynamic> toJson() => {
+    'event_id': eventId,
+    'user_id': userId,
+  };
+}
+
+class DisInterestEventResponse {
+  Map<String, dynamic>? error;
+  Map<String, dynamic>? message;
+
+  DisInterestEventResponse({this.error, this.message});
+
+  DisInterestEventResponse.fromJson(Map<String, dynamic> json) {
+    if (json.containsKey('error')) {
+      error = json['error'];
+    } else {
+      message = json;
+    }
   }
 }
