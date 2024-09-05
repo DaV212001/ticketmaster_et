@@ -1,15 +1,11 @@
-
-
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:http/http.dart' as http;
 import 'package:ticketmaster_et/functions/functions.dart';
 
 import '../constants/app_constants.dart';
-import 'package:http/http.dart' as http;
-
 
 class Class {
   int? id;
@@ -18,17 +14,11 @@ class Class {
   int? availableTicket;
   int? price;
 
-  Class({
-    this.id,
-    this.eventId,
-    this.title,
-    this.availableTicket,
-    this.price
-  });
+  Class({this.id, this.eventId, this.title, this.availableTicket, this.price});
 
   Class.fromJson(Map<String, dynamic> json, String language) {
-    id= json['id'];
-    eventId= json['event_id'];
+    id = json['id'];
+    eventId = json['event_id'];
     switch (language) {
       case 'am':
         title = json['title_am'];
@@ -42,11 +32,10 @@ class Class {
       default:
         throw Exception('Invalid language: $language');
     }
-    availableTicket= int.parse(json['available_ticket']);
-    price= int.parse(json['price']);
+    availableTicket = int.parse(json['available_ticket']);
+    price = int.parse(json['price']);
   }
 }
-
 
 class CoverImage {
   int? id;
@@ -59,19 +48,23 @@ class CoverImage {
   DateTime? updatedat;
 
   CoverImage(
-      { this.id,
-        this.coverimage,
-        required this.categoryId,
-        required this.subcategoryId,
-        this.organizerId});
+      {this.id,
+      this.coverimage,
+      required this.categoryId,
+      required this.subcategoryId,
+      this.organizerId});
 
   CoverImage.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
     coverimage = baseUrl + json["cover_image"];
-    categoryId = json["category_id"]!=null?int.parse(json["category_id"]):0;
-    subcategoryId = json["sub_category_id"]!=null?int.parse(json["sub_category_id"]):0;
-    organizerId = json["organizer_id"]!=null?int.parse(json["organizer_id"]):0;
-    eventId = json["event_id"]!=null?int.parse(json["event_id"]):0;
+    categoryId =
+        json["category_id"] != null ? int.parse(json["category_id"]) : 0;
+    subcategoryId = json["sub_category_id"] != null
+        ? int.parse(json["sub_category_id"])
+        : 0;
+    organizerId =
+        json["organizer_id"] != null ? int.parse(json["organizer_id"]) : 0;
+    eventId = json["event_id"] != null ? int.parse(json["event_id"]) : 0;
   }
 }
 
@@ -101,22 +94,22 @@ class Event {
 
   Event(
       {required this.id,
-        this.upcomingImage,
-        required this.image,
-        required this.popularImage,
-        required this.categoryId,
-        required this.subCategoryId,
-        required this.organizerId,
-        required this.countryId,
-        required this.cityId,
-        required this.title,
-        required this.desc,
-        required this.place,
-        required this.date,
-        required this.time,
-        required this.isPopular,
-        required this.createdAt,
-        required this.updatedAt}) {
+      this.upcomingImage,
+      required this.image,
+      required this.popularImage,
+      required this.categoryId,
+      required this.subCategoryId,
+      required this.organizerId,
+      required this.countryId,
+      required this.cityId,
+      required this.title,
+      required this.desc,
+      required this.place,
+      required this.date,
+      required this.time,
+      required this.isPopular,
+      required this.createdAt,
+      required this.updatedAt}) {
     getNumberofLikes(id!).then((value) => like = value);
     getNumberofComments(id!).then((value) => comments = value);
     getNumberofInterests(id!).then((value) => interests = value);
@@ -126,7 +119,8 @@ class Event {
     int likes = 0;
     try {
       var res = await retryOptions.retry(
-            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-like/$id")),
+        () => http.get(
+            Uri.parse("https://api.ticketmaster-et.com/api/num-of-like/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
@@ -141,17 +135,18 @@ class Event {
     return likes;
   }
 
-
   Future<int> getNumberofInterests(int id) async {
     int interests = 0;
     try {
       var res = await retryOptions.retry(
-            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-interested/$id")),
+        () => http.get(Uri.parse(
+            "https://api.ticketmaster-et.com/api/num-of-interested/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
       print('CHECKING DATA OF INTEREST: ${data}');
-      if (data['message'] == 'Number of Interested customers get successfully') {
+      if (data['message'] ==
+          'Number of Interested customers get successfully') {
         interests = data['data'];
       } else {
         throw Exception('Unexpected message from API: ${data['message']}');
@@ -162,13 +157,12 @@ class Event {
     return interests;
   }
 
-
-
   Future<int> getNumberofComments(int id) async {
     int comments = 0;
     try {
       var res = await retryOptions.retry(
-            () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/num-of-coment/$id")),
+        () => http.get(
+            Uri.parse("https://api.ticketmaster-et.com/api/num-of-coment/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
@@ -183,13 +177,16 @@ class Event {
     return comments;
   }
 
-
-
-
   Event.fromJson(Map<String, dynamic> json, String language) {
     id = json['id'];
-    image = json['image'] != null ? baseUrl + json['image'] : json['image'] != "" ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png' : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
-    popularImage = json['popular_image'] != null ? baseUrl + json['popular_image'] : 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
+    image = json['image'] != null
+        ? baseUrl + json['image']
+        : json['image'] != ""
+            ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+            : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+    popularImage = json['popular_image'] != null
+        ? baseUrl + json['popular_image']
+        : 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
     categoryId = json['category_id'];
     subCategoryId = json['sub_category_id'];
     organizerId = json['organizer_id'];
@@ -248,10 +245,16 @@ class Event {
     var classData = json["class"] != null ? json["class"] as List : [];
     classes = classData.map((data) => Class.fromJson(data, language)).toList();
 
-    upcomingImage = json['upcoming_image'] != null ? baseUrl + json['upcoming_image'] : json['upcoming_image'] != "" ?'https://i.postimg.cc/VkBQ3FS6/na-logo.png': 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+    upcomingImage = json['upcoming_image'] != null
+        ? baseUrl + json['upcoming_image']
+        : json['upcoming_image'] != ""
+            ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+            : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
 
-    var coverData = json["cover_image"] != null ? json["cover_image"] as List : [];
-    coverimages = coverData.map((data) => CoverImage.fromJson(data, language)).toList();
+    var coverData =
+        json["cover_image"] != null ? json["cover_image"] as List : [];
+    coverimages =
+        coverData.map((data) => CoverImage.fromJson(data, language)).toList();
   }
 }
 
@@ -266,30 +269,29 @@ class Ticket {
   String? ticket_number;
   String? price;
 
-  Ticket({
-    this.phone,
-    this.price,
-    this.className,
-    this.eventDate,
-    this.eventImage,
-    this.eventName,
-    this.eventPlace,
-    this.eventTime,
-    this.ticket_number
-  });
+  Ticket(
+      {this.phone,
+      this.price,
+      this.className,
+      this.eventDate,
+      this.eventImage,
+      this.eventName,
+      this.eventPlace,
+      this.eventTime,
+      this.ticket_number});
 
-  Ticket.fromJson(Map<String, dynamic> json, String language){
+  Ticket.fromJson(Map<String, dynamic> json, String language) {
     phone = json['phone'];
     price = json['price'];
     switch (language) {
       case 'am':
-        className = json['class_name_am']??" ";
+        className = json['class_name_am'] ?? " ";
         break;
       case 'en':
-        className = json['class_name_en']??" ";
+        className = json['class_name_en'] ?? " ";
         break;
       case 'en-AU':
-        className = json['class_name_or']??" ";
+        className = json['class_name_or'] ?? " ";
         break;
       default:
         throw Exception('Invalid language: $language');
@@ -297,29 +299,30 @@ class Ticket {
     eventTime = json['event_time'];
     switch (language) {
       case 'am':
-        eventPlace = json['event_place_am']??" ";
+        eventPlace = json['event_place_am'] ?? " ";
         break;
       case 'en':
-        eventPlace = json['event_place_en']??" ";
+        eventPlace = json['event_place_en'] ?? " ";
         break;
       case 'en-AU':
-        eventPlace = json['event_place_or']??" ";
+        eventPlace = json['event_place_or'] ?? " ";
         break;
       default:
         throw Exception('Invalid language: $language');
     }
     ticket_number = json['ticket_number'];
     eventDate = json['event_date'];
-    eventImage = json['event_image']!=null?baseUrl+json['event_image']:" ";
+    eventImage =
+        json['event_image'] != null ? baseUrl + json['event_image'] : " ";
     switch (language) {
       case 'am':
-        eventName = json['event_name_am']??" ";
+        eventName = json['event_name_am'] ?? " ";
         break;
       case 'en':
-        eventName = json['event_name_en']??" ";
+        eventName = json['event_name_en'] ?? " ";
         break;
       case 'en-AU':
-        eventName = json['event_name_or']??" ";
+        eventName = json['event_name_or'] ?? " ";
         break;
       default:
         throw Exception('Invalid language: $language');
@@ -337,11 +340,11 @@ class Category {
 
   Category(
       {required this.id,
-        required this.image,
-        required this.name,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.subCategory});
+      required this.image,
+      required this.name,
+      required this.createdAt,
+      required this.updatedAt,
+      required this.subCategory});
 
   Category.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
@@ -363,7 +366,9 @@ class Category {
     updatedAt = DateTime.parse(json["updated_at"]);
 
     var subCategoriesData = json["sub_category"] as List;
-    subCategory = subCategoriesData.map((data) => SubCategory.fromJson(data, language)).toList();
+    subCategory = subCategoriesData
+        .map((data) => SubCategory.fromJson(data, language))
+        .toList();
   }
 }
 
@@ -376,10 +381,10 @@ class SubCategory {
 
   SubCategory(
       {required this.id,
-        required this.image,
-        required this.categoryId,
-        required this.name,
-        this.desc});
+      required this.image,
+      required this.categoryId,
+      required this.name,
+      this.desc});
 
   SubCategory.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
@@ -424,15 +429,15 @@ class Organizer {
 
   Organizer(
       {required this.id,
-        required this.image,
-        required this.name,
-        required this.desc,
-        required this.createdAt,
-        required this.updatedAt});
+      required this.image,
+      required this.name,
+      required this.desc,
+      required this.createdAt,
+      required this.updatedAt});
 
   Organizer.fromJson(Map<String, dynamic> json, String language) {
-    id=json['id'];
-    image=baseUrl+json['image'];
+    id = json['id'];
+    image = baseUrl + json['image'];
     switch (language) {
       case 'am':
         name = json['name_am'];
@@ -459,20 +464,29 @@ class Organizer {
       default:
         desc = '0';
     }
-    createdAt=DateTime.parse(json['created_at']);
-    updatedAt=DateTime.parse(json['updated_at']);
+    createdAt = DateTime.parse(json['created_at']);
+    updatedAt = DateTime.parse(json['updated_at']);
   }
 }
 
-
 class Signup {
-  String? firstName, lastName, email, phoneNumber, password, confirmPassword, promoCode, cityid;
+  String? firstName,
+      lastName,
+      email,
+      phoneNumber,
+      password,
+      confirmPassword,
+      promoCode,
+      cityid;
   Signup(
       {required this.confirmPassword,
-        required this.email,
-        required this.password,
-        required this.phoneNumber,
-        required this.promoCode, required this.firstName, required this.lastName, required this.cityid});
+      required this.email,
+      required this.password,
+      required this.phoneNumber,
+      required this.promoCode,
+      required this.firstName,
+      required this.lastName,
+      required this.cityid});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -499,7 +513,7 @@ class SignupResponse {
   SignupResponse.fromJson(Map<String, dynamic> json) {
     message = json.containsKey('message') ? json['message'] : null;
     error =
-    json.containsKey('error') ? ErrorData.fromJson(json['error']) : null;
+        json.containsKey('error') ? ErrorData.fromJson(json['error']) : null;
   }
 }
 
@@ -511,9 +525,9 @@ class ErrorData {
 
   ErrorData(
       {required this.email,
-        required this.phonenumber,
-        required this.name,
-        required this.password});
+      required this.phonenumber,
+      required this.name,
+      required this.password});
 
   ErrorData.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('email')) {
@@ -531,45 +545,42 @@ class ErrorData {
   }
 }
 
-
 class Booking {
   int? customerId, eventId, classId, price;
   String? phone, ticketNumber;
 
-  Booking({
-    required this.customerId,
-    required this.eventId,
-    required this.classId,
-    required this.phone,
-    required this.ticketNumber,
-    required this.price
-  });
+  Booking(
+      {required this.customerId,
+      required this.eventId,
+      required this.classId,
+      required this.phone,
+      required this.ticketNumber,
+      required this.price});
 
   Map<String, dynamic> toJson() => {
-    'customer_id': customerId,
-    'event_id': eventId,
-    'class_id': classId,
-    'phone': phone,
-    'ticket_number': ticketNumber,
-    'price': price
-  };
+        'customer_id': customerId,
+        'event_id': eventId,
+        'class_id': classId,
+        'phone': phone,
+        'ticket_number': ticketNumber,
+        'price': price
+      };
 }
 
 class BookingResponse {
   Map<String, dynamic>? error;
   String? message;
-  BookingResponse({
-    this.error,
-    this.message
-  });
+  BookingResponse({this.error, this.message});
   BookingResponse.formJson(Map<String, dynamic> json) {
-    if(json.containsKey('error')){error = json['error'];}
-    if(json.containsKey('message')){message = json['message'];}
+    if (json.containsKey('error')) {
+      error = json['error'];
+    }
+    if (json.containsKey('message')) {
+      message = json['message'];
+    }
     // Parse your response here
   }
 }
-
-
 
 class Login {
   String? phoneNumber, password;
@@ -614,24 +625,23 @@ class LoginData {
   String? updatedAt;
   String? password;
 
-  LoginData({
-    this.id,
-    this.profileImage,
-    this.firstName,
-    this.lastName,
-    this.phone,
-    this.cityId,
-    this.email,
-    this.emailVerifiedAt,
-    this.roleId,
-    this.lang,
-    this.darkMode,
-    this.promocode,
-    this.token,
-    this.createdAt,
-    this.updatedAt,
-    this.password
-  });
+  LoginData(
+      {this.id,
+      this.profileImage,
+      this.firstName,
+      this.lastName,
+      this.phone,
+      this.cityId,
+      this.email,
+      this.emailVerifiedAt,
+      this.roleId,
+      this.lang,
+      this.darkMode,
+      this.promocode,
+      this.token,
+      this.createdAt,
+      this.updatedAt,
+      this.password});
 
   LoginData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -671,6 +681,7 @@ class LoginData {
     };
   }
 }
+
 class City {
   int? id;
   String? countryID;
@@ -678,17 +689,16 @@ class City {
   DateTime? createdAt;
   DateTime? updatedAt;
 
-  City({
-    required this.id,
-    required this.countryID,
-    required this.name,
-    required this.createdAt,
-    required this.updatedAt
-  });
+  City(
+      {required this.id,
+      required this.countryID,
+      required this.name,
+      required this.createdAt,
+      required this.updatedAt});
 
   City.fromJson(Map<String, dynamic> json, String language) {
-    id= json['id'];
-    countryID= json['country_id'];
+    id = json['id'];
+    countryID = json['country_id'];
     switch (language) {
       case 'am':
         name = json['name_am'];
@@ -702,7 +712,9 @@ class City {
       default:
         throw Exception('Invalid language: $language');
     }
-    createdAt = json["created_at"]!=null?  DateTime.parse(json["created_at"]): DateTime.parse("-000001-11-30T00:00:00.000000Z");
+    createdAt = json["created_at"] != null
+        ? DateTime.parse(json["created_at"])
+        : DateTime.parse("-000001-11-30T00:00:00.000000Z");
     updatedAt = DateTime.parse(json["updated_at"]);
   }
 }
@@ -710,7 +722,8 @@ class City {
 class UpdatedUser {
   String? firstName, lastName, phone;
 
-  UpdatedUser({required this.firstName, required this.lastName, required this.phone});
+  UpdatedUser(
+      {required this.firstName, required this.lastName, required this.phone});
 
   Map<String, dynamic> toJson() {
     return {
@@ -721,7 +734,6 @@ class UpdatedUser {
   }
 }
 
-
 class UpdatedUserResponse {
   String? message;
   UpdateError? error;
@@ -730,18 +742,17 @@ class UpdatedUserResponse {
 
   UpdatedUserResponse.fromJson(Map<String, dynamic> json) {
     message = json.containsKey('message') ? json['message'] : null;
-    error = json.containsKey('error') ? UpdateError.fromJson(json['error']) : null;
+    error =
+        json.containsKey('error') ? UpdateError.fromJson(json['error']) : null;
   }
 }
-
 
 class UpdateError {
   List<String>? firstName;
   List<String>? LastName;
   List<String>? phone;
 
-  UpdateError(
-      {this.phone, this.firstName, this.LastName});
+  UpdateError({this.phone, this.firstName, this.LastName});
 
   UpdateError.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('first_name')) {
@@ -753,10 +764,8 @@ class UpdateError {
     if (json.containsKey('last_name')) {
       phone = List<String>.from(json['last_name']);
     }
-
   }
 }
-
 
 class LikeEvent {
   final int? eventId;
@@ -765,9 +774,9 @@ class LikeEvent {
   LikeEvent({required this.eventId, required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'event_id': eventId,
-    'user_id': userId,
-  };
+        'event_id': eventId,
+        'user_id': userId,
+      };
 }
 
 class LikeEventResponse {
@@ -786,7 +795,6 @@ class LikeEventResponse {
   }
 }
 
-
 class DisLikeEvent {
   final int? eventId;
   final int? userId;
@@ -794,9 +802,9 @@ class DisLikeEvent {
   DisLikeEvent({required this.eventId, required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'event_id': eventId,
-    'user_id': userId,
-  };
+        'event_id': eventId,
+        'user_id': userId,
+      };
 }
 
 class DisLikeEventResponse {
@@ -813,7 +821,6 @@ class DisLikeEventResponse {
     }
   }
 }
-
 
 class Comment {
   String? firstName;
@@ -835,7 +842,7 @@ class CommentResponse {
 
   CommentResponse({this.error, this.message});
 
-   CommentResponse.fromJson(Map<String, dynamic> json) {
+  CommentResponse.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('error')) {
       error = json['error'];
     } else {
@@ -844,7 +851,6 @@ class CommentResponse {
   }
 }
 
-
 class InterestEvent {
   final int? eventId;
   final int? userId;
@@ -852,9 +858,9 @@ class InterestEvent {
   InterestEvent({required this.eventId, required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'event_id': eventId,
-    'user_id': userId,
-  };
+        'event_id': eventId,
+        'user_id': userId,
+      };
 }
 
 class InterestEventResponse {
@@ -873,7 +879,6 @@ class InterestEventResponse {
   }
 }
 
-
 class DisInterestEvent {
   final int? eventId;
   final int? userId;
@@ -881,9 +886,9 @@ class DisInterestEvent {
   DisInterestEvent({required this.eventId, required this.userId});
 
   Map<String, dynamic> toJson() => {
-    'event_id': eventId,
-    'user_id': userId,
-  };
+        'event_id': eventId,
+        'user_id': userId,
+      };
 }
 
 class DisInterestEventResponse {

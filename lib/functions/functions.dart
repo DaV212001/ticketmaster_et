@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+
+import 'package:http/http.dart' as http;
 import 'package:retry/retry.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+
 import '../models/faq.dart';
 import '../models/privacy_policy.dart';
 import '../models/review.dart';
@@ -19,14 +21,17 @@ Future<List<Event>> getEvents(String apiUrl, String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse(apiUrl)),
+      () => http.get(Uri.parse(apiUrl)),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Event get successfully'||data['message'] == 'Upcoming Event get successfully') {
+    if (data['message'] == 'Event get successfully' ||
+        data['message'] == 'Upcoming Event get successfully') {
       var eventsData = data['data'] as List;
-      events = eventsData.map((eventData) => Event.fromJson(eventData, language)).toList();
+      events = eventsData
+          .map((eventData) => Event.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -42,7 +47,8 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/event-detail/$id")),
+      () => http.get(
+          Uri.parse("https://api.ticketmaster-et.com/api/event-detail/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -50,7 +56,9 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event detail get successfully') {
       var eventsData = data['data'] as List;
-      events = eventsData.map((eventData) => Event.fromJson(eventData, language)).toList();
+      events = eventsData
+          .map((eventData) => Event.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -61,21 +69,30 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
   return events;
 }
 
-Future<List<CoverImage>> getCoverImagesbySubCatID(int id, String language) async {
+Future<List<CoverImage>> getCoverImagesbySubCatID(
+    int id, String language) async {
   List<CoverImage> coverimages = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-sub-category/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/cover-image-by-sub-category/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Cover image By selected Sub category get successfully') {
+    if (data['message'] ==
+        'Cover image By selected Sub category get successfully') {
       var eventsData = data['data'] as List;
-      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+      coverimages = eventsData
+          .map((eventData) => CoverImage.fromJson(eventData, language))
+          .toList();
     } else {
-      throw Exception('Unexpected message from API: ${data['message']}');
+      if (data['message'] == 'No cover image By selected Sub Category found') {
+        return [];
+      } else {
+        throw Exception('Unexpected message from API: ${data['message']}');
+      }
     }
   } finally {
     client.close();
@@ -84,20 +101,23 @@ Future<List<CoverImage>> getCoverImagesbySubCatID(int id, String language) async
   return coverimages;
 }
 
-
-Future<List<CoverImage>> getCoverImagesbyEventID(int id, String language) async {
+Future<List<CoverImage>> getCoverImagesbyEventID(
+    int id, String language) async {
   List<CoverImage> coverimages = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-event/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/cover-image-by-event/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
     if (data['message'] == 'Cover image By selected Event get successfully') {
       var eventsData = data['data'] as List;
-      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+      coverimages = eventsData
+          .map((eventData) => CoverImage.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -108,21 +128,24 @@ Future<List<CoverImage>> getCoverImagesbyEventID(int id, String language) async 
   return coverimages;
 }
 
-
-
-Future<List<CoverImage>> getCoverImagesbyOrganizerID(int id, String language) async {
+Future<List<CoverImage>> getCoverImagesbyOrganizerID(
+    int id, String language) async {
   List<CoverImage> coverimages = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/cover-image-by-organizer/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/cover-image-by-organizer/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Cover image By selected Organizer get successfully') {
+    if (data['message'] ==
+        'Cover image By selected Organizer get successfully') {
       var eventsData = data['data'] as List;
-      coverimages = eventsData.map((eventData) => CoverImage.fromJson(eventData, language)).toList();
+      coverimages = eventsData
+          .map((eventData) => CoverImage.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -138,16 +161,19 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/category-sub-category")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/category-sub-category")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
-  //  print("=================Category============${res.body}");
-     // print(res.body);
+    //  print("=================Category============${res.body}");
+    // print(res.body);
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event By category get successfully') {
       var categoriesData = data['data'] as List;
-      categories = categoriesData.map((categoryData) => Category.fromJson(categoryData, language)).toList();
+      categories = categoriesData
+          .map((categoryData) => Category.fromJson(categoryData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -163,14 +189,17 @@ Future<List<Organizer>> getOrganizers(String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/organizer")),
+      () =>
+          http.get(Uri.parse("https://api.ticketmaster-et.com/api/organizer")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     //  print("=================ORGANIZER============${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'organizer get successfully') {
       var organizersData = data['data'] as List;
-      organizers = organizersData.map((organizerData) => Organizer.fromJson(organizerData, language)).toList();
+      organizers = organizersData
+          .map((organizerData) => Organizer.fromJson(organizerData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -186,7 +215,8 @@ Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/event-by-sub-category/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/event-by-sub-category/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -195,9 +225,15 @@ Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
     if (data['message'] == 'Event By selected Sub category get successfully') {
       var eventsData = data['data'] as List;
       // print(eventsData);
-      events = eventsData.map((eventData) => Event.fromJson(eventData, language)).toList();
+      events = eventsData
+          .map((eventData) => Event.fromJson(eventData, language))
+          .toList();
     } else {
-      throw Exception('Unexpected message from API: ${data['message']}');
+      if (data['message'] == 'No Event By selected Sub Category found') {
+        return [];
+      } else {
+        throw Exception('Unexpected message from API: ${data['message']}');
+      }
     }
   } finally {
     client.close();
@@ -206,12 +242,14 @@ Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
   return events;
 }
 
-Future<List<SubCategory>> getSubCategoryByCategoryId(int id, String language) async {
+Future<List<SubCategory>> getSubCategoryByCategoryId(
+    int id, String language) async {
   List<SubCategory> subcategories = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/sub-category-by-category-id/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/sub-category-by-category-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -221,10 +259,13 @@ Future<List<SubCategory>> getSubCategoryByCategoryId(int id, String language) as
       var dataList = data['data'] as List;
       for (var item in dataList) {
         var subcategoryData = item['sub_category'] as List;
-        subcategories += subcategoryData.map((eventData) => SubCategory.fromJson(eventData, language)).toList();
+        subcategories += subcategoryData
+            .map((eventData) => SubCategory.fromJson(eventData, language))
+            .toList();
       }
     } else {
-      throw Exception('Unexpected message from API with id $id: ${data['message']}');
+      throw Exception(
+          'Unexpected message from API with id $id: ${data['message']}');
     }
   } finally {
     client.close();
@@ -233,15 +274,13 @@ Future<List<SubCategory>> getSubCategoryByCategoryId(int id, String language) as
   return subcategories;
 }
 
-
-
-
 Future<List<Event>> getEventsByOrganizerId(int id, String language) async {
   List<Event> events = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/event-by-organizer-id/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/event-by-organizer-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -249,7 +288,9 @@ Future<List<Event>> getEventsByOrganizerId(int id, String language) async {
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event By selected organizer get successfully') {
       var eventsData = data['data'] as List;
-      events = eventsData.map((eventData) => Event.fromJson(eventData, language)).toList();
+      events = eventsData
+          .map((eventData) => Event.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -265,7 +306,8 @@ Future<List<Event>> getEventsByCategoryId(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/event-by-category-id/$id")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/event-by-category-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -291,18 +333,17 @@ Future<List<Event>> getEventsByCategoryId(int id, String language) async {
   return events;
 }
 
-
 Future<SignupResponse> signupResponse(Signup data, String uri) async {
   SignupResponse response;
 
   Map<String, dynamic> jsonData = {
     'first_name': data.firstName,
-    'last_name' : data.lastName,
+    'last_name': data.lastName,
     'password_confirmation': data.confirmPassword,
     'email': data.email,
     'password': data.password,
     'phone': data.phoneNumber,
-    'city_id' : data.cityid
+    'city_id': data.cityid
   };
 
   String requestBody = jsonEncode(jsonData);
@@ -310,7 +351,7 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
   try {
     print(data.toJson());
     var res = await retryOptions.retry(
-          () => http.post(
+      () => http.post(
         Uri.parse(uri),
         body: requestBody,
         headers: <String, String>{
@@ -329,7 +370,6 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
   return response;
 }
 
-
 Future<LoginResponse> loginResponse(String uri, Login data) async {
   LoginResponse loginData;
   Map<String, dynamic> jsonData = {
@@ -340,7 +380,7 @@ Future<LoginResponse> loginResponse(String uri, Login data) async {
   String requestBody = jsonEncode(jsonData);
   try {
     var res = await retryOptions.retry(
-          () => http.post(
+      () => http.post(
         Uri.parse(uri),
         body: requestBody,
         headers: <String, String>{
@@ -374,14 +414,16 @@ Future<List<City>> getCity(String language) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/city")),
+      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/city")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
     if (data['message'] == 'City get successfully') {
       var organizersData = data['data'] as List;
-      cities = organizersData.map((organizerData) => City.fromJson(organizerData, language)).toList();
+      cities = organizersData
+          .map((organizerData) => City.fromJson(organizerData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -391,7 +433,6 @@ Future<List<City>> getCity(String language) async {
 
   return cities;
 }
-
 
 Future<BookingResponse> bookEvent(Booking data) async {
   BookingResponse bookingData;
@@ -403,7 +444,7 @@ Future<BookingResponse> bookEvent(Booking data) async {
 
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/book'),
         body: requestBody,
         headers: <String, String>{
@@ -422,9 +463,8 @@ Future<BookingResponse> bookEvent(Booking data) async {
   return bookingData;
 }
 
-
-
-Future<CommentResponse> commentonEvent(int eventID, int userID, Comment data) async {
+Future<CommentResponse> commentonEvent(
+    int eventID, int userID, Comment data) async {
   CommentResponse commentData;
   Map<String, dynamic> jsonData = {
     'event_id': eventID,
@@ -438,7 +478,7 @@ Future<CommentResponse> commentonEvent(int eventID, int userID, Comment data) as
   print('${data.comment}, ${data.firstName}, ${data.lastName}');
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/coment-event'),
         body: requestBody,
         headers: <String, String>{
@@ -453,18 +493,16 @@ Future<CommentResponse> commentonEvent(int eventID, int userID, Comment data) as
   } finally {
     client.close();
   }
- print(commentData);
+  print(commentData);
   return commentData;
 }
 
-
-
-Future<UpdatedUserResponse> updateUser( UpdatedUser data) async {
+Future<UpdatedUserResponse> updateUser(UpdatedUser data) async {
   UpdatedUserResponse updatedUserData;
   String requestBody = jsonEncode(data.toJson());
   try {
     var res = await retryOptions.retry(
-          () => http.post(
+      () => http.post(
         Uri.parse("https://api.ticketmaster-et.com/api/update_user"),
         body: requestBody,
         headers: <String, String>{
@@ -482,21 +520,16 @@ Future<UpdatedUserResponse> updateUser( UpdatedUser data) async {
   return updatedUserData;
 }
 
-
-
 Future<List<PrivacyPolicy>> getPrivacyPolicy(String language) async {
   print("getPrivacyPolicy");
   List<PrivacyPolicy> privacyPolicy = [];
 
-
-
   try {
     print("http.get 1");
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/privacy")),
+      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/privacy")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-
 
     print("http.get 2");
 
@@ -506,7 +539,9 @@ Future<List<PrivacyPolicy>> getPrivacyPolicy(String language) async {
       // print("data['message'] ${data['message']}");
       var privacyPolicyData = data['data'] as List;
       // print("privacyPolicyData ${privacyPolicyData}");
-      privacyPolicy = privacyPolicyData.map((privacyData) => PrivacyPolicy.fromJson(privacyData, language)).toList();
+      privacyPolicy = privacyPolicyData
+          .map((privacyData) => PrivacyPolicy.fromJson(privacyData, language))
+          .toList();
       // print("privacyPolicy ${privacyPolicy[0]}");
       // print("privacyPolicy id ${privacyPolicy[0].id}");
       // print("privacyPolicy title ${privacyPolicy[0].title}");
@@ -519,13 +554,14 @@ Future<List<PrivacyPolicy>> getPrivacyPolicy(String language) async {
 
   return privacyPolicy;
 }
+
 Future<List<FAQ>> getFAQ(String language) async {
   print("getFAQ");
   List<FAQ> faq = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/faq")),
+      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/faq")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -545,19 +581,23 @@ Future<List<FAQ>> getFAQ(String language) async {
 
   return faq;
 }
+
 Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
   print("getTermsAndConditions");
   List<TermsAndConditions> termsAndConditions = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/term_and_condition")),
+      () => http.get(
+          Uri.parse("https://api.ticketmaster-et.com/api/term_and_condition")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     var data = jsonDecode(res.body);
     if (data['message'] == 'Term and Condition get successfully') {
       var termsAndConditionsData = data['data'] as List;
-      termsAndConditions = termsAndConditionsData.map((termData) => TermsAndConditions.fromJson(termData, language)).toList();
+      termsAndConditions = termsAndConditionsData
+          .map((termData) => TermsAndConditions.fromJson(termData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -568,20 +608,22 @@ Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
   return termsAndConditions;
 }
 
-
 Future<List<Ticket>> getTickets(String phone, String language) async {
   List<Ticket> tickets = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/my-ticket/${int.parse(phone)}")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/my-ticket/${int.parse(phone)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-  print("My Tickets ${res.body}");
+    print("My Tickets ${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event detail get successfully') {
       var eventsData = data['data'] as List;
-      tickets = eventsData.map((eventData) => Ticket.fromJson(eventData, language)).toList();
+      tickets = eventsData
+          .map((eventData) => Ticket.fromJson(eventData, language))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -596,20 +638,22 @@ Future<List<Ticket>> getTickets(String phone, String language) async {
 // https://api.ticketmaster-et.com/api/review-by-organizer/3
 // https://api.ticketmaster-et.com/api/review
 
-
 Future<List<Review>> getReviewByEvent(String id) async {
   List<Review> review = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/review-by-event/${int.parse(id)}")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/review-by-event/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewByEvent ${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'Review By selected Event get successfully') {
       var eventsData = data['data'] as List;
-      review = eventsData.map((eventData) => Review.fromEventJson(eventData)).toList();
+      review = eventsData
+          .map((eventData) => Review.fromEventJson(eventData))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -625,14 +669,17 @@ Future<List<Review>> getReviewBySubCategory(String id) async {
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/review-by-sub-category/${int.parse(id)}")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/review-by-sub-category/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewBySubCategory ${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'review By selected sub category get successfully') {
       var eventsData = data['data'] as List;
-      review = eventsData.map((eventData) => Review.fromSubCategoryJson(eventData)).toList();
+      review = eventsData
+          .map((eventData) => Review.fromSubCategoryJson(eventData))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -642,19 +689,23 @@ Future<List<Review>> getReviewBySubCategory(String id) async {
 
   return review;
 }
+
 Future<List<Review>> getReviewByOrganizer(String id) async {
   List<Review> review = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/review-by-organizer/${int.parse(id)}")),
+      () => http.get(Uri.parse(
+          "https://api.ticketmaster-et.com/api/review-by-organizer/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewByOrganizer ${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'Review By selected Organizer get successfully') {
       var eventsData = data['data'] as List;
-      review = eventsData.map((eventData) => Review.fromOrganizerJson(eventData)).toList();
+      review = eventsData
+          .map((eventData) => Review.fromOrganizerJson(eventData))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -664,7 +715,6 @@ Future<List<Review>> getReviewByOrganizer(String id) async {
 
   return review;
 }
-
 
 Future<LikeEventResponse> LikeE(LikeEvent data) async {
   LikeEventResponse likeEventData;
@@ -676,7 +726,7 @@ Future<LikeEventResponse> LikeE(LikeEvent data) async {
 
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/like-event'),
         body: requestBody,
         headers: <String, String>{
@@ -695,7 +745,6 @@ Future<LikeEventResponse> LikeE(LikeEvent data) async {
   return likeEventData;
 }
 
-
 Future<DisLikeEventResponse> DisLikeE(DisLikeEvent data) async {
   DisLikeEventResponse DislikeEventData;
   Map<String, dynamic> jsonData = data.toJson();
@@ -706,7 +755,7 @@ Future<DisLikeEventResponse> DisLikeE(DisLikeEvent data) async {
 
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/dis-like-event'),
         body: requestBody,
         headers: <String, String>{
@@ -725,20 +774,22 @@ Future<DisLikeEventResponse> DisLikeE(DisLikeEvent data) async {
   return DislikeEventData;
 }
 
-
 Future<List<Comment>> getCommentsByEventId(int id) async {
   List<Comment> comments = [];
 
   try {
     var res = await retryOptions.retry(
-          () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/coment-list/$id")),
+      () => http.get(
+          Uri.parse("https://api.ticketmaster-et.com/api/coment-list/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
     if (data['message'] == 'coment on specific event get successfully') {
       var commentsData = data['data'] as List;
-      comments = commentsData.map((commentData) => Comment.fromJson(commentData)).toList();
+      comments = commentsData
+          .map((commentData) => Comment.fromJson(commentData))
+          .toList();
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -748,8 +799,6 @@ Future<List<Comment>> getCommentsByEventId(int id) async {
 
   return comments;
 }
-
-
 
 Future<InterestEventResponse> InterestE(InterestEvent data) async {
   InterestEventResponse InterestEventData;
@@ -761,7 +810,7 @@ Future<InterestEventResponse> InterestE(InterestEvent data) async {
 
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/interested-event'),
         body: requestBody,
         headers: <String, String>{
@@ -780,7 +829,6 @@ Future<InterestEventResponse> InterestE(InterestEvent data) async {
   return InterestEventData;
 }
 
-
 Future<DisInterestEventResponse> DisInterestE(DisInterestEvent data) async {
   DisInterestEventResponse DisInterestEventData;
   Map<String, dynamic> jsonData = data.toJson();
@@ -791,7 +839,7 @@ Future<DisInterestEventResponse> DisInterestE(DisInterestEvent data) async {
 
   try {
     var res = await retryOptions.retry(
-          () => client.post(
+      () => client.post(
         Uri.parse('https://api.ticketmaster-et.com/api/dis-interested-event'),
         body: requestBody,
         headers: <String, String>{

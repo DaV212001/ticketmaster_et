@@ -39,6 +39,8 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
   late List<VideoPlayerController?> _controllers = [];
   final List<bool> _isPlaying = [];
   final _pageController = PageController();
+  String ds = 'asd';
+
   @override
   void initState() {
     super.initState();
@@ -158,7 +160,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                           ),
                           InterestButton(event: widget.modified[iindex]),
                           SizedBox(
-                            height: 30,
+                            height: 20,
                           ),
                           HeartIconButton(
                             event: widget.modified[iindex],
@@ -172,7 +174,10 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                           SizedBox(
                             height: 20,
                           ),
-                          ShareIconButton(),
+                          ShareIconButton(
+                            videoFile: widget.modified[iindex].upcomingImage!
+                                .replaceFirst("https://admin.ticketmaster-et.com/public/storage/upcoming", ''),
+                            title: widget.modified[iindex].title??'',),
                         ],
                       ),
                     ),
@@ -536,7 +541,9 @@ class _HeartIconButtonState extends State<HeartIconButton>
 }
 
 class ShareIconButton extends StatefulWidget {
-  const ShareIconButton({super.key});
+  final String? title;
+  final String videoFile;
+   ShareIconButton({super.key, required this.videoFile, required this.title});
 
   @override
   State<ShareIconButton> createState() => _ShareIconButtonState();
@@ -569,8 +576,8 @@ class _ShareIconButtonState extends State<ShareIconButton>
           }
         });
         Share.text(
-            'Check out my app on the Play Store',
-            'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
+            'Check out Ticketmaster ET to book a ticket for ${widget.title}',
+            'https://ticketmaster-et.com${widget.videoFile}',
             'text/plain');
       },
       child: AnimatedBuilder(
@@ -640,7 +647,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
         // Show modal bottom sheet
         showModalBottomSheet(
           context: context,
-          shape: RoundedRectangleBorder(
+           shape:RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -810,7 +817,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
             builder: (_, __) {
               return Transform.scale(
                 scale: 1 - (_controller.value * 0.25),
-                child: Icon(
+                child: const Icon(
                   TikTokIcons.chat_bubble,
                   size: 25,
                   color: Colors.white,
@@ -829,6 +836,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
     );
   }
 }
+
 
 
 
@@ -914,7 +922,7 @@ class _InterestButtonState extends State<InterestButton>
                 scale: 1 - (_controller.value * 0.25),
                 child: Icon(
                   Icons.star_rounded,
-                  size: 25,
+                  size: 40,
                   color: isFavorited ? Colors.yellow : Colors.white,
                 ),
               );
