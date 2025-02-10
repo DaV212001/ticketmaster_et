@@ -6,8 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../main_layout_screen.dart';
-import '../models/newmodels.dart';
+import '../functions/functions.dart';
 import '../provider/settings_provider.dart';
 import 'login.dart';
 
@@ -26,13 +25,10 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
   bool passwordToggle = true;
   bool _isLoading = false;
 
-
-
-  Future submitPassword(String password) async{
-
+  Future submitPassword(String password) async {
     print("submitPassword = ${password}  and  ${widget.phone}");
-   String password_confirmation = password ;
-   String phone = "251"+widget.phone;
+    String password_confirmation = password;
+    String phone = "251" + widget.phone;
     Map<String, dynamic> jsonData = {
       'phone': phone,
       'password': password,
@@ -44,19 +40,16 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
     try {
       print("jsonData $jsonData");
       print("requestBody $requestBody");
-      response = http.post(
-          Uri.parse("https://api.ticketmaster-et.com/api/change-password"),
+      response = http.post(Uri.parse("${baseUrlFunc}change-password"),
           body: requestBody,
           headers: {
             "Content-type": "application/json",
-          }
-      );
-    } catch(e) {
+          });
+    } catch (e) {
       print("Error in forgetPassword $e");
     }
 
     return response;
-
   }
 
   @override
@@ -70,11 +63,11 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             leading: IconButton(
-            onPressed: (){
-              Navigator.of(context).pop();
-            },
-            icon: Icon(Icons.arrow_back),
-          ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
             toolbarHeight: 27,
             backgroundColor: Colors.white,
             elevation: 0,
@@ -84,28 +77,26 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                 child: Container(
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15),
-                      color: Colors.transparent
-                  ),
-                  child:  DropdownButton(
+                      color: Colors.transparent),
+                  child: DropdownButton(
                       value: languageChange.languageCode,
                       items: const [
-                        DropdownMenuItem(
-                            value: 'en', child: Text('English')),
-                        DropdownMenuItem(
-                            value: 'am', child: Text('Amharic')),
+                        DropdownMenuItem(value: 'en', child: Text('English')),
+                        DropdownMenuItem(value: 'am', child: Text('Amharic')),
                         DropdownMenuItem(
                             value: 'en-AU', child: Text('Afaan Oromo')),
-
                       ],
                       onChanged: (String? value) {
                         setState(() async {
                           languageChange.languageCode = value!;
-                          List<String> codes = languageChange.languageCode.split('-');
+                          List<String> codes =
+                              languageChange.languageCode.split('-');
                           String langCode = codes[0];
                           String countryCode = codes.length > 1 ? codes[1] : '';
 
                           // Save langCode and countryCode in shared preferences
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
                           await prefs.setString('langCode', langCode);
                           if (countryCode.isNotEmpty) {
                             await prefs.setString('countryCode', countryCode);
@@ -115,13 +106,14 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
 
                           // Set locale for EasyLocalization
                           if (countryCode.isNotEmpty) {
-                            EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
+                            EasyLocalization.of(context)!
+                                .setLocale(Locale(langCode, countryCode));
                           } else {
-                            EasyLocalization.of(context)!.setLocale(Locale(langCode));
+                            EasyLocalization.of(context)!
+                                .setLocale(Locale(langCode));
                           }
                         });
-                      }
-                  ),
+                      }),
                 ),
               ),
             ],
@@ -131,15 +123,14 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
               key: formKey,
               child: Column(
                 children: [
-
                   Center(
                     child: Image(
-                      image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                      image:
+                          AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
                       width: 160.0, // Set the desired width
                       height: 160.0, // Set the desired height
                     ),
                   ),
-
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -148,7 +139,10 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                         Center(
                           child: Text(
                             tr('password'),
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 30),
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 30),
                           ),
                         ),
                         const SizedBox(
@@ -156,7 +150,9 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                         ),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(tr('password'), style: TextStyle(color: Colors.black, fontSize: 18))),
+                            child: Text(tr('password'),
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18))),
                         const SizedBox(
                           height: 10,
                         ),
@@ -172,7 +168,8 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                             validator: (value) {
                               if (passwordController.text.isEmpty) {
                                 return "password empty";
-                              } else if (passwordController.text.length > 40 || passwordController.text.length < 3) {
+                              } else if (passwordController.text.length > 40 ||
+                                  passwordController.text.length < 3) {
                                 return "password too short or too long";
                               }
                               return null;
@@ -189,7 +186,9 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                         ),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(tr('confirm_pass'), style: TextStyle(color: Colors.black, fontSize: 18))),
+                            child: Text(tr('confirm_pass'),
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18))),
                         const SizedBox(
                           height: 10,
                         ),
@@ -205,7 +204,8 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                             validator: (value) {
                               if (confirmPasswordController.text.isEmpty) {
                                 return "password empty";
-                              } else if (passwordController.text != confirmPasswordController.text) {
+                              } else if (passwordController.text !=
+                                  confirmPasswordController.text) {
                                 return "passwords don't match";
                               }
                               return null;
@@ -220,67 +220,66 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                         const SizedBox(
                           height: 25,
                         ),
-                        _isLoading?
-                        CircularProgressIndicator():
-                        OutlinedButton(
-                            style: const ButtonStyle(
-                                backgroundColor:
-                                MaterialStatePropertyAll(Colors.green),
-                                foregroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                                minimumSize: MaterialStatePropertyAll(
-                                    Size(double.infinity, 50))),
-                            onPressed: () async {
-                              if(passwordController.text.length <3){
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Password should be greater than 3"),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                              }
-                              else if(passwordController.text != confirmPasswordController.text){
+                        _isLoading
+                            ? CircularProgressIndicator()
+                            : OutlinedButton(
+                                style: const ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStatePropertyAll(Colors.green),
+                                    foregroundColor:
+                                        MaterialStatePropertyAll(Colors.white),
+                                    minimumSize: MaterialStatePropertyAll(
+                                        Size(double.infinity, 50))),
+                                onPressed: () async {
+                                  if (passwordController.text.length < 3) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                            "Password should be greater than 3"),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } else if (passwordController.text !=
+                                      confirmPasswordController.text) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content:
+                                            Text("Confirm password please"),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } else if (passwordController.text.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text("Please enter password"),
+                                        backgroundColor: Colors.green,
+                                        duration: Duration(seconds: 3),
+                                      ),
+                                    );
+                                  } else {
+                                    setState(() {
+                                      _isLoading = true;
+                                    });
+                                    var res = await submitPassword(
+                                        passwordController.text);
+                                    print("Returned");
+                                    print(res.body);
+                                    print(res);
+                                    print("pressed");
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Confirm password please"),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                              }else if(passwordController.text.isEmpty){
-
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text("Please enter password"),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 3),
-                                  ),
-                                );
-                              }else {
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                var res = await submitPassword(
-                                    passwordController.text);
-                                print("Returned");
-                                print(res.body);
-                                print(res);
-                                print("pressed");
-
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            LoginScreen()));
-                              }
-                            },
-                            child: Text(
-                              tr('submit'),
-                              style: TextStyle(fontSize: 20),
-                            )),
-
+                                    Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                LoginScreen()));
+                                  }
+                                },
+                                child: Text(
+                                  tr('submit'),
+                                  style: TextStyle(fontSize: 20),
+                                )),
                       ],
                     ),
                   ),
@@ -298,19 +297,20 @@ class _ForgetPassword2State extends State<ForgetPassword2> {
                     padding: EdgeInsets.all(0),
                     transformAlignment: Alignment.topCenter,
                     child: Image(
-                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                        image: AssetImage(
+                            'assets/images/THICKET_MASTER_PATERN_04.png'),
                         width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,// Set the desired width
-                        height: MediaQuery.of(context).size.height // Set the desired height
-                    ),
+                        fit: BoxFit.fill, // Set the desired width
+                        height: MediaQuery.of(context)
+                            .size
+                            .height // Set the desired height
+                        ),
                   )
                 ],
               ),
             ),
-
           ),
         ),
-
       ),
     );
   }

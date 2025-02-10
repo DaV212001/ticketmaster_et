@@ -119,8 +119,7 @@ class Event {
     int likes = 0;
     try {
       var res = await retryOptions.retry(
-        () => http.get(
-            Uri.parse("https://api.ticketmaster-et.com/api/num-of-like/$id")),
+        () => http.get(Uri.parse("${baseUrlFunc}num-of-like/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
@@ -139,8 +138,7 @@ class Event {
     int interests = 0;
     try {
       var res = await retryOptions.retry(
-        () => http.get(Uri.parse(
-            "https://api.ticketmaster-et.com/api/num-of-interested/$id")),
+        () => http.get(Uri.parse("${baseUrlFunc}num-of-interested/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
@@ -161,8 +159,7 @@ class Event {
     int comments = 0;
     try {
       var res = await retryOptions.retry(
-        () => http.get(
-            Uri.parse("https://api.ticketmaster-et.com/api/num-of-coment/$id")),
+        () => http.get(Uri.parse("${baseUrlFunc}num-of-coment/$id")),
         retryIf: (e) => e is SocketException || e is TimeoutException,
       );
       var data = jsonDecode(res.body);
@@ -389,7 +386,9 @@ class SubCategory {
   SubCategory.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
     image = baseUrl + json["image"];
-    categoryId = int.parse(json["category_id"]);
+    categoryId = json["category_id"] is String
+        ? int.parse(json["category_id"])
+        : json["category_id"];
     switch (language) {
       case 'am':
         name = json['name_am'];

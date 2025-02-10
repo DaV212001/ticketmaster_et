@@ -1,8 +1,11 @@
 import 'dart:ui';
 
+import 'package:app_links/app_links.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -15,8 +18,8 @@ import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/screens/login.dart';
 import 'package:ticketmaster_et/screens/organizerdetail.dart';
 import 'package:ticketmaster_et/screens/splash_screen.dart';
-import 'package:uni_links/uni_links.dart';
 
+import 'functions/firebase_handler.dart';
 import 'functions/functions.dart';
 import 'main_layout_screen.dart';
 import 'models/newmodels.dart';
@@ -28,6 +31,32 @@ late String countryCode;
 
 Future<void> appInit() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+      options: const FirebaseOptions(
+          apiKey: "AIzaSyBFvsvmM4KnG8EymvVw61ogE1hYeaSuDkY",
+          appId: "1:195442595047:android:3015a02a01eeae43c5fe42",
+          messagingSenderId: "195442595047",
+          projectId: "ticket-master-et"));
+  await FirebaseHandler().initNotifications();
+  AwesomeNotifications().initialize(
+    'resource://drawable/icon',
+    [
+      NotificationChannel(
+          channelKey: 'basic_channel',
+          channelName: 'Basic Notifications',
+          defaultColor: Colors.teal,
+          importance: NotificationImportance.High,
+          channelShowBadge: true,
+          channelDescription: 'Basic Notifications'),
+      NotificationChannel(
+          channelKey: 'scheduled_channel',
+          channelName: 'Scheduled Notifications',
+          defaultColor: Colors.teal,
+          locked: true,
+          importance: NotificationImportance.High,
+          channelDescription: 'Scheduled Notifications'),
+    ],
+  );
   await EasyLocalization.ensureInitialized();
   SharedPreferences preferences = await SharedPreferences.getInstance();
   langCode = await preferences.getString('langCode') ?? 'en';
@@ -221,7 +250,7 @@ class _DeepLinkHandlerState extends State<DeepLinkHandler>
 
   Future<Uri?> getInitialUriFromPlugin() async {
     try {
-      final uri = await getInitialUri();
+      final uri = await AppLinks().getInitialLink();
       return uri;
     } on PlatformException catch (err) {
       print('Failed to get initial uri: $err');
@@ -328,7 +357,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
 
   Future<void> updateEvents() async {
     print('CHECKING IDDDDDDDD VIDEO URL PASSED ISSSS: ${widget.videoUrl}');
-    initial = await getEvents('https://api.ticketmaster-et.com/api/event',
+    initial = await getEvents('${baseUrlFunc}event',
         Provider.of<SettingsProvider>(context, listen: false).languageCode);
     for (Event eve in initial) {
       print('CHECKING IDDDD IDS IN INITIAL AREEEEE ${eve.upcomingImage}');

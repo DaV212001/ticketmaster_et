@@ -11,8 +11,10 @@ import '../models/privacy_policy.dart';
 import '../models/review.dart';
 import '../models/terms_and_conditions.dart';
 
+const String baseUrlFunc = 'https://api.ticketmaster-et.com/api/';
+
 final client = http.Client();
-final retryOptions = RetryOptions(
+const retryOptions = RetryOptions(
     maxDelay: Duration(milliseconds: 300),
     delayFactor: Duration(seconds: 0),
     maxAttempts: 100000);
@@ -47,8 +49,7 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(
-          Uri.parse("https://api.ticketmaster-et.com/api/event-detail/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}event-detail/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -75,8 +76,8 @@ Future<List<CoverImage>> getCoverImagesbySubCatID(
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/cover-image-by-sub-category/$id")),
+      () =>
+          http.get(Uri.parse("${baseUrlFunc}cover-image-by-sub-category/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -107,8 +108,7 @@ Future<List<CoverImage>> getCoverImagesbyEventID(
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/cover-image-by-event/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}cover-image-by-event/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -134,8 +134,7 @@ Future<List<CoverImage>> getCoverImagesbyOrganizerID(
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/cover-image-by-organizer/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}cover-image-by-organizer/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -161,8 +160,7 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/category-sub-category")),
+      () => http.get(Uri.parse("${baseUrlFunc}category-sub-category")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
@@ -189,8 +187,7 @@ Future<List<Organizer>> getOrganizers(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () =>
-          http.get(Uri.parse("https://api.ticketmaster-et.com/api/organizer")),
+      () => http.get(Uri.parse("${baseUrlFunc}organizer")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     //  print("=================ORGANIZER============${res.body}");
@@ -215,8 +212,7 @@ Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/event-by-sub-category/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}event-by-sub-category/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -248,8 +244,8 @@ Future<List<SubCategory>> getSubCategoryByCategoryId(
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/sub-category-by-category-id/$id")),
+      () =>
+          http.get(Uri.parse("${baseUrlFunc}sub-category-by-category-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -279,8 +275,7 @@ Future<List<Event>> getEventsByOrganizerId(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/event-by-organizer-id/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}event-by-organizer-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -306,8 +301,7 @@ Future<List<Event>> getEventsByCategoryId(int id, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/event-by-category-id/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}event-by-category-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -414,7 +408,7 @@ Future<List<City>> getCity(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/city")),
+      () => http.get(Uri.parse("${baseUrlFunc}city")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -445,7 +439,7 @@ Future<BookingResponse> bookEvent(Booking data) async {
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/book'),
+        Uri.parse('${baseUrlFunc}book'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -479,7 +473,7 @@ Future<CommentResponse> commentonEvent(
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/coment-event'),
+        Uri.parse('${baseUrlFunc}coment-event'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -503,7 +497,7 @@ Future<UpdatedUserResponse> updateUser(UpdatedUser data) async {
   try {
     var res = await retryOptions.retry(
       () => http.post(
-        Uri.parse("https://api.ticketmaster-et.com/api/update_user"),
+        Uri.parse("${baseUrlFunc}update_user"),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -527,7 +521,7 @@ Future<List<PrivacyPolicy>> getPrivacyPolicy(String language) async {
   try {
     print("http.get 1");
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/privacy")),
+      () => http.get(Uri.parse("${baseUrlFunc}privacy")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -561,7 +555,7 @@ Future<List<FAQ>> getFAQ(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("https://api.ticketmaster-et.com/api/faq")),
+      () => http.get(Uri.parse("${baseUrlFunc}faq")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -588,8 +582,7 @@ Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(
-          Uri.parse("https://api.ticketmaster-et.com/api/term_and_condition")),
+      () => http.get(Uri.parse("${baseUrlFunc}term_and_condition")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     var data = jsonDecode(res.body);
@@ -613,8 +606,7 @@ Future<List<Ticket>> getTickets(String phone, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/my-ticket/${int.parse(phone)}")),
+      () => http.get(Uri.parse("${baseUrlFunc}my-ticket/${int.parse(phone)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("My Tickets ${res.body}");
@@ -643,8 +635,8 @@ Future<List<Review>> getReviewByEvent(String id) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/review-by-event/${int.parse(id)}")),
+      () =>
+          http.get(Uri.parse("${baseUrlFunc}review-by-event/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewByEvent ${res.body}");
@@ -669,8 +661,8 @@ Future<List<Review>> getReviewBySubCategory(String id) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/review-by-sub-category/${int.parse(id)}")),
+      () => http.get(
+          Uri.parse("${baseUrlFunc}review-by-sub-category/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewBySubCategory ${res.body}");
@@ -695,8 +687,8 @@ Future<List<Review>> getReviewByOrganizer(String id) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse(
-          "https://api.ticketmaster-et.com/api/review-by-organizer/${int.parse(id)}")),
+      () => http
+          .get(Uri.parse("${baseUrlFunc}review-by-organizer/${int.parse(id)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("getReviewByOrganizer ${res.body}");
@@ -727,7 +719,7 @@ Future<LikeEventResponse> LikeE(LikeEvent data) async {
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/like-event'),
+        Uri.parse('${baseUrlFunc}like-event'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -756,7 +748,7 @@ Future<DisLikeEventResponse> DisLikeE(DisLikeEvent data) async {
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/dis-like-event'),
+        Uri.parse('${baseUrlFunc}dis-like-event'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -779,8 +771,7 @@ Future<List<Comment>> getCommentsByEventId(int id) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(
-          Uri.parse("https://api.ticketmaster-et.com/api/coment-list/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}coment-list/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
@@ -811,7 +802,7 @@ Future<InterestEventResponse> InterestE(InterestEvent data) async {
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/interested-event'),
+        Uri.parse('${baseUrlFunc}interested-event'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -840,7 +831,7 @@ Future<DisInterestEventResponse> DisInterestE(DisInterestEvent data) async {
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('https://api.ticketmaster-et.com/api/dis-interested-event'),
+        Uri.parse('${baseUrlFunc}dis-interested-event'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',

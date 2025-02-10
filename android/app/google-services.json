@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "195442595047",
+    "project_id": "ticket-master-et",
+    "storage_bucket": "ticket-master-et.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195442595047:android:3015a02a01eeae43c5fe42",
+        "android_client_info": {
+          "package_name": "com.imam_muzeyn.ticketmaster"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFvsvmM4KnG8EymvVw61ogE1hYeaSuDkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

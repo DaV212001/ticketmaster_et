@@ -1,19 +1,18 @@
-import 'dart:io';
-import 'dart:math';
 import 'dart:ui';
+
 import 'package:easy_localization/easy_localization.dart';
 import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ticketmaster_et/components/tiktokicons.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
 import 'package:ticketmaster_et/screens/event_ticket.dart';
 import 'package:ticketmaster_et/screens/organizerdetail.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
 import 'package:video_player/video_player.dart';
-import '../../../../models/newmodels.dart';
-import 'package:ticketmaster_et/components/tiktokicons.dart';
 
+import '../../../../models/newmodels.dart';
 import '../../../../provider/loginpersistence.dart';
 
 class UpcomingTabWidget extends StatefulWidget {
@@ -114,7 +113,6 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                   selectedIndex: widget.selectedIndex,
                   videoUrl: widget.modified[iindex].upcomingImage!,
                 ),
-
                 Positioned(
                   top: 0,
                   bottom: 0,
@@ -176,8 +174,11 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                           ),
                           ShareIconButton(
                             videoFile: widget.modified[iindex].upcomingImage!
-                                .replaceFirst("https://admin.ticketmaster-et.com/public/storage/upcoming", ''),
-                            title: widget.modified[iindex].title??'',),
+                                .replaceFirst(
+                                    "https://admin.ticketmaster-et.com/public/storage/upcoming",
+                                    ''),
+                            title: widget.modified[iindex].title ?? '',
+                          ),
                         ],
                       ),
                     ),
@@ -271,15 +272,14 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                       })));
                                     },
                                     style: ButtonStyle(
-                                        side: MaterialStatePropertyAll(
-                                            BorderSide(
-                                                style: BorderStyle.solid,
-                                                color: Theme.of(context)
-                                                    .primaryColor)),
-                                        shadowColor: MaterialStatePropertyAll(
+                                        side: WidgetStatePropertyAll(BorderSide(
+                                            style: BorderStyle.solid,
+                                            color: Theme.of(context)
+                                                .primaryColor)),
+                                        shadowColor: WidgetStatePropertyAll(
                                             Colors.white.withOpacity(0.5)),
                                         backgroundColor:
-                                            const MaterialStatePropertyAll(
+                                            const WidgetStatePropertyAll(
                                                 Colors.transparent)),
                                     child: Text(tr('buy_tickets'))),
                               ],
@@ -413,14 +413,13 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                 })));
                               },
                               style: ButtonStyle(
-                                  side: MaterialStatePropertyAll(BorderSide(
+                                  side: WidgetStatePropertyAll(BorderSide(
                                       style: BorderStyle.solid,
                                       color: Theme.of(context).primaryColor)),
-                                  shadowColor: MaterialStatePropertyAll(
+                                  shadowColor: WidgetStatePropertyAll(
                                       Colors.white.withOpacity(0.5)),
-                                  backgroundColor:
-                                      const MaterialStatePropertyAll(
-                                          Colors.transparent)),
+                                  backgroundColor: const WidgetStatePropertyAll(
+                                      Colors.transparent)),
                               child: Text(tr('buy_tickets'))),
                         ],
                       ),
@@ -543,7 +542,7 @@ class _HeartIconButtonState extends State<HeartIconButton>
 class ShareIconButton extends StatefulWidget {
   final String? title;
   final String videoFile;
-   ShareIconButton({super.key, required this.videoFile, required this.title});
+  ShareIconButton({super.key, required this.videoFile, required this.title});
 
   @override
   State<ShareIconButton> createState() => _ShareIconButtonState();
@@ -647,7 +646,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
         // Show modal bottom sheet
         showModalBottomSheet(
           context: context,
-           shape:RoundedRectangleBorder(
+          shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20),
               topRight: Radius.circular(20),
@@ -663,144 +662,142 @@ class _CommentIconButtonState extends State<CommentIconButton>
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done) {
                     return SingleChildScrollView(
-                        child: Container(
-                          height: MediaQuery.of(context).size.height * 0.8,
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Align(
-                                    alignment: Alignment.center,
-                                    child: ValueListenableBuilder<int>(
-                                      valueListenable: commentCount,
-                                      builder: (BuildContext context, int value,
-                                          Widget? child) {
-                                        return Text('$value comments',
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontWeight: FontWeight.bold));
-                                      },
-                                    ),
+                      child: Container(
+                        height: MediaQuery.of(context).size.height * 0.8,
+                        child: Column(
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Align(
+                                  alignment: Alignment.center,
+                                  child: ValueListenableBuilder<int>(
+                                    valueListenable: commentCount,
+                                    builder: (BuildContext context, int value,
+                                        Widget? child) {
+                                      return Text('$value comments',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.bold));
+                                    },
                                   ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Container(
-                                    width:
-                                    MediaQuery.of(context).size.width * 0.8,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: TextFormField(
-                                        controller: _commentController,
-                                        onSaved: (newValue) {
-                                          commentText.value = newValue!;
-                                          print(
-                                              'CHECKING COMMENT1: $commentText');
-                                        },
-                                        onChanged: (value) {
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.8,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: TextFormField(
+                                      controller: _commentController,
+                                      onSaved: (newValue) {
+                                        commentText.value = newValue!;
+                                        print(
+                                            'CHECKING COMMENT1: $commentText');
+                                      },
+                                      onChanged: (value) {
+                                        commentText.value = value;
+                                        print(
+                                            'CHECKING COMMENT2: $commentText');
+                                      },
+                                      onFieldSubmitted: (value) {
+                                        setState(() {
                                           commentText.value = value;
-                                          print(
-                                              'CHECKING COMMENT2: $commentText');
-                                        },
-                                        onFieldSubmitted: (value) {
-                                          setState(() {
-                                            commentText.value = value;
-                                          });
+                                        });
 
-                                          print(
-                                              'CHECKING COMMENT3: $commentText');
-                                        },
-                                        decoration: InputDecoration(
-                                          fillColor: Colors.grey[200],
-                                          hintText: 'Write a comment',
-                                          border: const OutlineInputBorder(),
-                                          contentPadding: EdgeInsets.all(16.0),
-                                        ),
+                                        print(
+                                            'CHECKING COMMENT3: $commentText');
+                                      },
+                                      decoration: InputDecoration(
+                                        fillColor: Colors.grey[200],
+                                        hintText: 'Write a comment',
+                                        border: const OutlineInputBorder(),
+                                        contentPadding: EdgeInsets.all(16.0),
                                       ),
                                     ),
                                   ),
-                                  IconButton(
-                                      icon: Icon(Icons.send),
-                                      onPressed: () async {
-                                        print(
-                                            'CHECKING COMMENT3: ${_commentController.text}');
-                                        if (_commentController.text.isNotEmpty) {
-                                          // Get the event id, user id, first name, last name and comment from the variables
-                                          int eventId = widget.event.id!;
-                                          int userId =
-                                          loginDataProvider.loginData!.id!;
-                                          String firstName = loginDataProvider
-                                              .loginData!.firstName!;
-                                          String lastName = loginDataProvider
-                                              .loginData!.lastName!;
-                                          Comment comment = Comment();
-                                          comment.comment =
-                                              _commentController.text;
-                                          comment.firstName = firstName;
-                                          comment.lastName = lastName;
+                                ),
+                                IconButton(
+                                    icon: Icon(Icons.send),
+                                    onPressed: () async {
+                                      print(
+                                          'CHECKING COMMENT3: ${_commentController.text}');
+                                      if (_commentController.text.isNotEmpty) {
+                                        // Get the event id, user id, first name, last name and comment from the variables
+                                        int eventId = widget.event.id!;
+                                        int userId =
+                                            loginDataProvider.loginData!.id!;
+                                        String firstName = loginDataProvider
+                                            .loginData!.firstName!;
+                                        String lastName = loginDataProvider
+                                            .loginData!.lastName!;
+                                        Comment comment = Comment();
+                                        comment.comment =
+                                            _commentController.text;
+                                        comment.firstName = firstName;
+                                        comment.lastName = lastName;
 
-                                          // Post the comment using the API function
-                                          await commentonEvent(
-                                              eventId, userId, comment);
+                                        // Post the comment using the API function
+                                        await commentonEvent(
+                                            eventId, userId, comment);
 
-                                          // Clear the text field
-                                          _commentController.clear();
+                                        // Clear the text field
+                                        _commentController.clear();
 
-                                          // Update the UI with the new comment
-                                          setState(() {
-                                            commentsModel.addComment(Comment(
-                                                firstName: firstName,
-                                                lastName: lastName,
-                                                comment: comment.comment));
-                                          });
-                                          commentCount.value =
-                                              commentCount.value + 1;
-                                        }
-                                      })
-                                ],
-                              ),
-                              Expanded(
-                                child: Consumer<CommentsModel>(
-                                  builder: (context, commentsModel, child) {
-                                    return ListView.builder(
-                                      itemCount: commentsModel.comments.length,
-                                      itemBuilder: (context, index) {
-                                        return Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                        // Update the UI with the new comment
+                                        setState(() {
+                                          commentsModel.addComment(Comment(
+                                              firstName: firstName,
+                                              lastName: lastName,
+                                              comment: comment.comment));
+                                        });
+                                        commentCount.value =
+                                            commentCount.value + 1;
+                                      }
+                                    })
+                              ],
+                            ),
+                            Expanded(
+                              child: Consumer<CommentsModel>(
+                                builder: (context, commentsModel, child) {
+                                  return ListView.builder(
+                                    itemCount: commentsModel.comments.length,
+                                    itemBuilder: (context, index) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                  '${commentsModel.comments[index].firstName} ${commentsModel.comments[index].lastName}',
-                                              style: TextStyle(
-                                                color: Colors.black54
-                                              ),
+                                                '${commentsModel.comments[index].firstName} ${commentsModel.comments[index].lastName}',
+                                                style: TextStyle(
+                                                    color: Colors.black54),
                                               ),
                                               SizedBox(
                                                 height: 5,
                                               ),
                                               Text(
-                                                  '${commentsModel.comments[index].comment}',
-                                              style: TextStyle(
-                                                  fontWeight: FontWeight.bold
+                                                '${commentsModel.comments[index].comment}',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold),
                                               ),
-                                              ),
-                                            ]
-                                          ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                ),
+                                            ]),
+                                      );
+                                    },
+                                  );
+                                },
                               ),
-                              // Add a text field form with a rounded corner, grey fill and black54 hint color
-
-                            ],
-                          ),
+                            ),
+                            // Add a text field form with a rounded corner, grey fill and black54 hint color
+                          ],
                         ),
-                      );
+                      ),
+                    );
                   } else {
                     return Center(
                       child: CircularProgressIndicator(),
@@ -837,10 +834,6 @@ class _CommentIconButtonState extends State<CommentIconButton>
   }
 }
 
-
-
-
-
 class InterestButton extends StatefulWidget {
   final Event event;
   const InterestButton({Key? key, required this.event}) : super(key: key);
@@ -856,7 +849,8 @@ class _InterestButtonState extends State<InterestButton>
   final interestCount = ValueNotifier<int>(0);
 
   void interestEvent(int userId) async {
-    var interestEvent = InterestEvent(eventId: widget.event.id!, userId: userId);
+    var interestEvent =
+        InterestEvent(eventId: widget.event.id!, userId: userId);
     await InterestE(interestEvent).then((value) {
       print(value);
       if (value.error != null) {
@@ -869,14 +863,16 @@ class _InterestButtonState extends State<InterestButton>
   }
 
   void disinterestEvent(int userId) async {
-    var disinterestEvent = DisInterestEvent(eventId: widget.event.id!, userId: userId);
+    var disinterestEvent =
+        DisInterestEvent(eventId: widget.event.id!, userId: userId);
     await DisInterestE(disinterestEvent).then((value) {
       print(value);
       if (value.error != null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(SnackBar(content: Text('${value.error!}')));
       } else {
-        interestCount.value = interestCount.value > 0 ? interestCount.value - 1 : 0;
+        interestCount.value =
+            interestCount.value > 0 ? interestCount.value - 1 : 0;
       }
     });
   }
@@ -897,7 +893,7 @@ class _InterestButtonState extends State<InterestButton>
   @override
   Widget build(BuildContext context) {
     final loginDataProvider =
-    Provider.of<LoginDataProvider>(context, listen: false);
+        Provider.of<LoginDataProvider>(context, listen: false);
     int userId = loginDataProvider.loginData!.id!;
     return GestureDetector(
       onTap: () async {
