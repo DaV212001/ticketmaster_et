@@ -9,7 +9,7 @@
         </intent>
     </queries>
     <application
-        android:label="Ticketmaster ET"
+        android:label="Hello Mesa"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

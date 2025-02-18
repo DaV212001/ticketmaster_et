@@ -1,13 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
-
 import 'package:flutter/material.dart';
+import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/category/section/subcategorydetails.dart';
 
-
-import 'package:ticketmaster_et/models/newmodels.dart';
-
 class CategoryChildList extends StatefulWidget {
-  const CategoryChildList({required this.subCategories, super.key, required this.selectedIndex});
+  const CategoryChildList(
+      {required this.subCategories, super.key, required this.selectedIndex});
   final List<SubCategory> subCategories;
   final ValueNotifier<int> selectedIndex;
   @override
@@ -18,7 +16,7 @@ class _CategoryChildListState extends State<CategoryChildList> {
   @override
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
-    if(widget.subCategories.isNotEmpty){
+    if (widget.subCategories.isNotEmpty) {
       return ListView.builder(
           controller: scrollController,
           physics: BouncingScrollPhysics(),
@@ -27,10 +25,11 @@ class _CategoryChildListState extends State<CategoryChildList> {
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) {
-                      return SubCatDetail(subCategory: widget.subCategories[index], selectedIndex: widget.selectedIndex,);
-                    }));
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return SubCatDetail(
+                    id: widget.subCategories[index].id!,
+                  );
+                }));
               },
               child: Container(
                 color: Colors.transparent,
@@ -51,34 +50,40 @@ class _CategoryChildListState extends State<CategoryChildList> {
                               height: 70,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(10.0),
-                                child:
-                                CachedNetworkImage(
+                                child: CachedNetworkImage(
                                   fadeOutDuration:
-                                  const Duration(milliseconds:
-                                  300),
-                                  fadeOutCurve:
-                                  Curves.easeOut,
+                                      const Duration(milliseconds: 300),
+                                  fadeOutCurve: Curves.easeOut,
                                   fadeInDuration:
-                                  const Duration(milliseconds:
-                                  700),
-                                  fadeInCurve:
-                                  Curves.easeIn,
-                                  imageUrl:
-                                  widget.subCategories[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || widget.subCategories[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || widget.subCategories[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||widget.subCategories[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||widget.subCategories[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png':widget.subCategories[index].image!.trim(),
-                                  imageBuilder:
-                                      (context, imageProvider) =>
+                                      const Duration(milliseconds: 700),
+                                  fadeInCurve: Curves.easeIn,
+                                  imageUrl: widget.subCategories[index].image!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage' ||
+                                          widget.subCategories[index].image!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
+                                          widget.subCategories[index].image!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/aaa' ||
+                                          widget.subCategories[index].image!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/' ||
+                                          widget.subCategories[index].image!
+                                                  .trim() ==
+                                              'https://admin.ticketmaster-et.com/public/storage/[value-2]'
+                                      ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+                                      : widget.subCategories[index].image!
+                                          .trim(),
+                                  imageBuilder: (context, imageProvider) =>
                                       Container(
-                                        decoration:
-                                        BoxDecoration(
-                                          image:
-                                          DecorationImage(
-                                            image:
-                                            imageProvider,
-                                            fit:
-                                            BoxFit.cover,
-                                          ),
-                                        ),
+                                    decoration: BoxDecoration(
+                                      image: DecorationImage(
+                                        image: imageProvider,
+                                        fit: BoxFit.cover,
                                       ),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -111,17 +116,14 @@ class _CategoryChildListState extends State<CategoryChildList> {
               ),
             );
           });
-    }
-    else {
+    } else {
       return Center(
           child: Container(
-            height: 200,
-            width: 200,
-            child: Image.network(
-                'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-            ),
-          )
-      );
+        height: 200,
+        width: 200,
+        child: Image.network(
+            'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+      ));
     }
   }
 }

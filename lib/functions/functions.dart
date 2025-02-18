@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:retry/retry.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
@@ -11,7 +12,7 @@ import '../models/privacy_policy.dart';
 import '../models/review.dart';
 import '../models/terms_and_conditions.dart';
 
-const String baseUrlFunc = 'https://api.ticketmaster-et.com/api/';
+const String baseUrlFunc = 'https://api.hellomesa6810.com/api/';
 
 final client = http.Client();
 const retryOptions = RetryOptions(
@@ -44,6 +45,57 @@ Future<List<Event>> getEvents(String apiUrl, String language) async {
   return events;
 }
 
+Future<List<PromotionalImages>> getPromotionalImages(
+    String apiUrl, String language) async {
+  List<PromotionalImages> events = [];
+
+  try {
+    var res = await retryOptions.retry(
+      () => http.get(Uri.parse(apiUrl)),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Promotional Image get successfully' ||
+        data['message'] == 'Upcoming Event get successfully') {
+      var eventsData = data['data'] as List;
+      events = eventsData
+          .map((eventData) => PromotionalImages.fromJson(eventData))
+          .toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return events;
+}
+
+Future<SubCategory> getSubCatbyID(int id, String language) async {
+  List<SubCategory> events = [];
+
+  try {
+    var res = await retryOptions.retry(
+      () => http.get(Uri.parse("${baseUrlFunc}food-detail/$id")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+
+    Logger().d(jsonDecode(res.body));
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Food detail get successfully') {
+      var eventsData = data['data'][0];
+      events = [SubCategory.fromJson(eventsData, language)];
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return events[0];
+}
+
 Future<List<Event>> getEventsbyID(int id, String language) async {
   List<Event> events = [];
 
@@ -53,7 +105,7 @@ Future<List<Event>> getEventsbyID(int id, String language) async {
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
-    // print("=================Event============${res.body}");
+    Logger().d(jsonDecode(res.body));
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event detail get successfully') {
       var eventsData = data['data'] as List;
@@ -160,14 +212,15 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}category-sub-category")),
+      () => http.get(Uri.parse("${baseUrlFunc}food-by-category")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
+    Logger().d(jsonDecode(res.body));
+    // print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
     //  print("=================Category============${res.body}");
     // print(res.body);
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Event By category get successfully') {
+    if (data['message'] == 'Food By category get successfully') {
       var categoriesData = data['data'] as List;
       categories = categoriesData
           .map((categoryData) => Category.fromJson(categoryData, language))
@@ -185,44 +238,45 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 Future<List<Organizer>> getOrganizers(String language) async {
   List<Organizer> organizers = [];
 
-  try {
-    var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}organizer")),
-      retryIf: (e) => e is SocketException || e is TimeoutException,
-    );
-    //  print("=================ORGANIZER============${res.body}");
-    var data = jsonDecode(res.body);
-    if (data['message'] == 'organizer get successfully') {
-      var organizersData = data['data'] as List;
-      organizers = organizersData
-          .map((organizerData) => Organizer.fromJson(organizerData, language))
-          .toList();
-    } else {
-      throw Exception('Unexpected message from API: ${data['message']}');
-    }
-  } finally {
-    client.close();
-  }
+  // try {
+  //   var res = await retryOptions.retry(
+  //     () => http.get(Uri.parse("${baseUrlFunc}organizer")),
+  //     retryIf: (e) => e is SocketException || e is TimeoutException,
+  //   );
+  //   //  print("=================ORGANIZER============${res.body}");
+  //   var data = jsonDecode(res.body);
+  //   if (data['message'] == 'organizer get successfully') {
+  //     var organizersData = data['data'] as List;
+  //     organizers = organizersData
+  //         .map((organizerData) => Organizer.fromJson(organizerData, language))
+  //         .toList();
+  //   } else {
+  //     throw Exception('Unexpected message from API: ${data['message']}');
+  //   }
+  // } finally {
+  //   client.close();
+  // }
 
   return organizers;
 }
 
-Future<List<Event>> getEventsBySubCategoryId(int id, String language) async {
-  List<Event> events = [];
+Future<List<FoodPortions>> getEventsBySubCategoryId(
+    int id, String language) async {
+  List<FoodPortions> events = [];
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}event-by-sub-category/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}food-detail/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     //  print("=================getEventsBySubCategoryId============${res.body}");
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Event By selected Sub category get successfully') {
-      var eventsData = data['data'] as List;
+    if (data['message'] == 'Food detail get successfully') {
+      var eventsData = data['data'][0]['food_portion'] as List;
       // print(eventsData);
       events = eventsData
-          .map((eventData) => Event.fromJson(eventData, language))
+          .map((eventData) => FoodPortions.fromJson(eventData, language))
           .toList();
     } else {
       if (data['message'] == 'No Event By selected Sub Category found') {
@@ -244,17 +298,17 @@ Future<List<SubCategory>> getSubCategoryByCategoryId(
 
   try {
     var res = await retryOptions.retry(
-      () =>
-          http.get(Uri.parse("${baseUrlFunc}sub-category-by-category-id/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}food-by-category-id/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
+    Logger().d(jsonDecode(res.body));
     // print("=================getSubCategoryByCategoryId============${res.body}");
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Event By category get successfully') {
+    if (data['message'] == 'Food By category get successfully') {
       var dataList = data['data'] as List;
       for (var item in dataList) {
-        var subcategoryData = item['sub_category'] as List;
+        var subcategoryData = item['food_list'] as List;
         subcategories += subcategoryData
             .map((eventData) => SubCategory.fromJson(eventData, language))
             .toList();
@@ -606,16 +660,19 @@ Future<List<Ticket>> getTickets(String phone, String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}my-ticket/${int.parse(phone)}")),
+      () => http.get(Uri.parse(
+          "https://api.hellomesa6810.com/api/my_order/${int.parse(phone)}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    print("My Tickets ${res.body}");
+    print("My Order ${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'Event detail get successfully') {
       var eventsData = data['data'] as List;
       tickets = eventsData
           .map((eventData) => Ticket.fromJson(eventData, language))
           .toList();
+    } else if (data['message'] == 'No Order Found') {
+      return [];
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }

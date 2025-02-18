@@ -1,9 +1,9 @@
 import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
-import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:ticketmaster_et/components/tiktokicons.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/screens/event_detail.dart';
@@ -145,7 +145,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                   borderRadius: BorderRadius.circular(50),
                                   child: Image.network(
                                     organizer?.image ??
-                                        'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                                        'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png',
                                     width: 45,
                                     height: 45,
                                     fit: BoxFit.cover,
@@ -328,9 +328,9 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                           widget.modified[iindex].upcomingImage!
                                                   .trim() ==
                                               'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                                      ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+                                      ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
                                       : widget.modified[iindex].image!.trim()
-                                  : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'))),
+                                  : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'))),
                     ),
                   ),
                 ),
@@ -574,10 +574,11 @@ class _ShareIconButtonState extends State<ShareIconButton>
             _controller.forward().then((_) => _controller.reverse());
           }
         });
-        Share.text(
-            'Check out Ticketmaster ET to book a ticket for ${widget.title}',
-            'https://ticketmaster-et.com${widget.videoFile}',
-            'text/plain');
+        Share.share(
+          'https://ticketmaster-et.com${widget.videoFile}',
+          subject:
+              'Check out Ticketmaster ET to book a ticket for ${widget.title}',
+        );
       },
       child: AnimatedBuilder(
         animation: _controller,

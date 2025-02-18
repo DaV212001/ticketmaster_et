@@ -1,14 +1,12 @@
 import 'dart:ui';
 
 import 'package:app_links/app_links.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
 import 'package:easy_localization/easy_localization.dart';
-import 'package:esys_flutter_share_plus/esys_flutter_share_plus.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ticketmaster_et/constants/theme.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
@@ -19,7 +17,6 @@ import 'package:ticketmaster_et/screens/login.dart';
 import 'package:ticketmaster_et/screens/organizerdetail.dart';
 import 'package:ticketmaster_et/screens/splash_screen.dart';
 
-import 'functions/firebase_handler.dart';
 import 'functions/functions.dart';
 import 'main_layout_screen.dart';
 import 'models/newmodels.dart';
@@ -31,32 +28,32 @@ late String countryCode;
 
 Future<void> appInit() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: const FirebaseOptions(
-          apiKey: "AIzaSyBFvsvmM4KnG8EymvVw61ogE1hYeaSuDkY",
-          appId: "1:195442595047:android:3015a02a01eeae43c5fe42",
-          messagingSenderId: "195442595047",
-          projectId: "ticket-master-et"));
-  await FirebaseHandler().initNotifications();
-  AwesomeNotifications().initialize(
-    'resource://drawable/icon',
-    [
-      NotificationChannel(
-          channelKey: 'basic_channel',
-          channelName: 'Basic Notifications',
-          defaultColor: Colors.teal,
-          importance: NotificationImportance.High,
-          channelShowBadge: true,
-          channelDescription: 'Basic Notifications'),
-      NotificationChannel(
-          channelKey: 'scheduled_channel',
-          channelName: 'Scheduled Notifications',
-          defaultColor: Colors.teal,
-          locked: true,
-          importance: NotificationImportance.High,
-          channelDescription: 'Scheduled Notifications'),
-    ],
-  );
+  // await Firebase.initializeApp(
+  //     options: const FirebaseOptions(
+  //         apiKey: "AIzaSyBFvsvmM4KnG8EymvVw61ogE1hYeaSuDkY",
+  //         appId: "1:195442595047:android:3015a02a01eeae43c5fe42",
+  //         messagingSenderId: "195442595047",
+  //         projectId: "ticket-master-et"));
+  // await FirebaseHandler().initNotifications();
+  // AwesomeNotifications().initialize(
+  //   'resource://drawable/icon',
+  //   [
+  //     NotificationChannel(
+  //         channelKey: 'basic_channel',
+  //         channelName: 'Basic Notifications',
+  //         defaultColor: Colors.teal,
+  //         importance: NotificationImportance.High,
+  //         channelShowBadge: true,
+  //         channelDescription: 'Basic Notifications'),
+  //     NotificationChannel(
+  //         channelKey: 'scheduled_channel',
+  //         channelName: 'Scheduled Notifications',
+  //         defaultColor: Colors.teal,
+  //         locked: true,
+  //         importance: NotificationImportance.High,
+  //         channelDescription: 'Scheduled Notifications'),
+  //   ],
+  // );
   await EasyLocalization.ensureInitialized();
   SharedPreferences preferences = await SharedPreferences.getInstance();
   langCode = await preferences.getString('langCode') ?? 'en';
@@ -72,6 +69,13 @@ Future<void> appInit() async {
 void main() async {
   Chapa.configure(privateKey: "CHASECK-kSr6JwoZUw0IlZ6maJJqgxiFQMnz4MUX");
   await appInit();
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Color(0xFF207D36), // Change this to your desired color
+    statusBarIconBrightness: Brightness.light, // For light icons
+    statusBarBrightness: Brightness.dark, // For iOS status bar
+  ));
   runApp(EasyLocalization(
     supportedLocales: Translation.all,
     path: 'assets/translations',
@@ -106,49 +110,48 @@ class _TicketMasterETState extends State<TicketMasterET>
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      builder: ((context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const MaterialApp(
-            debugShowCheckedModeBanner: true,
-            home: Scaffold(
-              body: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          MaterialApp(
-            debugShowCheckedModeBanner: true,
-            home: Scaffold(
-              body: Center(
-                child: Text(tr('error_occured')),
-              ),
-            ),
-          );
-        }
+    // return FutureBuilder(
+    //   builder: ((context, snapshot) {
+    //     if (snapshot.connectionState == ConnectionState.waiting) {
+    //       return const MaterialApp(
+    //         debugShowCheckedModeBanner: true,
+    //         home: Scaffold(
+    //           body: Center(
+    //             child: CircularProgressIndicator(),
+    //           ),
+    //         ),
+    //       );
+    //     } else if (snapshot.hasError) {
+    //       GetMaterialApp(
+    //         debugShowCheckedModeBanner: true,
+    //         home: Scaffold(
+    //           body: Center(
+    //             child: Text(tr('error_occured')),
+    //           ),
+    //         ),
+    //       );
+    //     }
 
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider(create: (_) {
-              return widget.settingsProvider;
-            }),
-            ChangeNotifierProvider(
-              create: (context) => LoginDataProvider(),
-            ),
-            ChangeNotifierProvider(
-              create: (context) => CommentsModel(),
-            ),
-          ],
-          child: Consumer<SettingsProvider>(
-              builder: (context, settingsProvider, snapshot) {
-            return const LandingPage();
-          }),
-        );
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) {
+          return widget.settingsProvider;
+        }),
+        ChangeNotifierProvider(
+          create: (context) => LoginDataProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CommentsModel(),
+        ),
+      ],
+      child: Consumer<SettingsProvider>(
+          builder: (context, settingsProvider, snapshot) {
+        return const LandingPage();
       }),
-      future: appInit(),
     );
   }
+  // future: appInit(),
+  // );
 }
 
 class LandingPage extends StatefulWidget {
@@ -192,20 +195,21 @@ class _LandingPageState extends State<LandingPage> {
     print("First Time User status $isFirstTimeUser");
     if (isFirstTimeUser) {
       print("SplashScreen $isFirstTimeUser");
-      homeScreen = SplashScreen();
+      homeScreen = const SplashScreen();
     } else if (loginDataProvider.loginData != null) {
       print("TicketMatserHomePage $isFirstTimeUser");
       homeScreen = TicketMatserHomePage(title: tr('ticketmaster_name'));
     } else {
       print("SignupScreen $isFirstTimeUser");
-      homeScreen = LoginScreen();
+      homeScreen = const LoginScreen();
     }
+    final themeChange = Provider.of<SettingsProvider>(context);
     return MaterialApp(
         localizationsDelegates: context.localizationDelegates,
         supportedLocales: context.supportedLocales,
         locale: context.locale,
         theme: Styles.themeData(
-            isDarkTheme: settingsProvider.darkTheme,
+            isDarkTheme: themeChange.darkTheme,
             context: context,
             isM3Enabled: false),
         // home: loginDataProvider.loginData != null?
@@ -425,7 +429,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                 borderRadius: BorderRadius.circular(50),
                                 child: Image.network(
                                   organizer?.image ??
-                                      'https://i.postimg.cc/VkBQ3FS6/na-logo.png',
+                                      'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png',
                                   width: 65,
                                   height: 65,
                                   fit: BoxFit.cover,
@@ -520,10 +524,11 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                           .replaceFirst(
                                               "https://admin.ticketmaster-et.com/public/storage/upcoming",
                                               '');
-                                      Share.text(
-                                          'Check out Ticketmaster ET to book a ticket for ${modified[0].title}',
-                                          'https://ticketmaster-et.com$videofilename',
-                                          'text/plain');
+                                      Share.share(
+                                        'https://ticketmaster-et.com$videofilename',
+                                        subject:
+                                            'Check out Ticketmaster ET to book a ticket for ${modified[0].title}',
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.share,

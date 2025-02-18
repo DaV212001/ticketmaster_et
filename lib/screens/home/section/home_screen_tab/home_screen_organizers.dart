@@ -1,22 +1,13 @@
-
-import 'package:flutter/cupertino.dart';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ticketmaster_et/models/event_model.dart';
-import 'package:tiktoklikescroller/tiktoklikescroller.dart';
-
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_ticket.dart';
 import '../../../organizerdetail.dart';
-import '../../../category/section/subcategorydetails.dart';
+
 class HomeScreenOrganizers extends StatefulWidget {
   final ValueNotifier<int> selectedIndex;
   const HomeScreenOrganizers({super.key, required this.selectedIndex});
@@ -26,7 +17,6 @@ class HomeScreenOrganizers extends StatefulWidget {
 }
 
 class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
-
   List<Organizer> ep = [];
   List<Category> categories = [];
   List<Event> events = [];
@@ -41,7 +31,8 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
       updateCategories();
     });
   }
-  late final  _settingsProvider;
+
+  late final _settingsProvider;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -49,6 +40,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
     _settingsProvider.addListener(updateCategories);
   }
+
   @override
   void dispose() {
     if (_settingsProvider != null) {
@@ -57,18 +49,19 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
 
     super.dispose();
   }
+
   void updateCategories() {
     setState(() {
       _isLoading = true;
     });
     getCategorySubCategory(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      categories = value;
-      //   print('VALUE OF THE CATEGORY: $value');
-    }));
+              categories = value;
+              //   print('VALUE OF THE CATEGORY: $value');
+            }));
     getEvents('$apiUrl/event',
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) {
       events = value;
       //  print('VALUE OF THE EVENTS: $value');
@@ -87,11 +80,11 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
       });
     });
     getOrganizers(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      ep = value;
-      //    print('VALUE OF THE ORGANIZERS: $value');
-    }));
+              ep = value;
+              //    print('VALUE OF THE ORGANIZERS: $value');
+            }));
     setState(() {
       _isLoading = false;
     });
@@ -102,7 +95,6 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
@@ -112,7 +104,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
         ),
         SizedBox(
           height:
-          200, // Adjust the height of the horizontal scrollable list view
+              200, // Adjust the height of the horizontal scrollable list view
           child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: ep.length,
@@ -125,8 +117,11 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                         onTap: () {
                           Navigator.push(context,
                               MaterialPageRoute(builder: (context) {
-                                return OrganizerDetail(organizer: ep[index], selectedIndex: widget.selectedIndex,);
-                              }));
+                            return OrganizerDetail(
+                              organizer: ep[index],
+                              selectedIndex: widget.selectedIndex,
+                            );
+                          }));
                         },
                         child: Container(
                           width: 150, // Size of the square image
@@ -138,8 +133,8 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                                   fit: BoxFit.cover,
                                   image: NetworkImage(
                                     ep[index].image!.trim() ==
-                                        'https://admin.ticketmaster-et.com/public/storage/dsvdv'
-                                        ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+                                            'https://admin.ticketmaster-et.com/public/storage/dsvdv'
+                                        ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
                                         : ep[index].image!.trim(),
                                   ))),
                         ),
@@ -151,11 +146,10 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                 } else {
                   return Center(
                     child: Image.network(
-                        'https://i.postimg.cc/VkBQ3FS6/na-logo.png'),
+                        'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
                   );
                 }
-              }
-          ),
+              }),
         )
       ],
     );

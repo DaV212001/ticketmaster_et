@@ -10,7 +10,7 @@
     "support" : "ድጋፍ",
     "tos" : "ደንብ እና ሁኔታዎች",
     "invitefriends" : "ጓደኞችዎን ይጋብዙ",
-    "mytickets" : "የእኔ ትኬቶች",
+    "mytickets" : "የእኔ ትዕዛዞች",
     "general" : "አጠቃላይ",
     "logout" : "ይውጡ",
     "organizers" : "አዘጋጆች",
@@ -55,5 +55,11 @@
     "please_enter_the_5_digit_code_sent_to_your_phone_number": "እባክህ ወደ ስልክ ቁጥርህ የተላከውን ባለ 5 አሃዝ ኮድ አስገባ",
     "code": "ኮድ",
     "chances_left": "ዕድሎች ቀርተዋል።",
-    "enter_your_phone_number_again_please": "እባክዎን ስልክ ቁጥርዎን እንደገና ያስገቡ"
+    "enter_your_phone_number_again_please": "እባክዎን ስልክ ቁጥርዎን እንደገና ያስገቡ",
+    "order": "ማዘዝ",
+    "portions": "የምግብ መጠን",
+    "no_food": "ምንም ምግቦች አልተገኙም",
+    "enter_location": "ቦታ አስገባ",
+    "privpol": "የግላዊነት ፖሊሲ",
+    "faq": "በተደጋጋሚ የሚጠየቁ ጥያቄዎች",
 }

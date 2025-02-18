@@ -1,4 +1,4 @@
-class PrivacyPolicy{
+class PrivacyPolicy {
   int? id;
   String? title;
   // String? description;
@@ -21,6 +21,12 @@ class PrivacyPolicy{
         break;
       case 'en-AU':
         title = json['text_or'];
+        break;
+      case 'es':
+        title = json['text_so'];
+        break;
+      case 'fr':
+        title = json['text_tg'];
         break;
       default:
         throw Exception('Invalid language: $language');

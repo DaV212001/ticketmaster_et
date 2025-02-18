@@ -34,7 +34,8 @@
 "have_acc":"Duraanuu akkaawuntii qaban?",
 "promocode":"Koodii piroomoo",
 "tos": "Haala Tajaajilaa",
-"mytickets": "Tikeetii koo",
+"mytickets": "Ajaja Koo",
+  "order": "Ajajuu",
   "submit": "Qalchuu",
   "events" : "Taateewwan",
   "desc": "Ibsa",
@@ -54,5 +55,10 @@
   "please_enter_the_5_digit_code_sent_to_your_phone_number": "Mee koodii dijiitii 5 kan lakkoofsa bilbila keessaniif ergamu galchaa",
   "code": "koodii",
   "chances_left": "Carraan hafe",
-  "enter_your_phone_number_again_please": "Lakkoofsa bilbila keessanii irra deebi'aa galchaa mee"
+  "enter_your_phone_number_again_please": "Lakkoofsa bilbila keessanii irra deebi'aa galchaa mee",
+  "portions": "Hamma Nyaataa",
+  "no_food": "Nyaata Hin Argamne",
+  "enter_location": "Bakka Galchi",
+  "privpol": "Imaammata Dhuunfaa",
+  "faq": "Gaaffiiwwan Irra Deddeebiin Gaafataman"
 }

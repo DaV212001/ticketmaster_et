@@ -1,22 +1,13 @@
-
-import 'package:flutter/cupertino.dart';
-
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ticketmaster_et/models/event_model.dart';
-import 'package:tiktoklikescroller/tiktoklikescroller.dart';
-
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_ticket.dart';
-import '../../../organizerdetail.dart';
 import '../../../category/section/subcategorydetails.dart';
+
 class HomeScreenCategories extends StatefulWidget {
   final ValueNotifier<int> selectedIndex;
   const HomeScreenCategories({super.key, required this.selectedIndex});
@@ -40,7 +31,8 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
       updateCategories();
     });
   }
-  late final  _settingsProvider;
+
+  late final _settingsProvider;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -48,6 +40,7 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
     _settingsProvider.addListener(updateCategories);
   }
+
   @override
   void dispose() {
     if (_settingsProvider != null) {
@@ -56,18 +49,19 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
 
     super.dispose();
   }
+
   void updateCategories() {
     setState(() {
       _isLoading = true;
     });
     getCategorySubCategory(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      categories = value;
-      //   print('VALUE OF THE CATEGORY: $value');
-    }));
+              categories = value;
+              //   print('VALUE OF THE CATEGORY: $value');
+            }));
     getEvents('$apiUrl/event',
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) {
       events = value;
       //  print('VALUE OF THE EVENTS: $value');
@@ -86,11 +80,11 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
       });
     });
     getOrganizers(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      ep = value;
-      //    print('VALUE OF THE ORGANIZERS: $value');
-    }));
+              ep = value;
+              //    print('VALUE OF THE ORGANIZERS: $value');
+            }));
     setState(() {
       _isLoading = false;
     });
@@ -100,76 +94,95 @@ class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
   Widget build(BuildContext context) {
     return ListView.builder(
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: categories.length,
       itemBuilder: (context, index) {
-        print("WIDGET BUILT");
+        // print("WIDGET BUILT");
 
+        // Insert AdsCarousel in the middle
+        // if (index == categories.length ~/ 2) {
+        //   return const Padding(
+        //     padding: EdgeInsets.symmetric(vertical: 16.0),
+        //     child: AdsCarousel(), // Ensure this widget is imported
+        //   );
+        // }
+        //
+        // // Adjust index for categories
+        final categoryIndex = index;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _isLoading
-                ?
-            CircularProgressIndicator()
-                :
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                categories[index].name!, // Category name
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(
-              height: 200,
-              // Adjust the height of the horizontal scrollable list view
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: categories[index].subCategory!.length,
-                itemBuilder: (context, subIndex) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(context,
-                                MaterialPageRoute(
-                                    builder: (context) {
-                                      return SubCatDetail(
-                                          subCategory: categories[index]
-                                              .subCategory![subIndex], selectedIndex: widget.selectedIndex,
-                                      );
-                                    }));
-                          },
-                          child: Container(
-                            width: 150, // Size of the square image
-                            height: 150,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.rectangle,
-                                borderRadius: BorderRadius.circular(15),
-                                image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(
-                                      categories[index]
-                                          .subCategory![subIndex]
-                                          .image!
-                                          .trim(),
-                                    ))),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(categories[index]
-                            .subCategory![subIndex]
-                            .name!),
-                      ],
+                ? const CircularProgressIndicator()
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      categories[categoryIndex].name!,
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                  );
-                },
+                  ),
+            if (categories[categoryIndex].subCategory!.isEmpty)
+              Center(
+                  child: Column(
+                children: [
+                  Image.asset(
+                    'assets/images/THICKET_MASTER_LOGO.png',
+                    height: MediaQuery.of(context).size.height * 0.1,
+                    width: MediaQuery.of(context).size.width * 0.2,
+                  ),
+                  Text('no_food'.tr())
+                ],
+              ))
+            else
+              SizedBox(
+                height: 200,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: categories[categoryIndex].subCategory!.length,
+                  itemBuilder: (context, subIndex) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return SubCatDetail(
+                                  id: categories[categoryIndex]
+                                      .subCategory![subIndex]
+                                      .id!,
+                                );
+                              }));
+                            },
+                            child: Container(
+                              width: 150,
+                              height: 150,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.rectangle,
+                                  borderRadius: BorderRadius.circular(15),
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: NetworkImage(
+                                        categories[categoryIndex]
+                                            .subCategory![subIndex]
+                                            .image!
+                                            .trim(),
+                                      ))),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(categories[categoryIndex]
+                              .subCategory![subIndex]
+                              .name!),
+                        ],
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
           ],
         );
       },

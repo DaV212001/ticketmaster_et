@@ -56,7 +56,9 @@ dependencies:
   firebase_core: ^2.24.2
   firebase_messaging: ^14.7.10
   awesome_notifications: ^0.9.3+1
-  esys_flutter_share_plus: ^2.3.0
+  share_plus: ^10.1.4
+  get: ^4.6.6
+  logger: ^2.5.0
 
 dev_dependencies:
   flutter_test:
@@ -85,6 +87,7 @@ flutter:
     - assets/images/
     - assets/images/splash_screens/
     - assets/translations/
+    - assets/images/carousel/
   fonts:
     - family:  TikTokIcons
       fonts:

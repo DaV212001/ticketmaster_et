@@ -18,7 +18,8 @@ class Class {
 
   Class.fromJson(Map<String, dynamic> json, String language) {
     id = json['id'];
-    eventId = json['event_id'];
+    eventId =
+        json['event_id'] is String ? json['event_id'] : '${json['event_id']}';
     switch (language) {
       case 'am':
         title = json['title_am'];
@@ -29,10 +30,17 @@ class Class {
       case 'en-AU':
         title = json['title_or'];
         break;
+      case 'es':
+        title = json['title_so'];
+        break;
+      case 'fr':
+        title = json['title_tg'];
       default:
         throw Exception('Invalid language: $language');
     }
-    availableTicket = int.parse(json['available_ticket']);
+    availableTicket = json['available_ticket'] is String
+        ? int.parse(json['available_ticket'])
+        : json['available_ticket'];
     price = int.parse(json['price']);
   }
 }
@@ -60,7 +68,9 @@ class CoverImage {
     categoryId =
         json["category_id"] != null ? int.parse(json["category_id"]) : 0;
     subcategoryId = json["sub_category_id"] != null
-        ? int.parse(json["sub_category_id"])
+        ? json["sub_category_id"] is String
+            ? int.parse(json["sub_category_id"])
+            : json["sub_category_id"]
         : 0;
     organizerId =
         json["organizer_id"] != null ? int.parse(json["organizer_id"]) : 0;
@@ -179,16 +189,24 @@ class Event {
     image = json['image'] != null
         ? baseUrl + json['image']
         : json['image'] != ""
-            ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-            : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+            ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+            : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png';
     popularImage = json['popular_image'] != null
         ? baseUrl + json['popular_image']
         : 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
-    categoryId = json['category_id'];
-    subCategoryId = json['sub_category_id'];
-    organizerId = json['organizer_id'];
-    countryId = json['country_id'];
-    cityId = json['city_id'];
+    categoryId = json['category_id'] is String
+        ? json['category_id']
+        : '${json['category_id']}';
+    subCategoryId = json['sub_category_id'] is String
+        ? json['sub_category_id']
+        : '${json['sub_category_id']}';
+    organizerId = json['organizer_id'] is String
+        ? json['organizer_id']
+        : '${json['organizer_id']}';
+    countryId = json['country_id'] is String
+        ? json['country_id']
+        : '${json['country_id']}';
+    cityId = json['city_id'] is String ? json['city_id'] : '${json['city_id']}';
 
     switch (language) {
       case 'am':
@@ -200,6 +218,11 @@ class Event {
       case 'en-AU':
         title = json['title_or'];
         break;
+      case 'es':
+        title = json['title_so'];
+        break;
+      case 'fr':
+        title = json['title_tg'];
       default:
         throw Exception('Invalid language: $language');
     }
@@ -214,6 +237,11 @@ class Event {
       case 'en-AU':
         desc = json['desc_or'];
         break;
+      case 'es':
+        desc = json['desc_so'];
+        break;
+      case 'fr':
+        desc = json['desc_tg'];
       default:
         throw Exception('Invalid language: $language');
     }
@@ -228,13 +256,20 @@ class Event {
       case 'en-AU':
         place = json['place_or'];
         break;
+      case 'es':
+        place = json['place_so'];
+        break;
+      case 'fr':
+        place = json['place_tg'];
       default:
         throw Exception('Invalid language: $language');
     }
 
     date = json['date'];
     time = json['time'];
-    isPopular = json['is_popular'];
+    isPopular = json['is_popular'] is String
+        ? json['is_popular']
+        : '${json['is_popular']}';
 
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
@@ -245,8 +280,8 @@ class Event {
     upcomingImage = json['upcoming_image'] != null
         ? baseUrl + json['upcoming_image']
         : json['upcoming_image'] != ""
-            ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-            : 'https://i.postimg.cc/VkBQ3FS6/na-logo.png';
+            ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+            : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png';
 
     var coverData =
         json["cover_image"] != null ? json["cover_image"] as List : [];
@@ -290,6 +325,11 @@ class Ticket {
       case 'en-AU':
         className = json['class_name_or'] ?? " ";
         break;
+      case 'es':
+        className = json['class_name_so'] ?? " ";
+        break;
+      case 'fr':
+        className = json['class_name_tg'] ?? " ";
       default:
         throw Exception('Invalid language: $language');
     }
@@ -304,6 +344,11 @@ class Ticket {
       case 'en-AU':
         eventPlace = json['event_place_or'] ?? " ";
         break;
+      case 'es':
+        eventPlace = json['event_place_so'] ?? " ";
+        break;
+      case 'fr':
+        eventPlace = json['event_place_tg'] ?? " ";
       default:
         throw Exception('Invalid language: $language');
     }
@@ -320,6 +365,12 @@ class Ticket {
         break;
       case 'en-AU':
         eventName = json['event_name_or'] ?? " ";
+        break;
+      case 'es':
+        eventName = json['event_name_so'] ?? " ";
+        break;
+      case 'fr':
+        eventName = json['event_name_tg'] ?? " ";
         break;
       default:
         throw Exception('Invalid language: $language');
@@ -356,16 +407,87 @@ class Category {
       case 'en-AU':
         name = json['name_or'];
         break;
+      case 'es':
+        name = json['name_so'] ?? '';
+        break;
+      case 'fr':
+        name = json['name_tg'] ?? '';
       default:
         throw Exception('Invalid language: $language');
     }
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
 
-    var subCategoriesData = json["sub_category"] as List;
+    var subCategoriesData = json["event_list"] as List;
     subCategory = subCategoriesData
         .map((data) => SubCategory.fromJson(data, language))
         .toList();
+  }
+}
+
+class FoodPortions {
+  int? id;
+  String? image;
+  int? foodId;
+  String? name;
+  String? desc;
+  num? price;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+
+  FoodPortions(
+      {required this.id,
+      required this.image,
+      required this.foodId,
+      required this.name,
+      required this.desc,
+      required this.price,
+      required this.createdAt,
+      required this.updatedAt});
+
+  FoodPortions.fromJson(Map<String, dynamic> json, String language) {
+    id = json["id"];
+    image = json["cover_image"];
+    foodId = json["food_id"];
+    switch (language) {
+      case 'am':
+        name = json['name_am'];
+        break;
+      case 'en':
+        name = json['name_en'];
+        break;
+      case 'en-AU':
+        name = json['name_or'];
+        break;
+      case 'es':
+        name = json['name_so'];
+        break;
+      case 'fr':
+        name = json['name_tg'];
+      default:
+        throw Exception('Invalid language: $language');
+    }
+    switch (language) {
+      case 'am':
+        desc = json['description_am'];
+        break;
+      case 'en':
+        desc = json['description_en'];
+        break;
+      case 'en-AU':
+        desc = json['description_or'];
+        break;
+      case 'es':
+        desc = json['description_so'];
+        break;
+      case 'fr':
+        desc = json['description_tg'];
+      default:
+        desc = '0';
+    }
+    price = json["price"] is String ? num.parse(json['price']) : json['price'];
+    createdAt = DateTime.parse(json["created_at"]);
+    updatedAt = DateTime.parse(json["updated_at"]);
   }
 }
 
@@ -376,16 +498,11 @@ class SubCategory {
   String? name;
   String? desc;
 
-  SubCategory(
-      {required this.id,
-      required this.image,
-      required this.categoryId,
-      required this.name,
-      this.desc});
+  SubCategory({this.id, this.image, this.categoryId, this.name, this.desc});
 
   SubCategory.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
-    image = baseUrl + json["image"];
+    image = json["cover_image"];
     categoryId = json["category_id"] is String
         ? int.parse(json["category_id"])
         : json["category_id"];
@@ -399,18 +516,29 @@ class SubCategory {
       case 'en-AU':
         name = json['name_or'];
         break;
+      case 'es':
+        name = json['name_so'];
+        break;
+      case 'fr':
+        name = json['name_tg'];
       default:
         throw Exception('Invalid language: $language');
     }
     switch (language) {
       case 'am':
-        desc = json['desc_am'];
+        desc = json['description_am'];
         break;
       case 'en':
-        desc = json['desc_en'];
+        desc = json['description_en'];
         break;
       case 'en-AU':
-        desc = json['desc_or'];
+        desc = json['description_or'];
+        break;
+      case 'es':
+        desc = json['description_so'];
+        break;
+      case 'fr':
+        desc = json['description_tg'];
         break;
       default:
         desc = '0';
@@ -447,6 +575,12 @@ class Organizer {
       case 'en-AU':
         name = json['name_or'];
         break;
+      case 'es':
+        name = json['name_so'];
+        break;
+      case 'fr':
+        name = json['name_tg'];
+        break;
       default:
         throw Exception('Invalid language: $language');
     }
@@ -460,6 +594,13 @@ class Organizer {
       case 'en-AU':
         desc = json['desc_or'];
         break;
+      case 'es':
+        desc = json['desc_so'];
+        break;
+      case 'fr':
+        desc = json['desc_tg'];
+        break;
+
       default:
         desc = '0';
     }
@@ -545,25 +686,41 @@ class ErrorData {
 }
 
 class Booking {
-  int? customerId, eventId, classId, price;
-  String? phone, ticketNumber;
+  int? customerId, foodId, foodPortionId;
+  String? date;
+  String? mealTypeId, location;
 
   Booking(
       {required this.customerId,
-      required this.eventId,
-      required this.classId,
-      required this.phone,
-      required this.ticketNumber,
-      required this.price});
+      required this.foodId,
+      required this.foodPortionId,
+      required this.mealTypeId,
+      required this.location,
+      required this.date});
 
   Map<String, dynamic> toJson() => {
         'customer_id': customerId,
-        'event_id': eventId,
-        'class_id': classId,
-        'phone': phone,
-        'ticket_number': ticketNumber,
-        'price': price
+        'event_id': foodId,
+        'class_id': foodPortionId,
+        'phone': mealTypeId,
+        'ticket_number': location,
+        'price': date
       };
+}
+
+class PromotionalImages {
+  int? id;
+  String? image;
+  int? foodId;
+
+  PromotionalImages(
+      {required this.id, required this.image, required this.foodId});
+
+  PromotionalImages.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    image = json['image'];
+    foodId = json['food_id'];
+  }
 }
 
 class BookingResponse {
@@ -708,6 +865,11 @@ class City {
       case 'en-AU':
         name = json['name_or'];
         break;
+      case 'es':
+        name = json['name_so'];
+        break;
+      case 'fr':
+        name = json['name_tg'];
       default:
         throw Exception('Invalid language: $language');
     }

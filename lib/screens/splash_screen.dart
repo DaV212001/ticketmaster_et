@@ -1,7 +1,7 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:ticketmaster_et/screens/login.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -11,11 +11,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-
   var imageUrls = [
-    "assets/images/splash_screens/splash0.jpg",
-    "assets/images/splash_screens/splash1.jpg",
-    "assets/images/splash_screens/splash2.jpg",
+    "assets/images/splash_screens/food-04.png",
+    "assets/images/splash_screens/food-03.png",
+    "assets/images/splash_screens/food-02.png",
   ];
   int currentIndex = 0;
 

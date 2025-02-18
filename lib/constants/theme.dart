@@ -3,8 +3,8 @@
 // class Styles {
 //   static ThemeData themeData({required bool isDark}) {
 //     return ThemeData(
-//         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF00A600)),
-//         primaryColor: const Color(0xFF00A600),
+//         appBarTheme: const AppBarTheme(backgroundColor: Color(0xFF218A36)),
+//         primaryColor: const Color(0xFF218A36),
 //         secondaryHeaderColor: const Color(0xFF64C5BA));
 //   }
 // }
@@ -28,9 +28,9 @@ class Styles {
       // drawerTheme: DrawerThemeData(
       //   : isM3Enabled
       //       ? isDarkTheme
-      //           ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-      //           : lightDynamicColor?.primary ?? Color(0xFF00A600)
-      //       : Color(0xFF00A600),
+      //           ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+      //           : lightDynamicColor?.primary ?? Color(0xFF218A36)
+      //       : Color(0xFF218A36),
       // ),
       textTheme: isDarkTheme
           ? ThemeData.dark().textTheme.apply(
@@ -42,9 +42,9 @@ class Styles {
       appBarTheme: AppBarTheme(
         backgroundColor: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                : lightDynamicColor?.primary ?? Color(0xFF00A600)
-            : Color(0xFF00A600),
+                ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                : lightDynamicColor?.primary ?? Color(0xFF218A36)
+            : Color(0xFF218A36),
         iconTheme: IconThemeData(
           color: isM3Enabled
               ? isDarkTheme
@@ -65,15 +65,15 @@ class Styles {
           backgroundColor: isDarkTheme ? Color(0xFF171717) : Color(0xFFdedede)),
       primaryColor: isM3Enabled
           ? isDarkTheme
-              ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-              : lightDynamicColor?.primary ?? Color(0xFF00A600)
-          : const Color(0xFF00A600),
+              ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+              : lightDynamicColor?.primary ?? Color(0xFF218A36)
+          : const Color(0xFF218A36),
       iconTheme: IconThemeData(
         color: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                : lightDynamicColor?.primary ?? Color(0xFF00A600)
-            : Color(0xFF00A600),
+                ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                : lightDynamicColor?.primary ?? Color(0xFF218A36)
+            : Color(0xFF218A36),
       ),
       bannerTheme: MaterialBannerThemeData(),
       chipTheme: ChipThemeData(),
@@ -83,23 +83,23 @@ class Styles {
       radioTheme: RadioThemeData(
           fillColor: MaterialStatePropertyAll(isM3Enabled
               ? isDarkTheme
-                  ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                  : lightDynamicColor?.primary ?? Color(0xFF00A600)
-              : Color(0xFF00A600))),
+                  ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                  : lightDynamicColor?.primary ?? Color(0xFF218A36)
+              : Color(0xFF218A36))),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
           backgroundColor: MaterialStatePropertyAll(
             isM3Enabled
                 ? isDarkTheme
-                    ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                    : lightDynamicColor?.primary ?? Color(0xFF00A600)
-                : Color(0xFF00A600),
+                    ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                    : lightDynamicColor?.primary ?? Color(0xFF218A36)
+                : Color(0xFF218A36),
           ),
           foregroundColor: MaterialStatePropertyAll(
             isM3Enabled
                 ? isDarkTheme
-                    ? darkDynamicColor?.onPrimary ?? Color(0xFF00A600)
-                    : lightDynamicColor?.onPrimary ?? Color(0xFF00A600)
+                    ? darkDynamicColor?.onPrimary ?? Color(0xFF218A36)
+                    : lightDynamicColor?.onPrimary ?? Color(0xFF218A36)
                 : Colors.white,
           ),
         ),
@@ -110,10 +110,10 @@ class Styles {
               isM3Enabled
                   ? isDarkTheme
                       ? darkDynamicColor?.primary.withOpacity(0.1) ??
-                          Color(0xFF00A600).withOpacity(0.1)
+                          Color(0xFF218A36).withOpacity(0.1)
                       : lightDynamicColor?.primary.withOpacity(0.1) ??
-                          Color(0xFF00A600).withOpacity(0.1)
-                  : Color(0xFF00A600).withOpacity(0.1),
+                          Color(0xFF218A36).withOpacity(0.1)
+                  : Color(0xFF218A36).withOpacity(0.1),
             ),
             maximumSize: MaterialStateProperty.all(const Size(200, 60)),
             shape: MaterialStateProperty.all<RoundedRectangleBorder>(
@@ -122,9 +122,9 @@ class Styles {
                     side: BorderSide(
                       color: isM3Enabled
                           ? isDarkTheme
-                              ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                              : lightDynamicColor?.primary ?? Color(0xFF00A600)
-                          : Color(0xFF00A600),
+                              ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                              : lightDynamicColor?.primary ?? Color(0xFF218A36)
+                          : Color(0xFF218A36),
                     )))),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -135,16 +135,16 @@ class Styles {
             : Colors.black,
         color: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                : lightDynamicColor?.primary ?? Color(0xFF00A600)
-            : Color(0xFF00A600),
+                ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                : lightDynamicColor?.primary ?? Color(0xFF218A36)
+            : Color(0xFF218A36),
       ),
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                : lightDynamicColor?.primary ?? Color(0xFF00A600)
-            : Color(0xFF00A600),
+                ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                : lightDynamicColor?.primary ?? Color(0xFF218A36)
+            : Color(0xFF218A36),
         selectionHandleColor:
             isDarkTheme ? const Color(0xFFFFFFFF) : const Color(0xFF000000),
         selectionColor: isDarkTheme ? Colors.white12 : Colors.black12,
@@ -161,16 +161,16 @@ class Styles {
       ),
       indicatorColor: isM3Enabled
           ? isDarkTheme
-              ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-              : lightDynamicColor?.primary ?? Color(0xFF00A600)
-          : Color(0xFF00A600),
+              ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+              : lightDynamicColor?.primary ?? Color(0xFF218A36)
+          : Color(0xFF218A36),
       switchTheme: SwitchThemeData(
         thumbColor: MaterialStatePropertyAll(
           isM3Enabled
               ? isDarkTheme
-                  ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                  : lightDynamicColor?.primary ?? Color(0xFF00A600)
-              : Color(0xFF00A600),
+                  ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                  : lightDynamicColor?.primary ?? Color(0xFF218A36)
+              : Color(0xFF218A36),
         ),
         trackColor: MaterialStatePropertyAll(
           isM3Enabled
@@ -183,9 +183,9 @@ class Styles {
       colorScheme: ColorScheme(
         primary: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.primary ?? Color(0xFF00A600)
-                : lightDynamicColor?.primary ?? Color(0xFF00A600)
-            : const Color(0xFF00A600),
+                ? darkDynamicColor?.primary ?? Color(0xFF218A36)
+                : lightDynamicColor?.primary ?? Color(0xFF218A36)
+            : const Color(0xFF218A36),
         primaryContainer: isM3Enabled
             ? isDarkTheme
                 ? darkDynamicColor?.primaryContainer ?? Color(0xFF5BB4A7)
@@ -230,14 +230,14 @@ class Styles {
                 : Color(0xFFba1a1a),
         onPrimary: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.onPrimary ?? Color(0xFF00A600)
+                ? darkDynamicColor?.onPrimary ?? Color(0xFF218A36)
                 : lightDynamicColor?.error ?? Color(0xFFffffff)
             : isDarkTheme
                 ? Color(0xFF502400)
                 : Color(0xFFffffff),
         onSecondary: isM3Enabled
             ? isDarkTheme
-                ? darkDynamicColor?.onSecondary ?? Color(0xFF00A600)
+                ? darkDynamicColor?.onSecondary ?? Color(0xFF218A36)
                 : lightDynamicColor?.onSecondary ?? Color(0xFFffffff)
             : isDarkTheme
                 ? Color(0xFF502400)

@@ -1,16 +1,11 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:ticketmaster_et/main.dart';
 import 'package:ticketmaster_et/screens/category/category_tab.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
-import 'package:ticketmaster_et/screens/user_ticket_details.dart';
 import 'package:ticketmaster_et/screens/user_tickets.dart';
-
-import 'provider/loginpersistence.dart';
 
 class TicketMatserHomePage extends StatefulWidget {
   const TicketMatserHomePage({super.key, required this.title});
@@ -29,22 +24,23 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
     // TODO: implement initState
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
-
     return SafeArea(
       child: DeepLinkHandler(
         child: Scaffold(
-          body:IndexedStack(
+          body: IndexedStack(
             index: selectedIndex.value,
-            children:  [
+            children: [
               HomeTab(selectedIndex: selectedIndex),
-               CategoryTab(selectedIndex: selectedIndex,),
+              CategoryTab(
+                selectedIndex: selectedIndex,
+              ),
               UserTickets(),
               ProfileWidget()
             ],
           ),
-
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
                 border: BorderDirectional(
@@ -69,7 +65,7 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
                   icon: Icons.category,
                   title: tr('category'),
                 ),
-                BarItem(title: tr('mytickets'), icon: Icons.airplane_ticket),
+                BarItem(title: tr('mytickets'), icon: Icons.no_food_rounded),
                 BarItem(
                   icon: Icons.person,
                   title: tr('profile'),

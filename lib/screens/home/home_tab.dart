@@ -1,16 +1,14 @@
 // ignore_for_file: unused_element, no_leading_underscores_for_local_identifiers
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ticketmaster_et/models/event_model.dart';
+import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_tab_widget.dart';
-import 'package:ticketmaster_et/screens/home/section/upcoming_screen_tab/upcoming_tab_widget.dart';
 import 'package:tiktoklikescroller/tiktoklikescroller.dart';
+
 import '../../constants/app_constants.dart';
 import '../../functions/functions.dart';
 import '../../provider/settings_provider.dart';
-import 'package:ticketmaster_et/models/newmodels.dart';
 
 class HomeTab extends StatefulWidget {
   final ValueNotifier<int> selectedIndex;
@@ -31,7 +29,8 @@ class _HomeTabState extends State<HomeTab>
       isImageZoomed = !isImageZoomed;
     });
   }
-List<Organizer> modifiedOrg = [];
+
+  List<Organizer> modifiedOrg = [];
   late TabController tabController;
   List<Event> events = [];
 
@@ -45,37 +44,41 @@ List<Organizer> modifiedOrg = [];
     print("HomeTab 2");
     languageChange.addListener(rebuild);
     print("HomeTab 3");
-    tabController = TabController(length: 2, vsync: this);
+    // tabController = TabController(length: 2, vsync: this);
     print("HomeTab 4");
     WidgetsBinding.instance.addPostFrameCallback((_) {
       updateCategories();
     });
   }
+
   void updateCategories() {
     print("updateCategories Called 1");
     setState(() {
       _isLoading = true;
     });
     print("updateCategories Called 2");
-    getOrganizers(Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-      print("updateCategories Called 3.1");
-      modifiedOrg = value;
-      //  print( 'VALUE OF THE EVENTS: $value');
-      print("updateCategories Called 3.2");
-    }));
-    getEvents('$apiUrl/upcoming', Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-      print("updateCategories Called 3.1");
-      events = value;
-    //  print( 'VALUE OF THE EVENTS: $value');
-      print("updateCategories Called 3.2");
-    }));
+    getOrganizers(
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
+        .then((value) => setState(() {
+              print("updateCategories Called 3.1");
+              modifiedOrg = value;
+              //  print( 'VALUE OF THE EVENTS: $value');
+              print("updateCategories Called 3.2");
+            }));
+    getEvents('$apiUrl/upcoming',
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
+        .then((value) => setState(() {
+              print("updateCategories Called 3.1");
+              events = value;
+              //  print( 'VALUE OF THE EVENTS: $value');
+              print("updateCategories Called 3.2");
+            }));
     print("updateCategories Called 4");
     setState(() {
       _isLoading = false;
     });
     print("updateCategories Called 5");
   }
-
 
   @override
   void didChangeDependencies() {
@@ -89,12 +92,14 @@ List<Organizer> modifiedOrg = [];
     Provider.of<SettingsProvider>(context).addListener(updateCategories);
   }
 
-
   @override
   void dispose() {
-    languageChange.removeListener(rebuild);
-    Provider.of<SettingsProvider>(context, listen: false).removeListener(updateCategories);
-    super.dispose();
+    if (mounted) {
+      languageChange.removeListener(rebuild);
+      Provider.of<SettingsProvider>(context, listen: false)
+          .removeListener(updateCategories);
+      super.dispose();
+    }
   }
 
   void rebuild() => setState(() {});
@@ -112,49 +117,51 @@ List<Organizer> modifiedOrg = [];
       });
 
     super.build(context);
- //   print(tabController.index);
+    //   print(tabController.index);
     return Stack(
       alignment: Alignment.topCenter,
       children: [
-        TabBarView(controller: tabController,
-            children: [
-          HomeTabWidget(selectedIndex: widget.selectedIndex,),
-          UpcomingTabWidget(
-              selectedIndex: widget.selectedIndex,
-              modified: modified,
-              modifiedOrg: modifiedOrg,
-              controller: controller,
-              isZoomed: isImageZoomed,
-          )
-        ]),
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.grey[300],
-              borderRadius: BorderRadius.circular(
-                25.0,
-              ),
-            ),
-            height: 45,
-            width: MediaQuery.of(context).size.width * 0.5,
-            child: TabBar(
-              indicatorSize: TabBarIndicatorSize.label,
-              controller: tabController,
-              indicatorWeight: 5,
-              labelColor: Colors.black,
-              unselectedLabelColor: Colors.black,
-              tabs: [
-                Tab(
-                  text: tr('home'),
-                ),
-                Tab(
-                  text: tr('upcoming'),
-                ),
-              ],
-            ),
-          ),
+        // TabBarView(controller: tabController,
+        //     children: [
+        HomeTabWidget(
+          selectedIndex: widget.selectedIndex,
         ),
+        // UpcomingTabWidget(
+        //     selectedIndex: widget.selectedIndex,
+        //     modified: modified,
+        //     modifiedOrg: modifiedOrg,
+        //     controller: controller,
+        //     isZoomed: isImageZoomed,
+        // )
+        // ]),
+        // Padding(
+        //   padding: const EdgeInsets.all(20.0),
+        //   child: Container(
+        //     decoration: BoxDecoration(
+        //       color: Colors.grey[300],
+        //       borderRadius: BorderRadius.circular(
+        //         25.0,
+        //       ),
+        //     ),
+        //     height: 45,
+        //     width: MediaQuery.of(context).size.width * 0.5,
+        //     child: TabBar(
+        //       indicatorSize: TabBarIndicatorSize.label,
+        //       controller: tabController,
+        //       indicatorWeight: 5,
+        //       labelColor: Colors.black,
+        //       unselectedLabelColor: Colors.black,
+        //       tabs: [
+        //         Tab(
+        //           text: tr('home'),
+        //         ),
+        //         Tab(
+        //           text: tr('upcoming'),
+        //         ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

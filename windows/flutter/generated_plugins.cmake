@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   awesome_notifications
   firebase_core
   flutter_inappwebview_windows
+  share_plus
   url_launcher_windows
 )
 

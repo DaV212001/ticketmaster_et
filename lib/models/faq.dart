@@ -1,4 +1,4 @@
-class FAQ{
+class FAQ {
   int? id;
   String? title;
   String? description;
@@ -22,6 +22,12 @@ class FAQ{
       case 'en-AU':
         title = json['title_or'];
         break;
+      case 'es':
+        title = json['title_so'];
+        break;
+      case 'fr':
+        title = json['title_tg'];
+        break;
       default:
         throw Exception('Invalid language: $language');
     }
@@ -35,18 +41,18 @@ class FAQ{
       case 'en-AU':
         description = json['desc_or'];
         break;
+      case 'es':
+        description = json['desc_so'];
+        break;
+      case 'fr':
+        description = json['desc_tg'];
+        break;
       default:
         throw Exception('Invalid language: $language');
     }
-
-
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description
-    };
+    return {'id': id, 'title': title, 'description': description};
   }
 }

@@ -1,17 +1,7 @@
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:ticket_widget/ticket_widget.dart';
-import 'package:chapa_unofficial/chapa_unofficial.dart';
-import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
-import 'package:ticketmaster_et/screens/thankyouscreen.dart';
 import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-import 'dart:math';
-import '../functions/functions.dart';
-import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
 
 // Class? selectedClass;
 // String ticketNum = '';
@@ -181,7 +171,7 @@ import '../provider/settings_provider.dart';
 //                         || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'
 //                         ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'
 //                         ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
-//                     'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
+//                     'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
 //                         :
 //                     widget.event.image!.trim(),
 //                   )
@@ -603,13 +593,14 @@ import '../provider/settings_provider.dart';
 //   );
 // }
 
-
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
   final VideoPlayerController? controller;
   final ValueNotifier<int>? selectedIndex;
 
-  VideoPlayerWidget({Key? key, required this.videoUrl, this.controller, this.selectedIndex}) : super(key: key);
+  VideoPlayerWidget(
+      {Key? key, required this.videoUrl, this.controller, this.selectedIndex})
+      : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -635,21 +626,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       setState(() {});
     }
   }
+
   int HOME_TAB_INDEX = 0;
   void _handleIndexChanged() {
     if (widget.selectedIndex?.value != HOME_TAB_INDEX) {
       _controller.pause();
       _controller.dispose();
-      _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+      _controller =
+          VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
       _controller.initialize();
-    } else if (widget.selectedIndex?.value == HOME_TAB_INDEX && !_controller.value.isInitialized) {
+    } else if (widget.selectedIndex?.value == HOME_TAB_INDEX &&
+        !_controller.value.isInitialized) {
       _controller.initialize();
     }
   }
-
-
-
-
 
   @override
   void dispose() {
@@ -703,8 +693,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
                         looping: true,
                         allowPlaybackSpeedChanging: false,
                         allowFullScreen: false,
-                        showControls: false
-                    ),
+                        showControls: false),
                   ),
                   if (!_isPlaying)
                     Container(

@@ -1,36 +1,27 @@
-
-import 'package:flutter/cupertino.dart';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ticketmaster_et/models/event_model.dart';
-import 'package:ticketmaster_et/screens/event_detail.dart';
-import 'package:tiktoklikescroller/tiktoklikescroller.dart';
-
 import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/screens/category/section/subcategorydetails.dart';
 
-import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
 import '../../../../provider/settings_provider.dart';
-import '../../../event_ticket.dart';
-import '../../../organizerdetail.dart';
-import '../../../category/section/subcategorydetails.dart';
+
 class HomeScreenCarouselSlider extends StatefulWidget {
   final ValueNotifier<int> selectedIndex;
   const HomeScreenCarouselSlider({super.key, required this.selectedIndex});
 
   @override
-  State<HomeScreenCarouselSlider> createState() => _HomeScreenCarouselSliderState();
+  State<HomeScreenCarouselSlider> createState() =>
+      _HomeScreenCarouselSliderState();
 }
 
 class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
   List<Organizer> ep = [];
   List<Category> categories = [];
-  List<Event> events = [];
-  List<Event> popularevents = [];
+  List<PromotionalImages> events = [];
+  List<PromotionalImages> popularevents = [];
   bool _isLoading = true;
 
   @override
@@ -41,7 +32,8 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
       updateCategories();
     });
   }
-  late final  _settingsProvider;
+
+  late final _settingsProvider;
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -49,6 +41,7 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
     _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
     _settingsProvider.addListener(updateCategories);
   }
+
   @override
   void dispose() {
     if (_settingsProvider != null) {
@@ -57,28 +50,27 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
 
     super.dispose();
   }
+
   void updateCategories() {
     setState(() {
       _isLoading = true;
     });
     getCategorySubCategory(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      categories = value;
-      //   print('VALUE OF THE CATEGORY: $value');
-    }));
-    getEvents('$apiUrl/event',
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+              categories = value;
+              //   print('VALUE OF THE CATEGORY: $value');
+            }));
+    getPromotionalImages('${baseUrlFunc}promotional-image',
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) {
       events = value;
       //  print('VALUE OF THE EVENTS: $value');
       // Populate popularevents outside setState()
       popularevents.clear(); // Clear the list first
-      for (Event eve in events) {
+      for (PromotionalImages eve in events) {
         //  print('POPULAR IDS: ${eve.isPopular}');
-        if (eve.isPopular == '1') {
-          popularevents.add(eve);
-        }
+        popularevents.add(eve);
       }
 
       // Call setState() only when popularevents changes
@@ -87,11 +79,11 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
       });
     });
     getOrganizers(
-        Provider.of<SettingsProvider>(context, listen: false).languageCode)
+            Provider.of<SettingsProvider>(context, listen: false).languageCode)
         .then((value) => setState(() {
-      ep = value;
-      //    print('VALUE OF THE ORGANIZERS: $value');
-    }));
+              ep = value;
+              //    print('VALUE OF THE ORGANIZERS: $value');
+            }));
     setState(() {
       _isLoading = false;
     });
@@ -101,67 +93,41 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
   Widget build(BuildContext context) {
     return CarouselSlider.builder(
       options: CarouselOptions(
-        disableCenter: true,
-        viewportFraction: 0.6,
-        enlargeCenterPage: true,
         autoPlay: true,
+        aspectRatio: 2.5,
+        enlargeCenterPage: true,
       ),
-      itemBuilder:
-          (BuildContext context, int index, pageViewIndex) {
-        if (!popularevents.isEmpty) {
+      itemBuilder: (BuildContext context, int index, pageViewIndex) {
+        if (popularevents.isNotEmpty) {
           return GestureDetector(
             onTap: () {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => EventDetail(
-                        event: popularevents[index],
-                      )));
+                      builder: (context) => SubCatDetail(
+                            id: popularevents[index].id!,
+                          )));
             },
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8.0),
               child: CachedNetworkImage(
-                fadeOutDuration:
-                const Duration(milliseconds: 300),
+                fadeOutDuration: const Duration(milliseconds: 300),
                 fadeOutCurve: Curves.easeOut,
-                fadeInDuration:
-                const Duration(milliseconds: 700),
+                fadeInDuration: const Duration(milliseconds: 700),
                 fadeInCurve: Curves.easeIn,
-                imageUrl: popularevents[index]
-                    .popularImage!
-                    .trim() ==
-                    'https://admin.ticketmaster-et.com/public/storage' ||
-                    popularevents[index]
-                        .popularImage!
-                        .trim() ==
-                        'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
-                    popularevents[index]
-                        .popularImage!
-                        .trim() ==
-                        'https://admin.ticketmaster-et.com/public/storage/aaa' ||
-                    popularevents[index]
-                        .popularImage!
-                        .trim() ==
-                        'https://admin.ticketmaster-et.com/public/storage/' ||
-                    popularevents[index]
-                        .popularImage!
-                        .trim() ==
-                        'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                    ? 'https://i.postimg.cc/VkBQ3FS6/na-logo.png'
-                    : popularevents[index]
-                    .popularImage!
-                    .trim(),
-                imageBuilder: (context, imageProvider) =>
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: imageProvider,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
+                imageUrl: popularevents[index].image!.trim(),
+                imageBuilder: (context, imageProvider) => Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imageProvider,
+                      fit: BoxFit.cover,
                     ),
-                // placeholder: (context, url) =>
-                //     discoverImageShimmer(isDark),
+                  ),
+                ),
+                placeholder: (context, url) => Image.asset(
+                  'assets/images/na_logo.jpg',
+                  fit: BoxFit.cover,
+                ),
                 // errorWidget: (context, url, error) => Image.asset(
                 //   'assets/images/na_logo.png',
                 //   fit: BoxFit.cover,
@@ -176,8 +142,7 @@ class _HomeScreenCarouselSliderState extends State<HomeScreenCarouselSlider> {
           );
         }
       },
-      itemCount:
-      popularevents.isEmpty ? 4 : popularevents.length,
+      itemCount: popularevents.isEmpty ? 4 : popularevents.length,
     );
   }
 }

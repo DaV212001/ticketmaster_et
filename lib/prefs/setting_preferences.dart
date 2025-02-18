@@ -17,7 +17,7 @@ class ThemeModePreferences {
 }
 
 class LanguagePreferences {
-  static const LANGUAGE_STATUS = "languageStatus";
+  static const LANGUAGE_STATUS = "prevLanguageStatus";
 
   setLanguage(String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
