@@ -1,66 +1,74 @@
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:logger/logger.dart';
+import 'package:ticketmaster_et/controllers/theme_controller.dart';
 
 import '../functions/functions.dart';
-import '../models/privacy_policy.dart';
 import '../models/terms_and_conditions.dart';
-import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
 
-class TermsAndConditionsScreen extends StatefulWidget {
-  List<TermsAndConditions> termsAndConditions = [];
+class TermsAndConditionsController extends GetxController {
+  var termsAndConditions = <TermsAndConditions>[].obs;
+  var isLoading = true.obs;
 
-  TermsAndConditionsScreen({super.key, required this.termsAndConditions});
+  void fetchTermsAndConditions() async {
+    try {
+      isLoading.value = true;
+      termsAndConditions.value =
+          await getTermsAndConditions(ThemeModeController.languageCode.value);
+      isLoading.value = false;
+    } catch (e, s) {
+      isLoading.value = false;
+      Logger().t(e, stackTrace: s);
+    }
+  }
+
   @override
-  State<TermsAndConditionsScreen> createState() => _TermsAndConditionsScreenState();
+  void onInit() {
+    fetchTermsAndConditions();
+    super.onInit();
+  }
 }
 
-class _TermsAndConditionsScreenState extends State<TermsAndConditionsScreen> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
+class TermsAndConditionsScreen extends StatelessWidget {
+  TermsAndConditionsScreen({super.key});
+  final TermsAndConditionsController controller =
+      Get.put(TermsAndConditionsController());
 
-  List<TermsAndConditions> termsAndConditions = [];
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load login data after the widget has been built
-      await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
-
-      // print('TermsAndConditionsScreen termsAndConditions: ${widget.termsAndConditions}');
-      // print('TermsAndConditionsScreen termsAndConditions title: ${widget.termsAndConditions[0].title}');
-      // print('TermsAndConditionsScreen termsAndConditions id: ${widget.termsAndConditions[0].id}');
-
-    });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){
-          Navigator.pop(context);
-        },color: Colors.green),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            color: Colors.green),
       ),
       body: Container(
-          padding: const EdgeInsets.all(8),
-          child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: widget.termsAndConditions.length,
-                itemBuilder: (context, index) {
-              return Text(widget.termsAndConditions[index].title.toString(),
-                  style:
-                  Theme.of(context).textTheme.bodyLarge!.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal));
-            }),
-          ),
+        padding: const EdgeInsets.all(8),
+        child: Obx(
+          () => controller.isLoading.value
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: controller.termsAndConditions.length,
+                  itemBuilder: (context, index) {
+                    return Text(
+                        controller.termsAndConditions[index].title.toString(),
+                        style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                            fontSize: 16, fontWeight: FontWeight.normal));
+                  }),
+        ),
+      ),
     );
   }
 }

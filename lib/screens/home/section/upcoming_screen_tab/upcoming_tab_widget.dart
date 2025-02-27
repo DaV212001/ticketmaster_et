@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ticketmaster_et/components/tiktokicons.dart';
@@ -489,8 +490,7 @@ class _HeartIconButtonState extends State<HeartIconButton>
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     int userId = loginDataProvider.loginData!.id!;
     return GestureDetector(
       onTap: () async {
@@ -654,8 +654,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
             ),
           ),
           builder: (BuildContext context) {
-            final loginDataProvider =
-                Provider.of<LoginDataProvider>(context, listen: false);
+            final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
 
             ValueNotifier<String> commentText = ValueNotifier('');
             return FutureBuilder(
@@ -893,8 +892,7 @@ class _InterestButtonState extends State<InterestButton>
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     int userId = loginDataProvider.loginData!.id!;
     return GestureDetector(
       onTap: () async {

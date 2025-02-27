@@ -5,8 +5,8 @@ import 'dart:io';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../functions/functions.dart';
@@ -30,8 +30,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
   Future<http.Response> reviewByOrganizer(
       int? organizerId, String star, String comment) async {
     print("reviewByOrganizer");
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     List<Review> tickets = [];
 
     // String? user_id = int.parse(loginDataProvider.loginData!.id);

@@ -1,13 +1,15 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/category/section/subcategorydetails.dart';
+
+import '../../../prefs/routes.dart';
 
 class CategoryChild extends StatefulWidget {
   const CategoryChild(
       {required this.subCategories, super.key, required this.selectedIndex});
-  final List<SubCategory> subCategories;
+  final List<Food> subCategories;
   final ValueNotifier<int> selectedIndex;
 
   @override
@@ -32,11 +34,13 @@ class _CategoryChildState extends State<CategoryChild> {
             itemBuilder: (BuildContext context, int index, pageViewIndex) =>
                 GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SubCatDetail(
-                    id: widget.subCategories[index].id!,
-                  );
-                }));
+                Get.toNamed(Routes.foodDetailRoute,
+                    arguments: {'id': widget.subCategories[index].id!});
+                // Navigator.push(context, MaterialPageRoute(builder: (context) {
+                //   return SubCatDetail(
+                //     id: widget.subCategories[index].id!,
+                //   );
+                // }));
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8.0),

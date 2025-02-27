@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/prefs/setting_preferences.dart';
-
-
-
 
 class SettingsProvider extends ChangeNotifier {
   ThemeModePreferences themeModePreferences = ThemeModePreferences();
@@ -16,6 +14,7 @@ class SettingsProvider extends ChangeNotifier {
 
   Future<void> getCurrentThemeMode() async {
     darktheme = await themeModePreferences.getThemeMode();
+    Logger().d(darkTheme);
   }
 
   set darktheme(bool value) {

@@ -2,63 +2,61 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../functions/functions.dart';
 import '../../../models/review.dart';
 import '../../../provider/loginpersistence.dart';
 
-class SubCategoryReview extends StatefulWidget {
-  final SubCategory subCategories;
-  SubCategoryReview({super.key, required this.subCategories});
+class FoodReview extends StatefulWidget {
+  final Food food;
+  const FoodReview({super.key, required this.food});
 
   @override
-  State<SubCategoryReview> createState() => _SubCategoryReviewState();
+  State<FoodReview> createState() => _FoodReviewState();
 }
 
-class _SubCategoryReviewState extends State<SubCategoryReview> {
+class _FoodReviewState extends State<FoodReview> {
   final formKey = GlobalKey<FormState>();
   final titleController = TextEditingController();
   final commentController = TextEditingController();
   int ratingController = 1;
   bool _isLoading = false;
   Future<http.Response> reviewBySubCategory(
-      int? categoryId, int? subCategoryId, String star, String comment) async {
-    print("reviewBySubCategory");
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
-    List<Review> tickets = [];
+      int? categoryId, int? foodId, String star, String comment) async {
+    // print("reviewBySubCategory");
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+    // List<Review> tickets = [];
 
     // String? user_id = int.parse(loginDataProvider.loginData!.id);
-    print(loginDataProvider.loginData!.id);
-    print(subCategoryId);
-    print(categoryId);
-    print(star);
-    print(comment);
-    String category_id = categoryId.toString();
-    String subCategory_id = subCategoryId.toString();
+    // print(loginDataProvider.loginData!.id);
+    // print(foodId);
+    // print(categoryId);
+    // print(star);
+    // print(comment);
+    // String category_id = categoryId.toString();
+    String foodIdString = foodId.toString();
     // user_id, sub_category_id, category_id, event_id , organizer_id ,star ,comment
     Map<String, dynamic> jsonData = {
       "user_id": loginDataProvider.loginData!.id,
-      "sub_category_id": subCategory_id,
-      "category_id": category_id,
-      "event_id": null,
-      "organizer_id": null,
+      "food_id": foodIdString,
+      // "category_id": category_id,
+      // "event_id": null,
+      // "organizer_id": null,
       "star": star,
       "comment": comment,
     };
-    String sub_category_id = subCategoryId.toString();
-    print(sub_category_id);
+    String sub_category_id = foodId.toString();
+    // print(sub_category_id);
     String requestBody = jsonEncode(jsonData);
     var response;
     try {
-      print("jsonData $jsonData");
-      print("requestBody $requestBody");
+      // print("jsonData $jsonData");
+      // print("requestBody $requestBody");
       response = http
           .post(Uri.parse("${baseUrlFunc}review"), body: requestBody, headers: {
         "Content-type": "application/json",
@@ -105,7 +103,7 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
   void initState() {
     // TODO: implement initState
     print("Initstate");
-    getReviewBySubCategory(widget.subCategories.id!.toString());
+    getReviewBySubCategory(widget.food.id!.toString());
     super.initState();
   }
 
@@ -116,8 +114,8 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
       child: ListView(scrollDirection: Axis.vertical, children: [
         Row(
           children: [
-            Text(tr("give_a_review"),
-                style: TextStyle(
+            Text("give_a_review".tr,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 )),
@@ -128,8 +126,8 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
               direction: Axis.horizontal,
               allowHalfRating: true,
               itemCount: 5,
-              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => Icon(
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
                 Icons.star,
                 color: Colors.amber,
               ),
@@ -143,11 +141,11 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
             )
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
-        Text(tr("give_a_comment"),
-            style: TextStyle(
+        Text("give_a_comment".tr,
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
             )),
@@ -164,7 +162,9 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
             controller: commentController,
             textAlignVertical: TextAlignVertical.top,
             key: const ValueKey("comment"),
-            validator: (value) {},
+            validator: (value) {
+              return null;
+            },
             onSaved: (newValue) {},
             onChanged: (value) {},
             decoration: const InputDecoration(
@@ -174,19 +174,19 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : OutlinedButton(
                 style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Colors.green),
-                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    backgroundColor: WidgetStatePropertyAll(Colors.green),
+                    foregroundColor: WidgetStatePropertyAll(Colors.white),
                     minimumSize:
-                        MaterialStatePropertyAll(Size(double.infinity, 50))),
+                        WidgetStatePropertyAll(Size(double.infinity, 50))),
                 onPressed: () async {
                   setState(() {
                     _isLoading = true;
@@ -195,11 +195,11 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                   // final review = Review(
                   //
                   // );
-                  print("star = ${ratingController}");
+                  print("star = $ratingController");
                   print("star = ${commentController.text}");
                   var response = await reviewBySubCategory(
-                      widget.subCategories.categoryId,
-                      widget.subCategories.id,
+                      widget.food.categoryId,
+                      widget.food.id,
                       ratingController.toString(),
                       commentController.text);
                   print("back");
@@ -214,9 +214,9 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("thank_you_for_adding_a_review")),
+                        content: Text("thank_you_for_adding_a_review".tr),
                         backgroundColor: Colors.green,
-                        duration: Duration(seconds: 3),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   } else {
@@ -225,9 +225,9 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("failed_to_add_review")),
+                        content: Text("failed_to_add_review".tr),
                         backgroundColor: Colors.green,
-                        duration: Duration(seconds: 3),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   }
@@ -238,17 +238,17 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                     commentController.text = '';
                     ratingController = 1;
                   });
-                  getReviewBySubCategory(widget.subCategories.id!.toString());
+                  getReviewBySubCategory(widget.food.id!.toString());
                   print("Back");
                 },
                 child: Text(
-                  tr("add_review"),
-                  style: TextStyle(fontSize: 18),
+                  "add_review".tr,
+                  style: const TextStyle(fontSize: 18),
                 )),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         ListView.builder(
           scrollDirection: Axis.vertical,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           shrinkWrap: true,
           itemCount: reviews.length,
           itemBuilder: (context, index) {
@@ -258,12 +258,12 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
               children: [
                 Container(
                     child: index == 0
-                        ? Text(tr("other_reviews"),
+                        ? Text("other_reviews".tr,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ))
-                        : SizedBox(
+                        : const SizedBox(
                             height: 0,
                           )),
                 const SizedBox(
@@ -284,13 +284,13 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                     direction: Axis.horizontal,
                     allowHalfRating: true,
                     itemCount: 5,
-                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                    itemBuilder: (context, _) => Icon(
+                    itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    itemBuilder: (context, _) => const Icon(
                           Icons.star,
                           color: Colors.amber,
                         ),
                     onRatingUpdate: (value) {}),
-                SizedBox(
+                const SizedBox(
                   height: 5,
                 ),
                 Text(
@@ -298,7 +298,7 @@ class _SubCategoryReviewState extends State<SubCategoryReview> {
                             reviews[index].comment == ''
                         ? ''
                         : reviews[index].comment.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                     )),
               ],

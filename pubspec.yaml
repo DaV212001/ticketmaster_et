@@ -59,6 +59,9 @@ dependencies:
   share_plus: ^10.1.4
   get: ^4.6.6
   logger: ^2.5.0
+  dropdown_button2: ^2.3.9
+  flutter_svg: ^2.0.17
+  youtube_player_flutter: ^9.1.1
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +91,7 @@ flutter:
     - assets/images/splash_screens/
     - assets/translations/
     - assets/images/carousel/
+    - assets/images/social/
   fonts:
     - family:  TikTokIcons
       fonts:

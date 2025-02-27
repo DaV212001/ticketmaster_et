@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:ticketmaster_et/functions/functions.dart';
 
 import '../constants/app_constants.dart';
+import '../controllers/theme_controller.dart';
 
 class Class {
   int? id;
@@ -20,24 +22,14 @@ class Class {
     id = json['id'];
     eventId =
         json['event_id'] is String ? json['event_id'] : '${json['event_id']}';
-    switch (language) {
-      case 'am':
-        title = json['title_am'];
-        break;
-      case 'en':
-        title = json['title_en'];
-        break;
-      case 'en-AU':
-        title = json['title_or'];
-        break;
-      case 'es':
-        title = json['title_so'];
-        break;
-      case 'fr':
-        title = json['title_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+    title = json['title_$languageCode'];
     availableTicket = json['available_ticket'] is String
         ? int.parse(json['available_ticket'])
         : json['available_ticket'];
@@ -49,7 +41,7 @@ class CoverImage {
   int? id;
   String? coverimage;
   int? categoryId;
-  int? subcategoryId;
+  int? foodId;
   int? organizerId;
   int? eventId;
   DateTime? createdat;
@@ -59,22 +51,20 @@ class CoverImage {
       {this.id,
       this.coverimage,
       required this.categoryId,
-      required this.subcategoryId,
+      required this.foodId,
       this.organizerId});
 
   CoverImage.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
-    coverimage = baseUrl + json["cover_image"];
-    categoryId =
-        json["category_id"] != null ? int.parse(json["category_id"]) : 0;
-    subcategoryId = json["sub_category_id"] != null
-        ? json["sub_category_id"] is String
-            ? int.parse(json["sub_category_id"])
-            : json["sub_category_id"]
+    coverimage = json["cover_image"];
+    categoryId = 0;
+    foodId = json["food_id"] != null
+        ? json["food_id"] is String
+            ? int.parse(json["food_id"])
+            : json["food_id"]
         : 0;
-    organizerId =
-        json["organizer_id"] != null ? int.parse(json["organizer_id"]) : 0;
-    eventId = json["event_id"] != null ? int.parse(json["event_id"]) : 0;
+    organizerId = 0;
+    eventId = 0;
   }
 }
 
@@ -208,62 +198,19 @@ class Event {
         : '${json['country_id']}';
     cityId = json['city_id'] is String ? json['city_id'] : '${json['city_id']}';
 
-    switch (language) {
-      case 'am':
-        title = json['title_am'];
-        break;
-      case 'en':
-        title = json['title_en'];
-        break;
-      case 'en-AU':
-        title = json['title_or'];
-        break;
-      case 'es':
-        title = json['title_so'];
-        break;
-      case 'fr':
-        title = json['title_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
 
-    switch (language) {
-      case 'am':
-        desc = json['desc_am'];
-        break;
-      case 'en':
-        desc = json['desc_en'];
-        break;
-      case 'en-AU':
-        desc = json['desc_or'];
-        break;
-      case 'es':
-        desc = json['desc_so'];
-        break;
-      case 'fr':
-        desc = json['desc_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    title = json['title_$languageCode'];
 
-    switch (language) {
-      case 'am':
-        place = json['place_am'];
-        break;
-      case 'en':
-        place = json['place_en'];
-        break;
-      case 'en-AU':
-        place = json['place_or'];
-        break;
-      case 'es':
-        place = json['place_so'];
-        break;
-      case 'fr':
-        place = json['place_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    desc = json['desc_$languageCode'];
+
+    place = json['place_$languageCode'];
 
     date = json['date'];
     time = json['time'];
@@ -290,92 +237,103 @@ class Event {
   }
 }
 
-class Ticket {
+class Order {
   String? className;
-  String? eventImage;
-  String? eventName;
-  String? eventPlace;
+  String? image;
+  String? portion;
+  String? mealType;
   String? eventDate;
-  String? eventTime;
+  String? date;
   String? phone;
   String? ticket_number;
-  String? price;
+  String? status;
 
-  Ticket(
+  Order(
       {this.phone,
-      this.price,
+      this.status,
       this.className,
       this.eventDate,
-      this.eventImage,
-      this.eventName,
-      this.eventPlace,
-      this.eventTime,
+      this.image,
+      this.portion,
+      this.mealType,
+      this.date,
       this.ticket_number});
 
-  Ticket.fromJson(Map<String, dynamic> json, String language) {
-    phone = json['phone'];
-    price = json['price'];
-    switch (language) {
-      case 'am':
-        className = json['class_name_am'] ?? " ";
-        break;
-      case 'en':
-        className = json['class_name_en'] ?? " ";
-        break;
-      case 'en-AU':
-        className = json['class_name_or'] ?? " ";
-        break;
-      case 'es':
-        className = json['class_name_so'] ?? " ";
-        break;
-      case 'fr':
-        className = json['class_name_tg'] ?? " ";
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    eventTime = json['event_time'];
-    switch (language) {
-      case 'am':
-        eventPlace = json['event_place_am'] ?? " ";
-        break;
-      case 'en':
-        eventPlace = json['event_place_en'] ?? " ";
-        break;
-      case 'en-AU':
-        eventPlace = json['event_place_or'] ?? " ";
-        break;
-      case 'es':
-        eventPlace = json['event_place_so'] ?? " ";
-        break;
-      case 'fr':
-        eventPlace = json['event_place_tg'] ?? " ";
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    ticket_number = json['ticket_number'];
-    eventDate = json['event_date'];
-    eventImage =
-        json['event_image'] != null ? baseUrl + json['event_image'] : " ";
-    switch (language) {
-      case 'am':
-        eventName = json['event_name_am'] ?? " ";
-        break;
-      case 'en':
-        eventName = json['event_name_en'] ?? " ";
-        break;
-      case 'en-AU':
-        eventName = json['event_name_or'] ?? " ";
-        break;
-      case 'es':
-        eventName = json['event_name_so'] ?? " ";
-        break;
-      case 'fr':
-        eventName = json['event_name_tg'] ?? " ";
-        break;
-      default:
-        throw Exception('Invalid language: $language');
-    }
+  Order.fromJson(Map<String, dynamic> json, String language) {
+    phone = json['order_date'];
+    status = statusConverter(json['status']);
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+    className = json['food_name_$languageCode'];
+    date = json['order_date'];
+    mealType = json['meal_type_$languageCode'];
+    ticket_number = "";
+    eventDate = json['order_date'];
+    image = "";
+    portion = json['food_portion_$languageCode'];
   }
+}
+
+class MealType {
+  int? id;
+  String? name;
+
+  MealType({this.id, this.name});
+
+  MealType.fromJson(Map<String, dynamic> json) {
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    id = json['id'];
+    name = json['name_$languageCode'];
+  }
+}
+
+//(
+// status=0 : Ordered
+// status=1 : Accepted
+// status:2 preparing
+// status=3: Driver On the Way
+// status=4:Delivered
+// status=5: Rejected
+// )
+
+String statusConverter(int status) {
+  String statusString = '';
+  switch (status) {
+    case 0:
+      statusString = "ordered".tr;
+      break;
+    case 1:
+      statusString = "accepted".tr;
+      break;
+    case 2:
+      statusString = "preparing".tr;
+      break;
+    case 3:
+      statusString = "driver_on_the_way".tr;
+      break;
+    case 4:
+      statusString = "delivered";
+      break;
+    case 5:
+      statusString = "rejected".tr;
+      break;
+    default:
+      statusString = "Invalid status";
+      break;
+  }
+  return statusString;
 }
 
 class Category {
@@ -384,7 +342,7 @@ class Category {
   String? name;
   DateTime? createdAt;
   DateTime? updatedAt;
-  List<SubCategory>? subCategory;
+  List<Food>? subCategory;
 
   Category(
       {required this.id,
@@ -397,31 +355,21 @@ class Category {
   Category.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
     image = baseUrl + json["image"];
-    switch (language) {
-      case 'am':
-        name = json['name_am'];
-        break;
-      case 'en':
-        name = json['name_en'];
-        break;
-      case 'en-AU':
-        name = json['name_or'];
-        break;
-      case 'es':
-        name = json['name_so'] ?? '';
-        break;
-      case 'fr':
-        name = json['name_tg'] ?? '';
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    name = json['name_$languageCode'];
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
 
     var subCategoriesData = json["event_list"] as List;
-    subCategory = subCategoriesData
-        .map((data) => SubCategory.fromJson(data, language))
-        .toList();
+    subCategory =
+        subCategoriesData.map((data) => Food.fromJson(data, language)).toList();
   }
 }
 
@@ -449,100 +397,47 @@ class FoodPortions {
     id = json["id"];
     image = json["cover_image"];
     foodId = json["food_id"];
-    switch (language) {
-      case 'am':
-        name = json['name_am'];
-        break;
-      case 'en':
-        name = json['name_en'];
-        break;
-      case 'en-AU':
-        name = json['name_or'];
-        break;
-      case 'es':
-        name = json['name_so'];
-        break;
-      case 'fr':
-        name = json['name_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    switch (language) {
-      case 'am':
-        desc = json['description_am'];
-        break;
-      case 'en':
-        desc = json['description_en'];
-        break;
-      case 'en-AU':
-        desc = json['description_or'];
-        break;
-      case 'es':
-        desc = json['description_so'];
-        break;
-      case 'fr':
-        desc = json['description_tg'];
-      default:
-        desc = '0';
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    name = json['name_$languageCode'];
+    desc = json['description_$languageCode'];
     price = json["price"] is String ? num.parse(json['price']) : json['price'];
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
   }
 }
 
-class SubCategory {
+class Food {
   int? id;
   String? image;
   int? categoryId;
   String? name;
   String? desc;
 
-  SubCategory({this.id, this.image, this.categoryId, this.name, this.desc});
+  Food({this.id, this.image, this.categoryId, this.name, this.desc});
 
-  SubCategory.fromJson(Map<String, dynamic> json, String language) {
+  Food.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
     image = json["cover_image"];
     categoryId = json["category_id"] is String
         ? int.parse(json["category_id"])
         : json["category_id"];
-    switch (language) {
-      case 'am':
-        name = json['name_am'];
-        break;
-      case 'en':
-        name = json['name_en'];
-        break;
-      case 'en-AU':
-        name = json['name_or'];
-        break;
-      case 'es':
-        name = json['name_so'];
-        break;
-      case 'fr':
-        name = json['name_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    switch (language) {
-      case 'am':
-        desc = json['description_am'];
-        break;
-      case 'en':
-        desc = json['description_en'];
-        break;
-      case 'en-AU':
-        desc = json['description_or'];
-        break;
-      case 'es':
-        desc = json['description_so'];
-        break;
-      case 'fr':
-        desc = json['description_tg'];
-        break;
-      default:
-        desc = '0';
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    name = json['name_$languageCode'];
+    desc = json['description_$languageCode'];
   }
 }
 
@@ -565,45 +460,17 @@ class Organizer {
   Organizer.fromJson(Map<String, dynamic> json, String language) {
     id = json['id'];
     image = baseUrl + json['image'];
-    switch (language) {
-      case 'am':
-        name = json['name_am'];
-        break;
-      case 'en':
-        name = json['name_en'];
-        break;
-      case 'en-AU':
-        name = json['name_or'];
-        break;
-      case 'es':
-        name = json['name_so'];
-        break;
-      case 'fr':
-        name = json['name_tg'];
-        break;
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    switch (language) {
-      case 'am':
-        desc = json['desc_am'];
-        break;
-      case 'en':
-        desc = json['desc_en'];
-        break;
-      case 'en-AU':
-        desc = json['desc_or'];
-        break;
-      case 'es':
-        desc = json['desc_so'];
-        break;
-      case 'fr':
-        desc = json['desc_tg'];
-        break;
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
 
-      default:
-        desc = '0';
-    }
+    name = json['name_$languageCode'];
+
+    desc = json['desc_$languageCode'];
     createdAt = DateTime.parse(json['created_at']);
     updatedAt = DateTime.parse(json['updated_at']);
   }
@@ -700,11 +567,11 @@ class Booking {
 
   Map<String, dynamic> toJson() => {
         'customer_id': customerId,
-        'event_id': foodId,
-        'class_id': foodPortionId,
-        'phone': mealTypeId,
-        'ticket_number': location,
-        'price': date
+        'food_id': foodId,
+        'portion_id': foodPortionId,
+        'meal_type_id': mealTypeId,
+        'location': location,
+        'date': date
       };
 }
 
@@ -777,6 +644,7 @@ class LoginData {
   String? darkMode;
   String? promocode;
   String? token;
+  String? loyaltyPoints;
   String? createdAt;
   String? updatedAt;
   String? password;
@@ -795,6 +663,7 @@ class LoginData {
       this.darkMode,
       this.promocode,
       this.token,
+      this.loyaltyPoints,
       this.createdAt,
       this.updatedAt,
       this.password});
@@ -810,9 +679,10 @@ class LoginData {
     emailVerifiedAt = json['email_verified_at'];
     roleId = json['role_id'];
     lang = json['lang'];
-    darkMode = json['dark_mode'];
+    darkMode = '${json['dark_mode']}';
     promocode = json['promocode'];
     token = json['token'];
+    loyaltyPoints = '${json['loyality_point']}';
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
   }
@@ -832,9 +702,48 @@ class LoginData {
       'dark_mode': darkMode,
       'promocode': promocode,
       'token': token,
+      'loyality_point': loyaltyPoints,
       'created_at': createdAt,
       'updated_at': updatedAt
     };
+  }
+
+  LoginData copyWith({
+    int? id,
+    String? profileImage,
+    String? firstName,
+    String? lastName,
+    String? phone,
+    String? cityId,
+    String? email,
+    String? emailVerifiedAt,
+    String? roleId,
+    String? lang,
+    String? darkMode,
+    String? promocode,
+    String? token,
+    String? createdAt,
+    String? updatedAt,
+    String? password,
+  }) {
+    return LoginData(
+      id: id ?? this.id,
+      profileImage: profileImage ?? this.profileImage,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      phone: phone ?? this.phone,
+      cityId: cityId ?? this.cityId,
+      email: email ?? this.email,
+      emailVerifiedAt: emailVerifiedAt ?? this.emailVerifiedAt,
+      roleId: roleId ?? this.roleId,
+      lang: lang ?? this.lang,
+      darkMode: darkMode ?? this.darkMode,
+      promocode: promocode ?? this.promocode,
+      token: token ?? this.token,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      password: password ?? this.password,
+    );
   }
 }
 
@@ -855,24 +764,15 @@ class City {
   City.fromJson(Map<String, dynamic> json, String language) {
     id = json['id'];
     countryID = json['country_id'];
-    switch (language) {
-      case 'am':
-        name = json['name_am'];
-        break;
-      case 'en':
-        name = json['name_en'];
-        break;
-      case 'en-AU':
-        name = json['name_or'];
-        break;
-      case 'es':
-        name = json['name_so'];
-        break;
-      case 'fr':
-        name = json['name_tg'];
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    name = json['name_$languageCode'];
     createdAt = json["created_at"] != null
         ? DateTime.parse(json["created_at"])
         : DateTime.parse("-000001-11-30T00:00:00.000000Z");

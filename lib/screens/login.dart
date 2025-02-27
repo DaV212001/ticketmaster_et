@@ -1,13 +1,13 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketmaster_et/main_layout_screen.dart';
-import 'package:ticketmaster_et/screens/signup.dart';
 
 import '../constants/endpoints.dart';
 import '../functions/functions.dart';
 import '../models/newmodels.dart';
+import '../prefs/language_selector.dart';
+import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
 
@@ -31,8 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _isLoading = true;
       });
-      final loginDataProvider =
-          Provider.of<LoginDataProvider>(context, listen: false);
+      final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
       await loginResponse(
         Endpoints.loginEndpoint(),
         Login(password: _password, phoneNumber: "251$_phoneNumber"),
@@ -46,9 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
               .setLoginData(value.responseData!); // Use await here
           loginDataProvider.setUserLoggedIn(true); // Set user as logged in
           debugPrint('${loginDataProvider.loginData!.id!}');
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return TicketMatserHomePage(title: 'title');
-          }));
+          Get.offAllNamed(Routes.mainLayoutRoute);
         } else if (value.error != null) {
           setState(() {
             _isLoading = false;
@@ -64,15 +61,18 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  var obscure = true.obs;
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
-    final accountProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+    final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
     final languageChange = Provider.of<SettingsProvider>(context);
     Icon icon = Icon(Icons.visibility);
-    bool obscure = true;
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     return Container(
       color: Colors.grey[100],
       child: SafeArea(
@@ -95,51 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
-                            color: Colors.transparent),
-                        child: DropdownButton(
-                            value: languageChange.languageCode,
-                            items: const [
-                              DropdownMenuItem(
-                                  value: 'en', child: Text('English')),
-                              DropdownMenuItem(
-                                  value: 'am', child: Text('Amharic')),
-                              DropdownMenuItem(
-                                  value: 'en-AU', child: Text('Afaan Oromo')),
-                              DropdownMenuItem(
-                                  value: 'es', child: Text('Somali')),
-                              DropdownMenuItem(
-                                  value: 'fr', child: Text('Tigrinya')),
-                            ],
-                            onChanged: (String? value) {
-                              setState(() async {
-                                languageChange.languageCode = value!;
-                                List<String> codes =
-                                    languageChange.languageCode.split('-');
-                                String langCode = codes[0];
-                                String countryCode =
-                                    codes.length > 1 ? codes[1] : '';
-
-                                // Save langCode and countryCode in shared preferences
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setString('langCode', langCode);
-                                if (countryCode.isNotEmpty) {
-                                  await prefs.setString(
-                                      'countryCode', countryCode);
-                                } else {
-                                  await prefs.remove('countryCode');
-                                }
-
-                                // Set locale for EasyLocalization
-                                if (countryCode.isNotEmpty) {
-                                  EasyLocalization.of(context)!
-                                      .setLocale(Locale(langCode, countryCode));
-                                } else {
-                                  EasyLocalization.of(context)!
-                                      .setLocale(Locale(langCode));
-                                }
-                              });
-                            }),
+                            color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: LanguageSelectorButton(onChange: () {}),
+                        ),
                       ),
                     ),
                   ],
@@ -254,33 +214,48 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                           Expanded(
                                             flex: 4,
-                                            child: TextFormField(
-                                              obscureText: obscure,
-                                              key: const ValueKey("password"),
-                                              validator: (value) {
-                                                if (value!.isEmpty) {
-                                                  return "password empty";
-                                                } else if (value.length > 40 ||
-                                                    value.length < 3) {
-                                                  return "password too short or too long";
-                                                }
-                                                return null;
-                                              },
-                                              onSaved: (newValue) {
-                                                _password = newValue;
-                                              },
-                                              onChanged: (value) {
-                                                _password = value;
-                                              },
-                                              decoration: InputDecoration(
-                                                fillColor: Colors.transparent,
-                                                hintText: tr('password'),
-                                                border:
-                                                    const OutlineInputBorder(),
-                                                contentPadding:
-                                                    EdgeInsets.all(16.0),
-                                              ),
-                                            ),
+                                            child: Obx(() => TextFormField(
+                                                  key: const ValueKey(
+                                                      "password"),
+                                                  validator: (value) {
+                                                    if (value!.isEmpty) {
+                                                      return "password empty";
+                                                    } else if (value.length >
+                                                            40 ||
+                                                        value.length < 3) {
+                                                      return "password too short or too long";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onSaved: (newValue) {
+                                                    _password = newValue;
+                                                  },
+                                                  onChanged: (value) {
+                                                    _password = value;
+                                                  },
+                                                  obscureText: obscure.value,
+                                                  decoration: InputDecoration(
+                                                    suffixIcon: GestureDetector(
+                                                      onTap: () {
+                                                        obscure.toggle();
+                                                      },
+                                                      child: Obx(() => obscure
+                                                              .value
+                                                          ? const Icon(Icons
+                                                              .visibility_off)
+                                                          : const Icon(Icons
+                                                              .visibility)),
+                                                    ),
+                                                    fillColor:
+                                                        Colors.transparent,
+                                                    hintText: 'password'.tr,
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            16.0),
+                                                  ),
+                                                )),
                                           ),
                                         ],
                                       ),
@@ -319,7 +294,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         padding:
                                             const EdgeInsets.only(bottom: 0.0),
                                         child: Text(
-                                          tr('no_acc'),
+                                          'no_acc'.tr,
                                           style: const TextStyle(
                                               color: Color(0xFFFF9100),
                                               fontSize: 19,
@@ -332,14 +307,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       // Add a gesture detector widget to handle the tap event on the link
                                       GestureDetector(
                                         onTap: () {
-                                          // Navigate to the RegisterScreen
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SignupScreen(),
-                                            ),
-                                          );
+                                          Get.toNamed(Routes.signUpRoute);
                                         },
                                         // Add a text widget to display "Register" as a link
                                         child: Image.asset(

@@ -1,101 +1,63 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:get/get.dart';
+import 'package:ticketmaster_et/controllers/footer_controller.dart';
 import 'package:ticketmaster_et/screens/editprofilescreen.dart';
-import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
+import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
-import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../functions/functions.dart';
-import '../models/faq.dart';
-import '../models/privacy_policy.dart';
-import '../models/terms_and_conditions.dart';
+import '../models/newmodels.dart';
+import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
-import 'faq_screen.dart';
 
-class ProfileWidget extends StatefulWidget {
-  const ProfileWidget({Key? key}) : super(key: key);
+class ProfileController extends GetxController {
+  var loginData = Rxn<LoginData>();
 
   @override
-  ProfileWidgetState createState() => ProfileWidgetState();
-}
-
-class ProfileWidgetState extends State<ProfileWidget> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  List<PrivacyPolicy> privacyPolicy = [];
-  List<FAQ> faq = [];
-  List<TermsAndConditions> termsAndConditions = [];
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load login data after the widget has been built
-      await Provider.of<LoginDataProvider>(context, listen: false)
-          .loadLoginData();
-      await getTermsAndConditions(
-              Provider.of<SettingsProvider>(context, listen: false)
-                  .languageCode)
-          .then((value) => setState(() {
-                termsAndConditions = value;
-                print('ProfileWidget termsAndConditions: $termsAndConditions');
-                print(
-                    'ProfileWidget termsAndConditions title: ${termsAndConditions[0].title}');
-                print(
-                    'ProfileWidget termsAndConditions id: ${termsAndConditions[0].id}');
-              }));
-      await getPrivacyPolicy(
-              Provider.of<SettingsProvider>(context, listen: false)
-                  .languageCode)
-          .then((value) => setState(() {
-                privacyPolicy = value;
-                print('privacyPolicy: $privacyPolicy');
-                print('ProfileWidget privacyPolicy: $privacyPolicy');
-                print(
-                    'ProfileWidget privacyPolicy title: ${privacyPolicy[0].title}');
-                print('ProfileWidget privacyPolicy id: ${privacyPolicy[0].id}');
-              }));
-      await getFAQ(Provider.of<SettingsProvider>(context, listen: false)
-              .languageCode)
-          .then((value) => setState(() {
-                faq = value;
-                print('faq: $faq');
-                print('ProfileWidget faq: $faq');
-                print('ProfileWidget faq title: ${faq[0].title}');
-                print('ProfileWidget faq id: ${faq[0].id}');
-                print('ProfileWidget faq description: ${faq[0].description}');
-              }));
+  void onInit() {
+    super.onInit();
+    loadData();
+    ever(Get.find<LoginDataProvider>(tag: 'login').loginDataObs, (value) {
+      loadData();
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> loadData() async {
+    loginData.value = Get.find<LoginDataProvider>(tag: 'login').loginData;
   }
+
+  void logout() async {
+    await Get.find<LoginDataProvider>(tag: 'login').clear();
+    Get.offAllNamed(Routes.mainLayoutRoute);
+  }
+}
+
+class ProfileWidget extends StatelessWidget {
+  final ProfileController controller = Get.put(ProfileController());
+  final FooterController footerController = Get.put(FooterController());
+  ProfileWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> general = [
       {
-        "title": tr('darktheme'),
+        "title": 'darktheme'.tr,
         "leadingIcon": Icons.dark_mode,
         "onTap": () {},
         "trailing": const Text("")
       },
       {
-        "title": tr("changelanguage"),
+        "title": "changelanguage".tr,
         "leadingIcon": Icons.language,
         "onTap": () {},
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
       {
-        "title": tr("support"),
+        "title": "support".tr,
         "leadingIcon": Icons.help_outline_rounded,
         "onTap": () async {
-          const url = "tel:6810"; // replace with the actual number
+          const url = "tel:6810";
           if (await canLaunchUrl(Uri.parse(url))) {
             await launchUrl(Uri.parse(url));
           } else {
@@ -105,202 +67,102 @@ class ProfileWidgetState extends State<ProfileWidget> {
         "trailing": const Text("")
       },
       {
-        "title": tr("privpol"),
+        "title": "privpol".tr,
         "leadingIcon": Icons.privacy_tip,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  PrivacyPolicyScreen(privacyPolicy: privacyPolicy),
-            ),
-          );
+          Get.toNamed(Routes.privacyRoute);
         },
         "trailing": const Text("")
       },
       {
-        "title": tr("faq"),
+        "title": "faq".tr,
         "leadingIcon": Icons.question_mark_rounded,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FAQScreen(faq: faq),
-            ),
-          );
+          Get.toNamed(Routes.faqRoute);
         },
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
       {
-        "title": tr("tos"),
+        "title": "tos".tr,
         "leadingIcon": Icons.gavel,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TermsAndConditionsScreen(
-                  termsAndConditions: termsAndConditions),
-            ),
-          );
+          Get.toNamed(Routes.termsRoute);
         },
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
-      {
-        "title": tr("invitefriends"),
-        "leadingIcon": Icons.share,
-        "onTap": () {
-          Share.share(
-            'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
-            subject: 'Check out my app on the Play Store',
-          );
-        },
-        "trailing": const Text(""),
-      },
+      // {
+      //   "title": "invitefriends".tr,
+      //   "leadingIcon": Icons.share,
+      //   "onTap": () {
+      //     Share.share(
+      //       'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
+      //       subject: 'Check out my app on the Play Store',
+      //     );
+      //   },
+      //   "trailing": const Text("")
+      // },
     ];
+
     final List<Map<String, dynamic>> profile = [
       {
-        "title": tr('editprofile'),
+        "title": 'editprofile'.tr,
         "leadingIcon": Icons.account_circle_outlined,
         "onTap": () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return EditProfile();
-          }));
+          Get.to(() => const EditProfile());
         },
-        "trailing": Text('')
+        "trailing": const Text('')
       },
+      {
+        "title": "how_we_cook".tr,
+        "leadingIcon": Icons.kitchen,
+        "onTap": () {
+          Get.toNamed(Routes.howWeCookRoute);
+        },
+        "trailing": const Text("")
+      }
     ];
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
-    final themeChange = Provider.of<SettingsProvider>(context);
-    final languageChange = Provider.of<SettingsProvider>(context);
+
     return Scaffold(
-      key: scaffoldKey,
+      // key: controller.scaffoldKey,
       body: SafeArea(
         top: true,
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            // Padding(
-            //   padding: const EdgeInsetsDirectional.fromSTEB(0, 1, 0, 0),
-            //   child: Container(
-            //     width: double.infinity,
-            //     decoration: const BoxDecoration(
-            //       boxShadow: [
-            //         BoxShadow(
-            //           blurRadius: 0.5,
-            //           color: Color(0x33000000),
-            //           offset: Offset(0, 1),
-            //         )
-            //       ],
-            //     ),
-            //     child: Padding(
-            //       padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
-            //       child: Row(
-            //         mainAxisSize: MainAxisSize.max,
-            //         children: [
-            //           Container(
-            //             width: 90,
-            //             height: 80,
-            //             decoration: BoxDecoration(
-            //               color: Colors.transparent,
-            //               shape: BoxShape.circle,
-            //               border: Border.all(
-            //                 color: const Color(0xFF39D2C0),
-            //                 width: 2,
-            //               ),
-            //             ),
-            //             child: Padding(
-            //               padding:
-            //                   const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
-            //               child: ClipRRect(
-            //                 borderRadius: BorderRadius.circular(50),
-            //                 child: Image.asset(
-            //                   'assets/images/THICKET_MASTER_LOGO.png',
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //           Padding(
-            //             padding:
-            //                 const EdgeInsetsDirectional.fromSTEB(16, 0, 0, 0),
-            //             child: Column(
-            //               mainAxisSize: MainAxisSize.max,
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: [
-            //                 Text(
-            //                   loginDataProvider.loginData == null
-            //                       ? '...'
-            //                       : loginDataProvider.loginData!.firstName!,
-            //                   style: Theme.of(context)
-            //                       .textTheme
-            //                       .headlineSmall!
-            //                       .copyWith(
-            //                         fontSize: 24,
-            //                         fontWeight: FontWeight.w500,
-            //                       ),
-            //                 ),
-            //                 Padding(
-            //                   padding: const EdgeInsetsDirectional.fromSTEB(
-            //                       0, 4, 0, 0),
-            //                   child: Text(
-            //                     loginDataProvider.loginData == null
-            //                         ? '...'
-            //                         : loginDataProvider.loginData!.email!,
-            //                     style: Theme.of(context)
-            //                         .textTheme
-            //                         .labelMedium!
-            //                         .copyWith(
-            //                           fontFamily: 'Plus Jakarta Sans',
-            //                           color: const Color(0xFF57636C),
-            //                           fontSize: 14,
-            //                           fontWeight: FontWeight.normal,
-            //                         ),
-            //                   ),
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            UserScreenHeader(
-                reFresh: () {},
-                firstName: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.firstName!,
-                lastName: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.lastName!,
-                email: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.email!),
+            Obx(
+              () => UserScreenHeader(
+                  reFresh: controller.loadData,
+                  firstName: controller.loginData.value?.firstName ?? '...',
+                  lastName: controller.loginData.value?.lastName ?? '...',
+                  email: controller.loginData.value?.email ?? '...',
+                  loyaltyPoints: controller.loginData.value?.loyaltyPoints),
+            ),
             RouteContainer(
               routePart: profile,
-              indexTwo: 1,
-              routeName: tr("profile"),
+              indexTwo: 2,
+              routeName: 'profile'.tr,
             ),
             RouteContainer(
               routePart: general,
-              indexTwo: 6,
-              routeName: tr("general"),
+              indexTwo: 5,
+              routeName: "general".tr,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    loginDataProvider.clear();
-                  },
-                  child: Text(tr("logout"))),
-            )
+                  onPressed: controller.logout, child: Text("logout".tr)),
+            ),
+            Obx(() => footerController.footer.value.copyWriteText == null
+                ? const SizedBox(
+                    width: 20, height: 20, child: CircularProgressIndicator())
+                : UserScreenFooter(footerData: footerController.footer.value)),
           ],
         ),
       ),
     );
   }
 }
+
 // Padding(
 // padding: const EdgeInsetsDirectional.fromSTEB(16, 9, 0, 0),
 // child: Text(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ticketmaster_et/screens/editprofilescreen.dart';
 import 'package:ticketmaster_et/screens/profile/profile_widget.dart';
 
 class UserScreenHeader extends StatelessWidget {
@@ -8,6 +7,7 @@ class UserScreenHeader extends StatelessWidget {
   final String firstName;
   final String lastName;
   final String email;
+  final String? loyaltyPoints;
   // UserScreenHeader({super.key, required this.user,
   // // required this.reFresh
   // });
@@ -18,6 +18,7 @@ class UserScreenHeader extends StatelessWidget {
     required this.firstName,
     required this.lastName,
     required this.email,
+    this.loyaltyPoints,
   }) : super(key: key);
 
   final double coverHeight = 210;
@@ -65,20 +66,29 @@ class UserScreenHeader extends StatelessWidget {
             ),
             SizedBox(width: 5),
             Expanded(
-              child: ElevatedButton(
-                  style: ButtonStyle(
-                      backgroundColor:
-                          WidgetStatePropertyAll(theme.colorScheme.primary)),
-                  onPressed: () {
-                    Get.to(
-                      () => const EditProfile(),
-                    );
-                  },
-                  child: Text("edit".tr,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w800,
-                      ))),
+              child: Container(
+                  decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      borderRadius: BorderRadius.circular(10)),
+                  // style: ButtonStyle(
+                  //     backgroundColor:
+                  //         WidgetStatePropertyAll(theme.colorScheme.primary)),
+                  // onPressed: () {
+                  //   Get.to(
+                  //     () => const EditProfile(),
+                  //   );
+                  // },
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text(loyaltyPoints ?? '',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          )),
+                    ),
+                  )),
             )
           ],
         ));

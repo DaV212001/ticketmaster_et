@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
+import 'package:ticketmaster_et/screens/category/category_tab.dart';
+import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_screen_categories.dart';
 
 import '../constants/theme.dart';
 import '../prefs/config_preferences.dart';
@@ -23,6 +26,15 @@ class ThemeModeController extends GetxController {
                 : language.languageCode == 'fr'
                     ? 'Somali'
                     : 'Oromiffa';
+    if (Get.isRegistered<HomeCategoryController>(
+        tag: HomeCategoryController.tag)) {
+      HomeCategoryController hcc = Get.find(tag: HomeCategoryController.tag);
+      hcc.updateCategories();
+    }
+    if (Get.isRegistered<CategoryController>()) {
+      CategoryController cc = Get.find();
+      cc.updateCategoriesAndSubCategories();
+    }
     // CategoryController catC = Get.find();
     // catC.categories.clear();
     // catC.fetchCategories();
@@ -64,6 +76,7 @@ class ThemeModeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    Logger().f(!ConfigPreference.getThemeIsLight());
     _themeMode = Styles.themeData(
             isDarkTheme: !ConfigPreference.getThemeIsLight(),
             context: _context,
@@ -82,5 +95,19 @@ class ThemeModeController extends GetxController {
         Styles.themeData(
                 isDarkTheme: true, context: _context, isM3Enabled: false)
             .cardColor;
+  }
+
+  static bool isCurrentlyLight() =>
+      _themeMode.value ==
+      Styles.themeData(
+          isDarkTheme: false, context: _context, isM3Enabled: false);
+  static void toggleThemeMode() {
+    bool isCurrentlyLight = _themeMode.value ==
+        Styles.themeData(
+            isDarkTheme: false, context: _context, isM3Enabled: false);
+    setThemeMode(Styles.themeData(
+        isDarkTheme: isCurrentlyLight, context: _context, isM3Enabled: false));
+    ConfigPreference.setThemeIsLight(!isCurrentlyLight);
+    Logger().d(isCurrentlyLight);
   }
 }

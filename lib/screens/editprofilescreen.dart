@@ -1,11 +1,10 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../components/fields.dart';
+import 'package:ticketmaster_et/prefs/language_selector.dart';
+
 import '../functions/functions.dart';
-import '../main_layout_screen.dart';
 import '../models/newmodels.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
@@ -20,21 +19,19 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _firstName, _lastName,
-      _phoneNumber;
+  String? _firstName, _lastName, _phoneNumber;
 
   Future submitForm() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
     if (isValid) {
-
       _formKey.currentState!.save();
       setState(() {
         _isLoading = true;
       });
 
-      final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+      final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
 
       String? phone = accountProvider.loginData?.phone!;
       UpdatedUser data = UpdatedUser(
@@ -44,16 +41,20 @@ class _EditProfileState extends State<EditProfile> {
       );
 
       await updateUser(data).then((value) async {
-
         if (value.message != null) {
-
           if (value.message == "User Updated successfully") {
-
             await accountProvider.updateName(_firstName!, _lastName!);
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) {
-                  return const TicketMatserHomePage(title: 'title');
-                }));
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  content: Text(
+                    'Successfully Edited',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                );
+              },
+            );
           }
         } else {
           String errorMessage = "Error Updating";
@@ -71,7 +72,10 @@ class _EditProfileState extends State<EditProfile> {
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                content: Text(errorMessage, style: TextStyle(color: Colors.green),),
+                content: Text(
+                  errorMessage,
+                  style: TextStyle(color: Colors.green),
+                ),
               );
             },
           );
@@ -85,221 +89,205 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider = Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     final languageChange = Provider.of<SettingsProvider>(context);
-    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+    final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     return Container(
       color: Colors.grey[100],
       child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                actions: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.transparent
-                      ),
-                      child:  DropdownButton(
-                          value: languageChange.languageCode,
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'en', child: Text('English')),
-                            DropdownMenuItem(
-                                value: 'am', child: Text('Amharic')),
-                            DropdownMenuItem(
-                                value: 'en-AU', child: Text('Afaan Oromo')),
-
-                          ],
-                          onChanged: (String? value) {
-                            setState(() async {
-                              languageChange.languageCode = value!;
-                              List<String> codes = languageChange.languageCode.split('-');
-                              String langCode = codes[0];
-                              String countryCode = codes.length > 1 ? codes[1] : '';
-
-                              // Save langCode and countryCode in shared preferences
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('langCode', langCode);
-                              if (countryCode.isNotEmpty) {
-                                await prefs.setString('countryCode', countryCode);
-                              } else {
-                                await prefs.remove('countryCode');
-                              }
-
-                              // Set locale for EasyLocalization
-                              if (countryCode.isNotEmpty) {
-                                EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
-                              } else {
-                                EasyLocalization.of(context)!.setLocale(Locale(langCode));
-                              }
-                            });
-                          }
-                      ),
-                    ),
-                  ),
-                ],
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.transparent),
+                  child: LanguageSelectorButton(onChange: () {}),
+                ),
               ),
-              body: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            children: [
-
-
-                              Center(
-                                child: Image(
-                                  image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                                  width: 170.0, // Set the desired width
-                                  height: 170.0, // Set the desired height
-                                ),
-                              ),
-                              Text(
-                                tr('editprofile'),
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                              const SizedBox(height: 15),
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(tr('first_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  color: Colors.grey[200], // Background color
-                                ),
-                                child: TextFormField(
-                                  initialValue: loginDataProvider.loginData?.firstName,
-                                  key: const ValueKey("name"),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return "name_empty";
-                                    } else if (value.length > 40 || value.length < 2) {
-                                      return "name_short_long";
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (newValue) {
-                                    _firstName = newValue;
-                                  },
-                                  onChanged: (value) {
-                                    _firstName = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: accountProvider.loginData?.firstName!,
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.all(16.0),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: Text(tr('last_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15.0),
-                                  color: Colors.grey[200], // Background color
-                                ),
-                                child: TextFormField(
-                                  initialValue: loginDataProvider.loginData?.lastName,
-                                  key: const ValueKey("name"),
-                                  validator: (value) {
-                                    if (value!.isEmpty) {
-                                      return "name_empty";
-                                    } else if (value.length > 40 || value.length < 2) {
-                                      return "name_short_long";
-                                    }
-                                    return null;
-                                  },
-                                  onSaved: (newValue) {
-                                    _lastName = newValue;
-                                  },
-                                  onChanged: (value) {
-                                    _lastName = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: accountProvider.loginData?.lastName,
-                                    border: InputBorder.none,
-                                    contentPadding: EdgeInsets.all(16.0),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                height: 15,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 15, bottom: 15, right: 30, left: 30),
+            ],
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Form(
+                      key: _formKey,
                       child: Column(
                         children: [
-                          _isLoading
-                              ? const CircularProgressIndicator()
-                              : ElevatedButton(
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                  MaterialStatePropertyAll(Colors.green),
-                                  foregroundColor:
-                                  MaterialStatePropertyAll(Colors.white),
-                                  minimumSize: MaterialStatePropertyAll(
-                                      Size(double.infinity, 50))),
-                              onPressed: () => {
-                                submitForm(),
-                                // Navigator.push(context,
-                                //     MaterialPageRoute(builder: ((context) {
-                                //   return const VerificationScreen();
-                                // })))
+                          const Center(
+                            child: Image(
+                              image: AssetImage(
+                                  'assets/images/THICKET_MASTER_LOGO.png'),
+                              width: 170.0, // Set the desired width
+                              height: 170.0, // Set the desired height
+                            ),
+                          ),
+                          Text(
+                            'editprofile'.tr,
+                            style: TextStyle(
+                                fontSize: 25, fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 15),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'first_name'.tr,
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.04),
+                            ),
+                          ),
+                          Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15.0),
+                              color: Colors.grey[200], // Background color
+                            ),
+                            child: TextFormField(
+                              initialValue:
+                                  loginDataProvider.loginData?.firstName,
+                              key: const ValueKey("name"),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "name_empty";
+                                } else if (value.length > 40 ||
+                                    value.length < 2) {
+                                  return "name_short_long";
+                                }
+                                return null;
                               },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(tr('submit')),
-                                  Icon(Icons.arrow_forward)
-                                ],
-                              )),
-
+                              onSaved: (newValue) {
+                                _firstName = newValue;
+                              },
+                              onChanged: (value) {
+                                _firstName = value;
+                              },
+                              decoration: InputDecoration(
+                                hintText: accountProvider.loginData?.firstName!,
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(16.0),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              'last_name'.tr,
+                              style: TextStyle(
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.04),
+                            ),
+                          ),
+                          Container(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15.0),
+                              color: Colors.grey[200], // Background color
+                            ),
+                            child: TextFormField(
+                              initialValue:
+                                  loginDataProvider.loginData?.lastName,
+                              key: const ValueKey("name"),
+                              validator: (value) {
+                                if (value!.isEmpty) {
+                                  return "name_empty";
+                                } else if (value.length > 40 ||
+                                    value.length < 2) {
+                                  return "name_short_long";
+                                }
+                                return null;
+                              },
+                              onSaved: (newValue) {
+                                _lastName = newValue;
+                              },
+                              onChanged: (value) {
+                                _lastName = value;
+                              },
+                              decoration: InputDecoration(
+                                hintText: accountProvider.loginData?.lastName,
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(16.0),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 15,
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  Container(
+                ),
+              ),
+              Container(
+                child: Padding(
+                  padding:
+                      EdgeInsets.only(top: 15, bottom: 15, right: 30, left: 30),
+                  child: Column(
+                    children: [
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              style: const ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStatePropertyAll(Colors.green),
+                                  foregroundColor:
+                                      MaterialStatePropertyAll(Colors.white),
+                                  minimumSize: MaterialStatePropertyAll(
+                                      Size(double.infinity, 50))),
+                              onPressed: () => {
+                                    submitForm(),
+                                    // Navigator.push(context,
+                                    //     MaterialPageRoute(builder: ((context) {
+                                    //   return const VerificationScreen();
+                                    // })))
+                                  },
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('submit'.tr),
+                                  Icon(Icons.arrow_forward)
+                                ],
+                              )),
+                    ],
+                  ),
+                ),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 250,
+                alignment: Alignment.topCenter,
+                padding: EdgeInsets.all(0),
+                transformAlignment: Alignment.topCenter,
+                child: Image(
+                    image: AssetImage(
+                        'assets/images/THICKET_MASTER_PATERN_04.png'),
                     width: MediaQuery.of(context).size.width,
-                    height: 250,
-                    alignment: Alignment.topCenter,
-                    padding: EdgeInsets.all(0),
-                    transformAlignment: Alignment.topCenter,
-                    child: Image(
-                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,// Set the desired width
-                        height: MediaQuery.of(context).size.height // Set the desired height
+                    fit: BoxFit.fill, // Set the desired width
+                    height: MediaQuery.of(context)
+                        .size
+                        .height // Set the desired height
                     ),
-                  )
-                ],
-              )),
-
+              )
+            ],
+          )),
     );
   }
 }

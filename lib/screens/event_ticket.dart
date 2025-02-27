@@ -30,7 +30,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 //   void initState() {
 //     super.initState();
 //     WidgetsBinding.instance.addPostFrameCallback((_) async {
-//       await Provider.of<LoginDataProvider>(context, listen: false).loadLoginData();
+//       await Get.find<LoginDataProvider>(tag:'login').loadLoginData();
 //       updatesForEventDetail();
 //       ticketNum = generateTicketNumber(widget.event.title!);
 //     });
@@ -204,7 +204,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 //                     setState(() {
 //                       _isLoading = true;
 //                     });
-//                     final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+//                     final accountProvider = Get.find<LoginDataProvider>(tag:'login');
 //                     String? phone = accountProvider.loginData?.phone?.replaceFirst("251", "0");
 //                     if(events.isNotEmpty && events[0].classes!.isNotEmpty) {
 //                       if (selectedClass != null) {

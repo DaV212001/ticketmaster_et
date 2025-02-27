@@ -1,3 +1,4 @@
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ConfigPreference {
@@ -6,9 +7,10 @@ class ConfigPreference {
 
   // get storage
   static late SharedPreferences _sharedPreferences;
-
+  static bool isUserLoggedIn() =>
+      _sharedPreferences.getString('loginData') != null;
   // STORING KEYS
-  static const String _lightThemeKey = 'is_theme_light';
+  static const String _lightThemeKey = 'is_light_theme';
   static const String _isFirstLaunchKey = 'is_phonebook_first_launch';
 
   /// init get storage services
@@ -20,13 +22,17 @@ class ConfigPreference {
     _sharedPreferences = sharedPreferences;
   }
 
+  static SharedPreferences getStorage() => _sharedPreferences;
+
   /// set theme current type as light theme
   static Future<void> setThemeIsLight(bool lightTheme) =>
       _sharedPreferences.setBool(_lightThemeKey, lightTheme);
 
   /// get if the current theme type is light
-  static bool getThemeIsLight() =>
-      _sharedPreferences.getBool(_lightThemeKey) ?? true;
+  static bool getThemeIsLight() {
+    Logger().f(_sharedPreferences.getBool(_lightThemeKey));
+    return _sharedPreferences.getBool(_lightThemeKey) ?? true;
+  }
   // todo set the default theme (true for light, false for dark)
 
   /// check if the app is first launch

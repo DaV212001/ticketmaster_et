@@ -1,3 +1,5 @@
+import '../controllers/theme_controller.dart';
+
 class FAQ {
   int? id;
   String? title;
@@ -12,44 +14,15 @@ class FAQ {
   FAQ.fromJson(Map<String, dynamic> json, String language) {
     // print("FAQ.fromJson $json");
     id = json['id'];
-    switch (language) {
-      case 'am':
-        title = json['title_am'];
-        break;
-      case 'en':
-        title = json['title_en'];
-        break;
-      case 'en-AU':
-        title = json['title_or'];
-        break;
-      case 'es':
-        title = json['title_so'];
-        break;
-      case 'fr':
-        title = json['title_tg'];
-        break;
-      default:
-        throw Exception('Invalid language: $language');
-    }
-    switch (language) {
-      case 'am':
-        description = json['desc_am'];
-        break;
-      case 'en':
-        description = json['desc_en'];
-        break;
-      case 'en-AU':
-        description = json['desc_or'];
-        break;
-      case 'es':
-        description = json['desc_so'];
-        break;
-      case 'fr':
-        description = json['desc_tg'];
-        break;
-      default:
-        throw Exception('Invalid language: $language');
-    }
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+    title = json['title_$languageCode'];
+    description = json['desc_$languageCode'];
   }
 
   Map<String, dynamic> toJson() {

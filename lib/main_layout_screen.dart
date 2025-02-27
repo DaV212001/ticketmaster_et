@@ -1,5 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:sliding_clipped_nav_bar/sliding_clipped_nav_bar.dart';
 import 'package:ticketmaster_et/main.dart';
 import 'package:ticketmaster_et/screens/category/category_tab.dart';
@@ -27,6 +28,11 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     return SafeArea(
       child: DeepLinkHandler(
         child: Scaffold(
@@ -59,16 +65,16 @@ class _TicketMatserHomePageState extends State<TicketMatserHomePage> {
               barItems: [
                 BarItem(
                   icon: Icons.home,
-                  title: tr('home'),
+                  title: 'home'.tr,
                 ),
                 BarItem(
                   icon: Icons.category,
-                  title: tr('category'),
+                  title: 'category'.tr,
                 ),
-                BarItem(title: tr('mytickets'), icon: Icons.no_food_rounded),
+                BarItem(title: 'mytickets'.tr, icon: Icons.no_food_rounded),
                 BarItem(
                   icon: Icons.person,
-                  title: tr('profile'),
+                  title: 'profile'.tr,
                 ),
               ],
             ),

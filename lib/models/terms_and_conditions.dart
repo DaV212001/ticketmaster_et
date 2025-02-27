@@ -1,3 +1,5 @@
+import '../controllers/theme_controller.dart';
+
 class TermsAndConditions {
   int? id;
   String? title;
@@ -12,25 +14,16 @@ class TermsAndConditions {
   TermsAndConditions.fromJson(Map<String, dynamic> json, String language) {
     // print("TermsAndConditions.fromJson $json");
     id = json['id'];
-    switch (language) {
-      case 'am':
-        title = json['text_am'];
-        break;
-      case 'en':
-        title = json['text_en'];
-        break;
-      case 'en-AU':
-        title = json['text_or'];
-        break;
-      case 'es':
-        title = json['text_so'];
-        break;
-      case 'fr':
-        title = json['text_tg'];
-        break;
-      default:
-        throw Exception('Invalid language: $language');
-    }
+
+    String? languageCode = ThemeModeController.languageCode.value == 'es'
+        ? 'tg'
+        : ThemeModeController.languageCode.value == 'it'
+            ? 'or'
+            : ThemeModeController.languageCode.value == 'fr'
+                ? 'so'
+                : ThemeModeController.languageCode.value;
+
+    title = json['text_$languageCode'];
 
     // description = json['description'];
   }

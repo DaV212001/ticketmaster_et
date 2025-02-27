@@ -1,191 +1,129 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
+import 'package:ticketmaster_et/controllers/theme_controller.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../../constants/app_constants.dart';
 import '../../../../functions/functions.dart';
-import '../../../../provider/settings_provider.dart';
-import '../../../category/section/subcategorydetails.dart';
+import '../../../../prefs/routes.dart';
 
-class HomeScreenCategories extends StatefulWidget {
-  final ValueNotifier<int> selectedIndex;
-  const HomeScreenCategories({super.key, required this.selectedIndex});
+class HomeCategoryController extends GetxController {
+  static const String tag = 'home_category';
+  var categories = <Category>[].obs;
+  var events = <Event>[].obs;
+  var popularevents = <Event>[].obs;
+  var organizers = <Organizer>[].obs;
+  var isLoading = true.obs;
 
   @override
-  State<HomeScreenCategories> createState() => _HomeScreenCategoriesState();
+  void onInit() {
+    super.onInit();
+    updateCategories();
+  }
+
+  void updateCategories() async {
+    isLoading.value = true;
+    var languageCode = ThemeModeController.languageCode.value;
+
+    var fetchedCategories = await getCategorySubCategory(languageCode);
+    categories.assignAll(fetchedCategories);
+
+    var fetchedEvents = await getEvents('$apiUrl/event', languageCode);
+    events.assignAll(fetchedEvents);
+    popularevents.assignAll(fetchedEvents.where((e) => e.isPopular == '1'));
+
+    var fetchedOrganizers = await getOrganizers(languageCode);
+    organizers.assignAll(fetchedOrganizers);
+
+    isLoading.value = false;
+  }
 }
 
-class _HomeScreenCategoriesState extends State<HomeScreenCategories> {
-  List<Organizer> ep = [];
-  List<Category> categories = [];
-  List<Event> events = [];
-  List<Event> popularevents = [];
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateCategories();
-    });
-  }
-
-  late final _settingsProvider;
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Now it's safe to listen to SettingsProvider
-    _settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
-    _settingsProvider.addListener(updateCategories);
-  }
-
-  @override
-  void dispose() {
-    if (_settingsProvider != null) {
-      _settingsProvider!.removeListener(updateCategories);
-    }
-
-    super.dispose();
-  }
-
-  void updateCategories() {
-    setState(() {
-      _isLoading = true;
-    });
-    getCategorySubCategory(
-            Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) => setState(() {
-              categories = value;
-              //   print('VALUE OF THE CATEGORY: $value');
-            }));
-    getEvents('$apiUrl/event',
-            Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) {
-      events = value;
-      //  print('VALUE OF THE EVENTS: $value');
-      // Populate popularevents outside setState()
-      popularevents.clear(); // Clear the list first
-      for (Event eve in events) {
-        //  print('POPULAR IDS: ${eve.isPopular}');
-        if (eve.isPopular == '1') {
-          popularevents.add(eve);
-        }
-      }
-
-      // Call setState() only when popularevents changes
-      setState(() {
-        //  print(popularevents);
-      });
-    });
-    getOrganizers(
-            Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) => setState(() {
-              ep = value;
-              //    print('VALUE OF THE ORGANIZERS: $value');
-            }));
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
+class HomeScreenCategories extends StatelessWidget {
+  final ValueNotifier<int> selectedIndex;
+  HomeScreenCategories({super.key, required this.selectedIndex});
+  final HomeCategoryController controller =
+      Get.put(HomeCategoryController(), tag: HomeCategoryController.tag);
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: categories.length,
-      itemBuilder: (context, index) {
-        // print("WIDGET BUILT");
+    return Obx(() {
+      if (controller.isLoading.value) {
+        return const Center(child: CircularProgressIndicator());
+      }
 
-        // Insert AdsCarousel in the middle
-        // if (index == categories.length ~/ 2) {
-        //   return const Padding(
-        //     padding: EdgeInsets.symmetric(vertical: 16.0),
-        //     child: AdsCarousel(), // Ensure this widget is imported
-        //   );
-        // }
-        //
-        // // Adjust index for categories
-        final categoryIndex = index;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _isLoading
-                ? const CircularProgressIndicator()
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Text(
-                      categories[categoryIndex].name!,
-                      style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+      return ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: controller.categories.length,
+        itemBuilder: (context, index) {
+          final category = controller.categories[index];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  category.name!,
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+              ),
+              if (category.subCategory!.isEmpty)
+                Center(
+                    child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/THICKET_MASTER_LOGO.png',
+                      height: MediaQuery.of(context).size.height * 0.1,
+                      width: MediaQuery.of(context).size.width * 0.2,
                     ),
-                  ),
-            if (categories[categoryIndex].subCategory!.isEmpty)
-              Center(
-                  child: Column(
-                children: [
-                  Image.asset(
-                    'assets/images/THICKET_MASTER_LOGO.png',
-                    height: MediaQuery.of(context).size.height * 0.1,
-                    width: MediaQuery.of(context).size.width * 0.2,
-                  ),
-                  Text('no_food'.tr())
-                ],
-              ))
-            else
-              SizedBox(
-                height: 200,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories[categoryIndex].subCategory!.length,
-                  itemBuilder: (context, subIndex) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.push(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return SubCatDetail(
-                                  id: categories[categoryIndex]
-                                      .subCategory![subIndex]
-                                      .id!,
-                                );
-                              }));
-                            },
-                            child: Container(
-                              width: 150,
-                              height: 150,
-                              decoration: BoxDecoration(
+                    Text('no_food'.tr)
+                  ],
+                ))
+              else
+                SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: category.subCategory!.length,
+                    itemBuilder: (context, subIndex) {
+                      final subCategory = category.subCategory![subIndex];
+                      return Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Get.toNamed(Routes.foodDetailRoute,
+                                    arguments: {'id': subCategory.id!});
+                              },
+                              child: Container(
+                                width: 150,
+                                height: 150,
+                                decoration: BoxDecoration(
                                   shape: BoxShape.rectangle,
                                   borderRadius: BorderRadius.circular(15),
                                   image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: NetworkImage(
-                                        categories[categoryIndex]
-                                            .subCategory![subIndex]
-                                            .image!
-                                            .trim(),
-                                      ))),
+                                    fit: BoxFit.fill,
+                                    image: NetworkImage(
+                                      subCategory.image!.trim(),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(categories[categoryIndex]
-                              .subCategory![subIndex]
-                              .name!),
-                        ],
-                      ),
-                    );
-                  },
+                            const SizedBox(height: 8),
+                            Text(subCategory.name!),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-          ],
-        );
-      },
-    );
+            ],
+          );
+        },
+      );
+    });
   }
 }

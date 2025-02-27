@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/category/section/subcategorydetails.dart';
+
+import '../../../prefs/routes.dart';
 
 class CategoryChildList extends StatefulWidget {
   const CategoryChildList(
       {required this.subCategories, super.key, required this.selectedIndex});
-  final List<SubCategory> subCategories;
+  final List<Food> subCategories;
   final ValueNotifier<int> selectedIndex;
   @override
   State<CategoryChildList> createState() => _CategoryChildListState();
@@ -19,17 +21,19 @@ class _CategoryChildListState extends State<CategoryChildList> {
     if (widget.subCategories.isNotEmpty) {
       return ListView.builder(
           controller: scrollController,
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           itemCount: widget.subCategories.length,
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return SubCatDetail(
-                    id: widget.subCategories[index].id!,
-                  );
-                }));
+                Get.toNamed(Routes.foodDetailRoute,
+                    arguments: {'id': widget.subCategories[index].id!});
+                // Navigator.push(context, MaterialPageRoute(builder: (context) {
+                //   return SubCatDetail(
+                //     id: widget.subCategories[index].id!,
+                //   );
+                // }));
               },
               child: Container(
                 color: Colors.transparent,
