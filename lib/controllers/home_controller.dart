@@ -9,6 +9,7 @@ class HomeController extends GetxController {
   var categories = <Category>[].obs;
   var events = <Event>[].obs;
   var popularevents = <Event>[].obs;
+
   var isLoading = true.obs;
 
   @override
@@ -22,6 +23,7 @@ class HomeController extends GetxController {
     var languageCode = Get.locale?.languageCode ?? 'en';
 
     categories.value = await getCategorySubCategory(languageCode);
+
     events.value = await getEvents('$apiUrl/event', languageCode);
     ep.value = [];
 

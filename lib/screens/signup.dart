@@ -719,6 +719,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                                     bottom: 0.0),
                                                 child: Text(
                                                   'alr_hv_acc'.tr,
+                                                  textAlign: TextAlign.center,
                                                   style: const TextStyle(
                                                       color: Color(0xFFFF9100),
                                                       fontSize: 19,

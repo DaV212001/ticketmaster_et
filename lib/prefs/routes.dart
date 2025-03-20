@@ -9,6 +9,8 @@ import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
 import 'package:ticketmaster_et/screens/user_ticket_details.dart';
 
 import '../screens/category/section/subcategorydetails.dart';
+import '../screens/home/cart/cart_screen.dart';
+import '../screens/home/cart/checkout_screen.dart';
 import '../screens/login.dart';
 import '../screens/signup.dart';
 import '../screens/splash_screen.dart';
@@ -25,6 +27,8 @@ class Routes {
   static const String privacyRoute = '/privacy';
   static const String howWeCookRoute = '/howWeCook';
   static const String editProfileRoute = '/editProfile';
+  static const String cartRoute = '/cart';
+  static const String checkoutRoute = '/checkout';
 }
 
 class Pages {
@@ -44,5 +48,7 @@ class Pages {
     GetPage(name: Routes.privacyRoute, page: () => PrivacyPolicyScreen()),
     GetPage(name: Routes.howWeCookRoute, page: () => HowWeCookScreen()),
     GetPage(name: Routes.editProfileRoute, page: () => const EditProfile()),
+    GetPage(name: Routes.cartRoute, page: () => CartScreen()),
+    GetPage(name: Routes.checkoutRoute, page: () => CheckoutScreen()),
   ];
 }

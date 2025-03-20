@@ -25,7 +25,7 @@ class UserProfileWidget extends StatelessWidget {
           Center(
             child: Stack(
               children: [
-                buildImage(theme.cardColor, context),
+                buildImage(theme.primaryColor, context),
                 // if (hasEditButton && imagePath != null)
                 //   Positioned(
                 //     bottom: 0,
@@ -61,7 +61,7 @@ class UserProfileWidget extends StatelessWidget {
                   : imagePath != null && imagePath.isNotEmpty
                       ? Image.network(
                           imagePath,
-                          fit: BoxFit.fill,
+                          fit: BoxFit.cover,
                         )
                       : Image.asset("assets/images/THICKET_MASTER_LOGO.png",
                           width: 50, height: 50)),

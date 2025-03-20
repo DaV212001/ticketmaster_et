@@ -364,12 +364,14 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                               });
                               l = await bookEvent(
                                 Booking(
-                                    customerId: int.parse(
+                                    userId: int.parse(
                                         phone!.replaceFirst("0", "251")),
                                     foodId: events[0].id,
-                                    foodPortionId: events[0].classes![0].id,
-                                    mealTypeId: phone.replaceFirst("0", "251"),
-                                    location: ticketNum,
+                                    foodOrderId: events[0].classes![0].id,
+                                    paymentStatus:
+                                        phone.replaceFirst("0", "251"),
+                                    amount: '',
+                                    transaction: ticketNum,
                                     date: events[0]
                                         .classes![0]
                                         .price!
@@ -437,12 +439,12 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                     });
                     BookingResponse l = await bookEvent(
                       Booking(
-                          customerId:
-                              int.parse(phone!.replaceFirst("0", "251")),
+                          userId: int.parse(phone!.replaceFirst("0", "251")),
                           foodId: events[0].id,
-                          foodPortionId: events[0].classes![0].id,
-                          mealTypeId: phone.replaceFirst("0", "251"),
-                          location: ticketNum,
+                          foodOrderId: events[0].classes![0].id,
+                          paymentStatus: phone.replaceFirst("0", "251"),
+                          transaction: ticketNum,
+                          amount: '',
                           date: events[0].classes![0].price!.toString()),
                     );
                     print(l);
@@ -462,11 +464,12 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                   });
                   BookingResponse l = await bookEvent(
                     Booking(
-                        customerId: int.parse(phone!.replaceFirst("0", "251")),
+                        userId: int.parse(phone!.replaceFirst("0", "251")),
                         foodId: events[0].id,
-                        foodPortionId: events[0].classes![0].id,
-                        mealTypeId: phone.replaceFirst("0", "251"),
-                        location: ticketNum,
+                        foodOrderId: events[0].classes![0].id,
+                        paymentStatus: phone.replaceFirst("0", "251"),
+                        transaction: ticketNum,
+                        amount: '',
                         date: events[0].classes![0].price!.toString()),
                   );
                   print(l);

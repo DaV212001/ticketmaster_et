@@ -4,6 +4,7 @@ import 'dart:io';
 
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 
 import '../constants/app_constants.dart';
@@ -247,9 +248,11 @@ class Order {
   String? phone;
   String? ticket_number;
   String? status;
+  bool? paymentStatus;
 
   Order(
       {this.phone,
+      this.paymentStatus,
       this.status,
       this.className,
       this.eventDate,
@@ -262,6 +265,7 @@ class Order {
   Order.fromJson(Map<String, dynamic> json, String language) {
     phone = json['order_date'];
     status = statusConverter(json['status']);
+    paymentStatus = json['payment_status'] == 1 ? true : false;
     String? languageCode = ThemeModeController.languageCode.value == 'es'
         ? 'tg'
         : ThemeModeController.languageCode.value == 'it'
@@ -274,7 +278,7 @@ class Order {
     mealType = json['meal_type_$languageCode'];
     ticket_number = "";
     eventDate = json['order_date'];
-    image = "";
+    image = json.containsKey('image') ? json['image'] : '';
     portion = json['food_portion_$languageCode'];
   }
 }
@@ -342,7 +346,7 @@ class Category {
   String? name;
   DateTime? createdAt;
   DateTime? updatedAt;
-  List<Food>? subCategory;
+  List<Food>? foods;
 
   Category(
       {required this.id,
@@ -350,7 +354,7 @@ class Category {
       required this.name,
       required this.createdAt,
       required this.updatedAt,
-      required this.subCategory});
+      required this.foods});
 
   Category.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
@@ -367,9 +371,8 @@ class Category {
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
 
-    var subCategoriesData = json["event_list"] as List;
-    subCategory =
-        subCategoriesData.map((data) => Food.fromJson(data, language)).toList();
+    var foodsD = json["event_list"] as List;
+    foods = foodsD.map((data) => Food.fromJson(data, language)).toList();
   }
 }
 
@@ -382,6 +385,11 @@ class FoodPortions {
   num? price;
   DateTime? createdAt;
   DateTime? updatedAt;
+  int? amount = 1;
+  bool? isSelected = false;
+
+  final Map<String, dynamic> _descriptions = {};
+  final Map<String, dynamic> _name = {};
 
   FoodPortions(
       {required this.id,
@@ -393,7 +401,7 @@ class FoodPortions {
       required this.createdAt,
       required this.updatedAt});
 
-  FoodPortions.fromJson(Map<String, dynamic> json, String language) {
+  FoodPortions.fromJson(Map<String, dynamic> json) {
     id = json["id"];
     image = json["cover_image"];
     foodId = json["food_id"];
@@ -405,11 +413,47 @@ class FoodPortions {
                 ? 'so'
                 : ThemeModeController.languageCode.value;
 
+    for (var lang in ['tg', 'or', 'so', 'en', 'am']) {
+      _descriptions['description_$lang'] = json['description_$lang'];
+      _name['name_$lang'] = json['name_$lang'];
+    }
+
     name = json['name_$languageCode'];
     desc = json['description_$languageCode'];
     price = json["price"] is String ? num.parse(json['price']) : json['price'];
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
+    amount = json.containsKey('amount') ? json['amount'] : 1;
+    isSelected = json.containsKey('isSelected') ? json['isSelected'] : false;
+  }
+
+  String totalPrice() {
+    double totalPrice = 0.00;
+
+    // if (addons != null) {
+    //   for (var addon in addons!) {
+    //     totalPrice +=
+    //     ((addon.price ?? 0).toDouble() * (addon.amount ?? 1).toDouble());
+    //   }
+    // }
+    return ((totalPrice + price!) * (amount ?? 1)).toStringAsFixed(2);
+  }
+
+  Map<String, dynamic> toJson() {
+    var jsonified = {
+      'id': id,
+      'food_id': foodId,
+      ..._name,
+      ..._descriptions,
+      'cover_image': image,
+      'price': price,
+      'amount': amount,
+      'isSelected': isSelected,
+      'created_at': createdAt.toString(),
+      'updated_at': updatedAt.toString()
+    };
+    Logger().f(jsonified);
+    return jsonified;
   }
 }
 
@@ -513,30 +557,30 @@ class Signup {
 
 class SignupResponse {
   String? message;
-  ErrorData? error;
+  ErrorDataS? error;
 
   SignupResponse({this.message, this.error});
 
   SignupResponse.fromJson(Map<String, dynamic> json) {
     message = json.containsKey('message') ? json['message'] : null;
     error =
-        json.containsKey('error') ? ErrorData.fromJson(json['error']) : null;
+        json.containsKey('error') ? ErrorDataS.fromJson(json['error']) : null;
   }
 }
 
-class ErrorData {
+class ErrorDataS {
   List<String>? email;
   List<String>? phonenumber;
   List<String>? name;
   List<String>? password;
 
-  ErrorData(
+  ErrorDataS(
       {required this.email,
       required this.phonenumber,
       required this.name,
       required this.password});
 
-  ErrorData.fromJson(Map<String, dynamic> json) {
+  ErrorDataS.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('email')) {
       email = List<String>.from(json['email']);
     }
@@ -553,24 +597,27 @@ class ErrorData {
 }
 
 class Booking {
-  int? customerId, foodId, foodPortionId;
+  int? userId, foodId, foodOrderId;
   String? date;
-  String? mealTypeId, location;
+  String? amount;
+  String? paymentStatus, transaction;
 
   Booking(
-      {required this.customerId,
+      {required this.userId,
+      required this.amount,
       required this.foodId,
-      required this.foodPortionId,
-      required this.mealTypeId,
-      required this.location,
+      required this.foodOrderId,
+      required this.paymentStatus,
+      required this.transaction,
       required this.date});
 
   Map<String, dynamic> toJson() => {
-        'customer_id': customerId,
-        'food_id': foodId,
-        'portion_id': foodPortionId,
-        'meal_type_id': mealTypeId,
-        'location': location,
+        'user_id': userId,
+        'food_id': '0',
+        'food_order_id': foodOrderId,
+        'payment_status': paymentStatus,
+        'transaction': transaction,
+        'amount': amount,
         'date': date
       };
 }
@@ -602,6 +649,56 @@ class BookingResponse {
       message = json['message'];
     }
     // Parse your response here
+  }
+}
+// import 'package:get/get.dart';
+
+class VideoPromotion {
+  final int id;
+  // final num type;
+  // final int companyId;
+  final String url;
+  final String description;
+  final String title;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  VideoPromotion({
+    required this.createdAt,
+    required this.updatedAt,
+    // required this.type,
+    required this.title,
+    required this.id,
+    // required this.companyId,
+    required this.url,
+    required this.description,
+  });
+
+  factory VideoPromotion.fromJson(Map<String, dynamic> json) {
+    String? languageCode = Get.locale?.languageCode == 'es'
+        ? 'tg'
+        : Get.locale?.languageCode == 'it'
+            ? 'or'
+            : Get.locale?.languageCode == 'fr'
+                ? 'so'
+                : Get.locale?.languageCode;
+    return VideoPromotion(
+        // type: json.containsKey('type')
+        //     ? json['type'] != null
+        //         ? json['type'] is num
+        //             ? json['type']
+        //             : json['type'] is String
+        //                 ? num.parse(json['type'])
+        //                 : 0
+        //         : 0
+        //     : 0,
+        title: json['title_$languageCode'] ?? '',
+        id: json['id'],
+        // companyId: json['company_id'] ?? 0,
+        url: json['attachment'],
+        description: json['description_$languageCode'],
+        createdAt: DateTime.parse(json['created_at']),
+        updatedAt: DateTime.parse(json['updated_at']));
   }
 }
 
@@ -781,16 +878,23 @@ class City {
 }
 
 class UpdatedUser {
-  String? firstName, lastName, phone;
+  int? id;
+  String? firstName, lastName, phone, email;
 
   UpdatedUser(
-      {required this.firstName, required this.lastName, required this.phone});
+      {required this.firstName,
+      required this.lastName,
+      required this.phone,
+      required this.email,
+      required this.id});
 
   Map<String, dynamic> toJson() {
     return {
+      'user_id': id,
       'first_name': firstName,
       'last_name': lastName,
       'phone': phone,
+      'email': email,
     };
   }
 }
@@ -812,6 +916,7 @@ class UpdateError {
   List<String>? firstName;
   List<String>? LastName;
   List<String>? phone;
+  List<String>? email;
 
   UpdateError({this.phone, this.firstName, this.LastName});
 
@@ -824,6 +929,9 @@ class UpdateError {
     }
     if (json.containsKey('last_name')) {
       phone = List<String>.from(json['last_name']);
+    }
+    if (json.containsKey('email')) {
+      phone = List<String>.from(json['email']);
     }
   }
 }

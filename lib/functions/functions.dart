@@ -212,10 +212,12 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}food-by-category")),
+      () => http.get(
+          Uri.parse("https://api.hellomesa6810.com/api/food-by-category"),
+          headers: {'User-Agent': 'Mozilla/5.0'}),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    Logger().d(jsonDecode(res.body));
+    Logger().d(res.body);
     // print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
     //  print("=================Category============${res.body}");
     // print(res.body);
@@ -260,8 +262,7 @@ Future<List<Organizer>> getOrganizers(String language) async {
   return organizers;
 }
 
-Future<List<FoodPortions>> getEventsBySubCategoryId(
-    int id, String language) async {
+Future<List<FoodPortions>> foodPortionsByFoodId(int id, String language) async {
   List<FoodPortions> events = [];
 
   try {
@@ -272,11 +273,12 @@ Future<List<FoodPortions>> getEventsBySubCategoryId(
 
     //  print("=================getEventsBySubCategoryId============${res.body}");
     var data = jsonDecode(res.body);
+    Logger().d(data);
     if (data['message'] == 'Food detail get successfully') {
       var eventsData = data['data'][0]['food_portion'] as List;
       // print(eventsData);
       events = eventsData
-          .map((eventData) => FoodPortions.fromJson(eventData, language))
+          .map((eventData) => FoodPortions.fromJson(eventData))
           .toList();
     } else {
       if (data['message'] == 'No Event By selected Sub Category found') {
@@ -487,12 +489,12 @@ Future<BookingResponse> bookEvent(Booking data) async {
 
   String requestBody = jsonEncode(jsonData);
   var client = http.Client();
-  var retryOptions = RetryOptions(maxAttempts: 3);
+  var retryOptions = const RetryOptions(maxAttempts: 3);
 
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('${baseUrlFunc}order-food'),
+        Uri.parse('${baseUrlFunc}payment-transaction'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -665,6 +667,7 @@ Future<List<Order>> getTickets(String phone, String language) async {
     );
     print("My Order ${res.body}");
     var data = jsonDecode(res.body);
+    Logger().i(data);
     if (data['message'] == 'My Order  get successfully') {
       var eventsData = data['data'] as List;
       tickets = eventsData

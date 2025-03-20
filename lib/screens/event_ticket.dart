@@ -1,623 +1,37 @@
-import 'package:chewie/chewie.dart';
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:video_player/video_player.dart';
 import 'package:visibility_detector/visibility_detector.dart';
-
-// Class? selectedClass;
-// String ticketNum = '';
-//
-// class EventTicket extends StatefulWidget {
-//   EventTicket({super.key, required this.event, this.classId});
-//   final Event event;
-//   final int? classId;
-//   @override
-//   State<EventTicket> createState() => _EventTicketState();
-// }
-//
-// class _EventTicketState extends State<EventTicket> {
-//
-//   List<Category> categories = [];
-//   List<City> cities = [];
-//   List<Organizer> organizers = [];
-//   bool _isLoading = true;
-//   String? categoryname = 'Default';
-//   String? organizername = 'Default';
-//   String? cityname = 'Default';
-//   List<Event> events = [];
-//
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     WidgetsBinding.instance.addPostFrameCallback((_) async {
-//       await Get.find<LoginDataProvider>(tag:'login').loadLoginData();
-//       updatesForEventDetail();
-//       ticketNum = generateTicketNumber(widget.event.title!);
-//     });
-//
-//   }
-//
-//
-//   void updatesForEventDetail() async {
-//     setState(() {
-//       _isLoading = true;
-//     });
-//     await getEventsbyID(widget.event.id!, Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-//       events = value;
-//       print( 'VALUE OF THE EVENTS for event details page: $value');
-//     }));
-//     await getCategorySubCategory(Provider.of<SettingsProvider>(context, listen: false).languageCode)
-//         .then((value) => setState(() {
-//       categories = value;
-//       print('VALUE OF THE CATEGORY for event details page: $value');
-//     }));
-//     for (Category cat in categories){
-//       if(int.parse(widget.event.categoryId!) == 2? cat.id == 7: cat.id == int.parse(widget.event.categoryId!)){
-//         setState(() {
-//           categoryname = cat.name == 'Cinemas and Teather'? 'Cinema': cat.name;
-//         });
-//       }
-//     }
-//     await getCity(Provider.of<SettingsProvider>(context, listen: false).languageCode)
-//         .then((value) => setState(() {
-//       cities = value;
-//       print('VALUE OF THE CATEGORY for event details page: $value');
-//     }));
-//     for (City city in cities){
-//       if( city.id == int.parse(widget.event.cityId!)){
-//         setState(() {
-//           cityname = city.name;
-//         });
-//       }
-//     }
-//     await getOrganizers(Provider.of<SettingsProvider>(context, listen: false).languageCode).then((value) => setState((){
-//       organizers = value;
-//       print( 'VALUE OF THE ORGANIZERS for cat events: $value');
-//     }));
-//     for (Organizer org in organizers){
-//       if( org.id == int.parse(widget.event.organizerId!)){
-//         setState(() {
-//           organizername = org.name;
-//         });
-//       }
-//     }
-//     handleDefSelect();
-//   }
-//
-//   @override
-//   void didChangeDependencies() {
-//     super.didChangeDependencies();
-//     // Here we start listening to changes in SettingsProvider
-//     Provider.of<SettingsProvider>(context).addListener(updatesForEventDetail);
-//   }
-//
-//   @override
-//   void dispose() {
-//     if (mounted) {
-//       Provider.of<SettingsProvider>(context, listen: false).removeListener(updatesForEventDetail);
-//     }
-//     super.dispose();
-//   }
-//
-//   int selectedIndex = -1;
-//   void selectClass(Class classe, int index) {
-//     setState(() {
-//       selectedClass = classe;
-//       selectedIndex = index;
-//     });
-//   }
-//
-//   void handleDefSelect(){
-//     if (widget.classId != null) {
-//       for (int i = 0; i < events[0].classes!.length; i++) {
-//         if (events[0].classes![i].id == widget.classId) {
-//           selectClass(events[0].classes![i], i);
-//           break;
-//         }
-//       }
-//     }
-//     else{
-//       selectClass(events[0].classes![0], 0);
-//     }
-//   }
-//
-//
-//
-//
-//
-//   @override
-//   Widget build(BuildContext context) {
-//
-//
-//     int? price =
-//     events.isNotEmpty?
-//     //events is not empty
-//     events[0].classes!.isNotEmpty?
-//     //events is not empty and the classes list of the event is not empty
-//     selectedClass != null?
-//     //events is not empty and classes list of the event is not empty and there is a selected class
-//     selectedClass?.price:
-//     //events is not empty and the classes list of the event is not empty but there is no selected class
-//     0
-//         :
-//     //events is not empty but the classes list of the event is empty
-//     0
-//         :
-//     //events is empty
-//     0
-//     ;
-//     double deviceheight = MediaQuery.of(context).size.height;
-//     double devicewidth = MediaQuery.of(context).size.width;
-//     final loginDataProvider = Provider.of<LoginDataProvider>(context);
-//     bool _isLoading = false;
-//     return Scaffold(
-//       backgroundColor:
-//       Theme.of(context).scaffoldBackgroundColor.withOpacity(0.9),
-//       body: Center(
-//         child: SingleChildScrollView(
-//           child: Column(
-//             mainAxisAlignment: MainAxisAlignment.center,
-//             children: [
-//               Container(
-//                 height: 200,
-//                 width: double.infinity * 0.9,
-//                 padding: const EdgeInsets.all(8.0),
-//                 child: ClipRRect(
-//                   borderRadius: BorderRadius.circular(30),
-//                   child: !widget.event.image!.endsWith('.mp4')?Image.network(
-//                     fit: BoxFit.cover,
-//                     widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage'
-//                         || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D'
-//                         || widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'
-//                         ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'
-//                         ||widget.event.image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'?
-//                     'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
-//                         :
-//                     widget.event.image!.trim(),
-//                   )
-//                       :
-//                   VideoPlayerWidget(videoUrl: widget.event.image!, selectedIndex: null,),
-//                 ),
-//               ),
-//               const SizedBox(
-//                 height: 10,
-//               ),
-//               Padding(
-//                 padding: EdgeInsets.all(8.0),
-//                 child: Text(
-//                     widget.event.desc!),
-//               ),
-//               TicketWidget (
-//                 width: devicewidth/1.1,
-//                 height: deviceheight/2.4,
-//                 isCornerRounded: true,
-//                 padding: EdgeInsets.all(20),
-//                 child: TicketData(events: events, categoryname: categoryname!, cityname: cityname!, organizername: organizername!, selectClass: selectClass, selectedIndex: selectedIndex, classId: widget.classId,),
-//               ),
-//               const SizedBox(
-//                 height: 30,
-//               ),
-//               Padding(
-//                 padding: const EdgeInsets.only(bottom: 40.0),
-//                 child: ElevatedButton(
-//                   onPressed: () async {
-//                     setState(() {
-//                       _isLoading = true;
-//                     });
-//                     final accountProvider = Get.find<LoginDataProvider>(tag:'login');
-//                     String? phone = accountProvider.loginData?.phone?.replaceFirst("251", "0");
-//                     if(events.isNotEmpty && events[0].classes!.isNotEmpty) {
-//                       if (selectedClass != null) {
-//                         if (selectedClass?.price != 0) {
-//                           String txRef =
-//                           TxRefRandomGenerator.generate(prefix: 'ticketmaster');
-//                           // Access the generated transaction reference
-//                           String storedTxRef = TxRefRandomGenerator.gettxRef;
-//                           // Use the Chapa Flutter SDK to create a new transaction
-//                           loginDataProvider.loginData != null ||
-//                               loginDataProvider.isUserRegistered == true ?
-//                           await Chapa.getInstance.startPayment(
-//                             context: context,
-//                             onInAppPaymentSuccess: (successMsg) async {
-//                               BookingResponse l;
-//                               setState(() { // Call setState before bookEvent
-//                                 _isLoading = true;
-//                               });
-//                               l = await bookEvent(
-//                                 Booking(
-//                                     customerId: int.parse(phone!.replaceFirst("0", "251")),
-//                                     eventId: events[0].id,
-//                                     classId: selectedClass?.id,
-//                                     phone: phone.replaceFirst("0", "251"),
-//                                     ticketNumber: ticketNum, price: price
-//                                 ),
-//                               );
-//                               setState(() { // Call setState after bookEvent
-//                                 _isLoading =false;
-//                               });
-//                               print(
-//                                   'PAYMENT SUCCESS!'); // Handle success events
-//                               if(l.error==null){
-//                                 // Show the pop-up card
-//                                 showDialog(
-//                                   context: context,
-//                                   builder: (BuildContext context) {
-//                                     return AlertDialog(
-//                                       shape: RoundedRectangleBorder(
-//                                           borderRadius: BorderRadius.circular(
-//                                               20)),
-//                                       title: const Text(
-//                                           "Ticket Purchase Successful!"),
-//                                       content:
-//                                       Text(
-//                                           "$price Birr Paid! Enjoy the event!"),
-//                                       actions: [
-//                                         TextButton(
-//                                           child: const Text("OK"),
-//                                           onPressed: () {
-//                                             Navigator.of(context).pop();
-//                                             Navigator.of(context).pop();
-//                                           },
-//                                         ),
-//                                       ],
-//                                     );
-//                                   },
-//                                 );} else{
-//                                 setState(() {
-//                                   _isLoading =false;
-//                                 });
-//                                 ScaffoldMessenger.of(context)
-//                                     .showSnackBar(
-//                                     SnackBar(content: Text('Error Booking your ticket please try again')));
-//
-//                               }
-//                             },
-//
-//                             amount: '$price',
-//                             currency: 'ETB',
-//                             txRef: storedTxRef,
-//                             firstName: accountProvider.loginData?.firstName ?? '',
-//                             lastName: accountProvider.loginData?.lastName ?? '',
-//                             phoneNumber: '${phone??''}',
-//                             onInAppPaymentError: (errorMsg) {
-//                               print('PAYMENT FAILURE'); // Handle error
-//                             },
-//
-//                           ) : Navigator.push(
-//                               context, MaterialPageRoute(builder: (context) {
-//                             return SignupScreen();
-//                           }));
-//                         }
-//
-//                         else {
-//                           setState(() {
-//                             _isLoading = false;
-//                           });
-//
-//                           BookingResponse l = await bookEvent(
-//                             Booking(
-//                                 customerId: int.parse(phone!.replaceFirst("0", "251")),
-//                                 eventId: events[0].id,
-//                                 classId: selectedClass?.id,
-//                                 phone: phone.replaceFirst("0", "251"),
-//                                 ticketNumber: ticketNum,
-//                                 price: price
-//                             ),
-//                           );
-//                           print(l);
-//                           if(l.error==null){
-//                             setState(() {
-//                               _isLoading = false;
-//                             });
-//                             Navigator.push(
-//                                 context, MaterialPageRoute(builder: (context) {
-//                               return ThankYouScreen(event: events[0]);
-//                             }));
-//                           }}
-//                       }
-//                       else {
-//                         setState(() {
-//                           _isLoading = false;
-//                         });
-//                         ScaffoldMessenger.of(context)
-//                             .showSnackBar(
-//                             SnackBar(content: Text('Please select a Class')));
-//                       }
-//                     }
-//                     else{
-//                       setState(() {
-//                         _isLoading = false;
-//                       });
-//                       BookingResponse l = await bookEvent(
-//                         Booking(
-//                             customerId: int.parse(phone!.replaceFirst("0", "251")),
-//                             eventId: events[0].id,
-//                             classId: selectedClass?.id,
-//                             phone: phone.replaceFirst("0", "251"),
-//                             ticketNumber: ticketNum,
-//                             price: price
-//                         ),
-//                       );
-//                       print(l);
-//                       if(l.error == null){
-//                         setState(() {
-//                           _isLoading = false;
-//                         });
-//                         Navigator.push(
-//                             context, MaterialPageRoute(builder: (context) {
-//                           return ThankYouScreen(event: events[0]);
-//                         }));}
-//                     }
-//                   },
-//                   style: ButtonStyle(
-//                       minimumSize: MaterialStatePropertyAll(
-//                           Size(MediaQuery.of(context).size.width * 0.9, 50))),
-//                   child: _isLoading? CircularProgressIndicator(): Text(
-//                       selectedClass == null? 'Book Ticket':
-//                       'PAY $price BIRR'
-//                   ),
-//                 ),
-//
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-//
-//
-// String generateTicketNumber(String eventTitle) {
-//   const chars = '0123456789';
-//   Random rnd = Random();
-//   String randomDigits = String.fromCharCodes(Iterable.generate(
-//       4, (_) => chars.codeUnitAt(rnd.nextInt(chars.length))));
-//
-//   String firstFourLettersOfTitle = eventTitle.length >= 4
-//       ? eventTitle.substring(0, 4).toUpperCase()
-//       : eventTitle.toUpperCase();
-//
-//   return 'TM-$firstFourLettersOfTitle-$randomDigits';
-// }
-//
-//
-//
-//
-//
-// class TicketData extends StatefulWidget {
-//   TicketData({
-//     Key? key, required this.events, required this.categoryname, required this.organizername, required this.cityname, required this.selectClass, required this.selectedIndex, this.classId
-//   }) : super(key: key);
-//   final List<Event> events;
-//   final String categoryname;
-//   final String organizername;
-//   final String cityname;
-//   final Function(Class, int) selectClass;
-//   final int selectedIndex;
-//   final int? classId;
-//
-//   @override
-//   _TicketDataState createState() => _TicketDataState();
-// }
-//
-// class _TicketDataState extends State<TicketData> {
-//   bool isSelected= false;
-//   @override
-//   Widget build(BuildContext context) {
-//     double devicewidth = MediaQuery.of(context).size.width;
-// ValueNotifier<Class>? selectedlocalClass = ValueNotifier(widget.events.isNotEmpty?widget.events[0].classes![0]:Class());
-//     return WillPopScope(
-//         onWillPop: () async {
-//         // Pop the outer Navigator's route
-//         Navigator.of(context).pop();
-//         // Prevent default behavior of closing the app
-//         return false;
-//       },
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Row(
-//             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//             children: [
-//               Container(
-//                 width: 120.0,
-//                 height: 35.0,
-//                 decoration: BoxDecoration(
-//                   borderRadius: BorderRadius.circular(20.0),
-//                   border: Border.all(width: 1.0, color: Colors.green),
-//                 ),
-//                 child: Center(
-//                   child: Text(
-//                     widget.categoryname,
-//                     textAlign: TextAlign.center,
-//                     style: TextStyle(color: Colors.green,),
-//                   ),
-//                 ),
-//               ),
-//               Row(
-//                 children: [
-//                   Text(
-//                     widget.cityname,
-//                     style: TextStyle(
-//                         color: Colors.black, fontWeight: FontWeight.bold),
-//                   ),
-//                 ],
-//               )
-//             ],
-//           ),
-//           Padding(
-//             padding: EdgeInsets.only(top: 20.0),
-//             child: Text(
-//               widget.events.isNotEmpty?
-//               widget.events[0].title!: '',
-//               style: TextStyle(
-//                   color: Colors.black,
-//                   fontSize: 20.0,
-//                   fontWeight: FontWeight.bold),
-//             ),
-//           ),
-//           Padding(
-//             padding: const EdgeInsets.only(top: 15.0),
-//             child: SingleChildScrollView(
-//               child: Column(
-//                 crossAxisAlignment: CrossAxisAlignment.start,
-//                 children: [
-//                   Padding(
-//                     padding: const EdgeInsets.only(top: 8.0, bottom: 8),
-//                     child: ticketDetailsWidget(
-//                         'Organizer', '${widget.organizername}', 'Date', widget.events.isNotEmpty?widget.events[0].date!:''),
-//                   ),
-//                   ticketDetailsWidget('Place', widget.events.isNotEmpty?widget.events[0].place!:'', 'Time', widget.events.isNotEmpty?widget.events[0].time!:''),
-//                   Padding(
-//                     padding: const EdgeInsets.only(top: 8.0),
-//                     child: ValueListenableBuilder(
-//     valueListenable: selectedlocalClass,
-//     builder: (context, Class value, child) {
-//       print('CHECKING AVAILABLE TICKET NUMBER ${value.availableTicket}');
-//     return ticketDetailsWidget('Ticket', widget.events.isNotEmpty&&widget.events[0].classes!.isNotEmpty?'$ticketNum': '$ticketNum', 'Available', '${value.availableTicket??''} tickets left');}),
-//                   ),
-//                   widget.events.isNotEmpty? widget.events[0].classes!.isNotEmpty?Padding(
-//                     padding: const EdgeInsets.only(top: 4.0, right: 52.0, bottom: 0, left: 10),
-//                     child: Text('Class',
-//                       style: TextStyle(color: Colors.grey),),
-//                   ): SizedBox(height: 5,): SizedBox(height: 5,) ,
-//                   Padding(
-//                       padding: const EdgeInsets.only(top: 0, right: 53.0),
-//                       child:
-//                       widget.events.isNotEmpty?
-//                       SizedBox(
-//                         height: 50,
-//                         width: devicewidth,
-//                         child: ListView.builder(
-//                           physics: BouncingScrollPhysics(),
-//                           itemCount: widget.events[0].classes!.length,
-//                           scrollDirection: Axis.horizontal,
-//                           itemBuilder: (context, index){
-//                             return Row(
-//                                 children: [
-//                                   Row(
-//                                     children: [
-//                                       ElevatedButton(
-//                                         onPressed: () {
-//                                           widget.selectClass(widget.events[0].classes![index], index);
-//                                           setState(() {
-//                                             selectedlocalClass.value = widget.events[0].classes![index];
-//                                           });
-//                                         },
-//                                         style: ButtonStyle(
-//                                           shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-//                                             RoundedRectangleBorder(
-//                                               borderRadius: BorderRadius.circular(30.0),
-//                                             ),
-//                                           ),
-//                                           backgroundColor: widget.selectedIndex == index?
-//                                           MaterialStatePropertyAll(Colors.green)
-//                                               : MaterialStatePropertyAll(Colors.black),
-//                                         ),
-//                                         child: Center(
-//                                           child: Text('${widget.events[0].classes?[index].title} - ${widget.events[0].classes?[index].price}',
-//                                               style: TextStyle(
-//                                                 color: widget.selectedIndex == index? Colors.black : Colors.white,
-//                                               )),
-//                                         ),
-//                                       ),
-//                                       SizedBox(width: 5,)
-//                                     ],
-//                                   )
-//                                 ]
-//                             );
-//                           },
-//
-//                         ),
-//                       ):
-//                       CircularProgressIndicator()
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-//
-//
-//
-// Widget ticketDetailsWidget(String firstTitle, String firstDesc,
-//     String secondTitle, String secondDesc) {
-//   return Row(
-//     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//     children: [
-//       Padding(
-//         padding: const EdgeInsets.only(left: 12.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: <Widget>[
-//             Text(
-//               firstTitle,
-//               style: const TextStyle(color: Colors.grey),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.only(top: 4.0),
-//               child: Text(
-//                 firstDesc,
-//                 style: const TextStyle(color: Colors.black),
-//               ),
-//             )
-//           ],
-//         ),
-//       ),
-//       Padding(
-//         padding: const EdgeInsets.only(right: 20.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               secondTitle,
-//               style: const TextStyle(color: Colors.grey),
-//             ),
-//             Padding(
-//               padding: const EdgeInsets.only(top: 4.0),
-//               child: Text(
-//                 secondDesc,
-//                 style: const TextStyle(color: Colors.black),
-//               ),
-//             )
-//           ],
-//         ),
-//       )
-//     ],
-//   );
-// }
 
 class VideoPlayerWidget extends StatefulWidget {
   final String videoUrl;
-  final VideoPlayerController? controller;
   final ValueNotifier<int>? selectedIndex;
 
-  VideoPlayerWidget(
-      {Key? key, required this.videoUrl, this.controller, this.selectedIndex})
+  const VideoPlayerWidget(
+      {Key? key, required this.videoUrl, this.selectedIndex})
       : super(key: key);
 
   @override
-  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
+  VideoPlayerWidgetState createState() => VideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
-  late VideoPlayerController _controller;
+class VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+  late CachedVideoPlayerPlusController _controller;
   late Future<void> _initializeVideoPlayerFuture;
   bool _isPlaying = true;
-  bool _firstTimeAwayFromHomeTab = true;
+  static const int homeTabIndex = 0;
+
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
+    _controller =
+        CachedVideoPlayerPlusController.networkUrl(Uri.parse(widget.videoUrl));
     widget.selectedIndex?.addListener(_handleIndexChanged);
-    _initializeVideoPlayerFuture = _controller.initialize();
-
+    _initializeVideoPlayerFuture = _controller.initialize().then((_) {
+      if (mounted) {
+        _controller.play();
+      }
+    });
+    _controller.setLooping(true);
     _controller.addListener(_videoPlayerListener);
   }
 
@@ -627,17 +41,12 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     }
   }
 
-  int HOME_TAB_INDEX = 0;
   void _handleIndexChanged() {
-    if (widget.selectedIndex?.value != HOME_TAB_INDEX) {
+    if (widget.selectedIndex?.value != homeTabIndex) {
       _controller.pause();
-      _controller.dispose();
-      _controller =
-          VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl));
-      _controller.initialize();
-    } else if (widget.selectedIndex?.value == HOME_TAB_INDEX &&
-        !_controller.value.isInitialized) {
-      _controller.initialize();
+    } else if (widget.selectedIndex?.value == homeTabIndex &&
+        !_controller.value.isPlaying) {
+      _controller.play();
     }
   }
 
@@ -653,12 +62,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     setState(() {
       _isPlaying = !_isPlaying;
     });
-
-    if (_isPlaying) {
-      _controller.play();
-    } else {
-      _controller.pause();
-    }
+    _isPlaying ? _controller.play() : _controller.pause();
   }
 
   @override
@@ -667,11 +71,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       future: _initializeVideoPlayerFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          // The video has been initialized, now we can display the Chewie widget
           return VisibilityDetector(
-            key: const Key('unique key'),
+            key: const Key('video_visibility'),
             onVisibilityChanged: (VisibilityInfo info) {
-              if (info.visibleFraction == 0 && this.mounted) {
+              if (info.visibleFraction == 0 && mounted) {
                 setState(() {
                   _isPlaying = false;
                 });
@@ -683,28 +86,20 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  Chewie(
-                    controller: ChewieController(
-                        videoPlayerController: _controller,
-                        aspectRatio: _controller.value.isInitialized
-                            ? _controller.value.aspectRatio
-                            : 16 / 9,
-                        autoPlay: _isPlaying,
-                        looping: true,
-                        allowPlaybackSpeedChanging: false,
-                        allowFullScreen: false,
-                        showControls: false),
+                  AspectRatio(
+                    aspectRatio: _controller.value.aspectRatio,
+                    child: CachedVideoPlayerPlus(_controller),
                   ),
                   if (!_isPlaying)
                     Container(
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: Colors.transparent,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
                         Icons.play_arrow_rounded,
                         size: 150,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                       ),
                     ),
                 ],
@@ -712,8 +107,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
             ),
           );
         } else {
-          // The video is still initializing
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

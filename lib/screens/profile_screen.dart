@@ -1,18 +1,31 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:logger/web.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:ticketmaster_et/api_call_status.dart';
 import 'package:ticketmaster_et/controllers/footer_controller.dart';
-import 'package:ticketmaster_et/screens/editprofilescreen.dart';
+import 'package:ticketmaster_et/functions/functions.dart';
+import 'package:ticketmaster_et/screens/organizations_screen.dart';
 import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
+import 'package:ticketmaster_et/utils/update_enforcer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../models/newmodels.dart';
 import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
+import 'change_password_screen.dart';
+import 'editprofilescreen.dart';
 
 class ProfileController extends GetxController {
   var loginData = Rxn<LoginData>();
+  var freeMeals = 0.obs;
+  var targetCount = 0.obs;
+  var loadingMealData = ApiCallStatus.holding.obs;
 
   @override
   void onInit() {
@@ -25,6 +38,40 @@ class ProfileController extends GetxController {
 
   Future<void> loadData() async {
     loginData.value = Get.find<LoginDataProvider>(tag: 'login').loginData;
+    loadingMealData.value = ApiCallStatus.loading;
+    getFreeMeal();
+    getTargetCount();
+    loadingMealData.value = ApiCallStatus.success;
+  }
+
+  void getFreeMeal() async {
+    try {
+      var res = await http
+          .get(Uri.parse('${baseUrlFunc}free-meal/${loginData.value?.id}'));
+      Logger().d(res.body);
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        freeMeals.value = data['data'];
+      }
+    } catch (e, s) {
+      Logger().t(e, stackTrace: s);
+      loadingMealData.value = ApiCallStatus.error;
+    }
+  }
+
+  void getTargetCount() async {
+    try {
+      var res = await http
+          .get(Uri.parse('${baseUrlFunc}target-count/${loginData.value?.id}'));
+      Logger().d(res.body);
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        targetCount.value = data['data'];
+      }
+    } catch (e, s) {
+      Logger().t(e, stackTrace: s);
+      loadingMealData.value = ApiCallStatus.error;
+    }
   }
 
   void logout() async {
@@ -51,6 +98,14 @@ class ProfileWidget extends StatelessWidget {
         "title": "changelanguage".tr,
         "leadingIcon": Icons.language,
         "onTap": () {},
+        "trailing": const Text("")
+      },
+      {
+        "title": "change_pass".tr,
+        "leadingIcon": Icons.language,
+        "onTap": () {
+          Get.to(() => ChangePasswordScreen());
+        },
         "trailing": const Text("")
       },
       {
@@ -90,36 +145,49 @@ class ProfileWidget extends StatelessWidget {
         },
         "trailing": const Text("")
       },
-      // {
-      //   "title": "invitefriends".tr,
-      //   "leadingIcon": Icons.share,
-      //   "onTap": () {
-      //     Share.share(
-      //       'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
-      //       subject: 'Check out my app on the Play Store',
-      //     );
-      //   },
-      //   "trailing": const Text("")
-      // },
+      {
+        "title": "new_version".tr,
+        "leadingIcon": Icons.settings_applications,
+        "onTap": () {
+          Get.showOverlay(
+              asyncFunction: UpdateChecker().checkForUpdates,
+              loadingWidget: const SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Center(child: CircularProgressIndicator())));
+        },
+        "trailing": Icon(Icons.chevron_right_outlined)
+      },
+      {
+        "title": "invitefriends".tr,
+        "leadingIcon": Icons.share,
+        "onTap": () {
+          Share.share(
+            'https://play.google.com/store/apps/details?id=com.hello.mesa',
+            subject: 'Check out my app on the Play Store',
+          );
+        },
+        "trailing": const Text("")
+      },
     ];
 
     final List<Map<String, dynamic>> profile = [
-      {
-        "title": 'editprofile'.tr,
-        "leadingIcon": Icons.account_circle_outlined,
-        "onTap": () {
-          Get.to(() => const EditProfile());
-        },
-        "trailing": const Text('')
-      },
-      {
-        "title": "how_we_cook".tr,
-        "leadingIcon": Icons.kitchen,
-        "onTap": () {
-          Get.toNamed(Routes.howWeCookRoute);
-        },
-        "trailing": const Text("")
-      }
+      // {
+      //   "title": 'editprofile'.tr,
+      //   "leadingIcon": Icons.account_circle_outlined,
+      //   "onTap": () {
+      //     Get.to(() => const EditProfile());
+      //   },
+      //   "trailing": const Text('')
+      // },
+      // {
+      //   "title": "how_we_cook".tr,
+      //   "leadingIcon": Icons.kitchen,
+      //   "onTap": () {
+      //     Get.toNamed(Routes.howWeCookRoute);
+      //   },
+      //   "trailing": const Text("")
+      // }
     ];
 
     return Scaffold(
@@ -129,13 +197,115 @@ class ProfileWidget extends StatelessWidget {
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            Obx(
-              () => UserScreenHeader(
-                  reFresh: controller.loadData,
-                  firstName: controller.loginData.value?.firstName ?? '...',
-                  lastName: controller.loginData.value?.lastName ?? '...',
-                  email: controller.loginData.value?.email ?? '...',
-                  loyaltyPoints: controller.loginData.value?.loyaltyPoints),
+            Container(
+              color: Theme.of(context).cardColor,
+              child: Column(
+                children: [
+                  Obx(
+                    () => UserScreenHeader(
+                        reFresh: controller.loadData,
+                        firstName:
+                            controller.loginData.value?.firstName ?? '...',
+                        lastName: controller.loginData.value?.lastName ?? '...',
+                        phone: controller.loginData.value?.phone ?? '...',
+                        email: controller.loginData.value?.email ?? '...',
+                        loyaltyPoints:
+                            controller.loginData.value?.loyaltyPoints),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GestureDetector(
+                        onTap: () => Get.to(() => const EditProfile()),
+                        child: Text(
+                          'editprofile'.tr,
+                          style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      children: [
+                        Obx(
+                          () => Text(controller.targetCount.value.toString()),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Obx(() => AnimatedContainer(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                  height: 10,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: FractionallySizedBox(
+                                      widthFactor:
+                                          (controller.targetCount.value / 100)
+                                              .clamp(0.0, 1.0),
+                                      child: Container(
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        const Text('10'),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "target_count".trParams(
+                          {"count": "${10 - controller.targetCount.value}"}),
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'free_meals'.tr,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            controller.freeMeals.value.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              Get.to(() => OrganizationScreen());
+                            },
+                            child: Text('donate_fm'.tr))),
+                  )
+                ],
+              ),
             ),
             RouteContainer(
               routePart: profile,

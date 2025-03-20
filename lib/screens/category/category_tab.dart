@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/category/section/category_child_list_screen.dart';
-import 'package:ticketmaster_et/screens/category/section/category_child_screen.dart';
 
 import '../../controllers/theme_controller.dart';
 import '../../functions/functions.dart';
@@ -47,10 +46,10 @@ class CategoryController extends GetxController
 }
 
 class CategoryTab extends StatelessWidget {
-  final ValueNotifier<int> selectedIndex;
+  // final ValueNotifier<int> selectedIndex;
   final CategoryController controller = Get.put(CategoryController());
 
-  CategoryTab({super.key, required this.selectedIndex});
+  CategoryTab({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -91,14 +90,11 @@ class CategoryTab extends StatelessWidget {
                         controller.subcategoriesMap[category.id] ?? [];
                     return Column(
                       children: [
-                        CategoryChild(
-                            subCategories: subcategories,
-                            selectedIndex: selectedIndex),
+                        // CategoryChild(subCategories: subcategories),
                         const SizedBox(height: 15),
                         Expanded(
-                            child: CategoryChildList(
-                                subCategories: subcategories,
-                                selectedIndex: selectedIndex))
+                            child:
+                                CategoryChildList(subCategories: subcategories))
                       ],
                     );
                   }).toList(),

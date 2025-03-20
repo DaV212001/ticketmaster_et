@@ -1,18 +1,18 @@
+import 'package:badges/badges.dart' as badge;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:chapa_unofficial/chapa_unofficial.dart';
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/user_tickets.dart';
 
 import '../../../controllers/theme_controller.dart';
-import '../../../provider/loginpersistence.dart';
+import '../../../prefs/routes.dart';
+import '../../home/cart/cart_screen.dart';
 import '../../review/sub_category/add_review_sub_cat_screen.dart';
-import '../../signup.dart';
 
 class FoodDetail extends StatefulWidget {
   const FoodDetail({
@@ -23,12 +23,38 @@ class FoodDetail extends StatefulWidget {
 }
 
 class _FoodDetailState extends State<FoodDetail> {
+  final CartController cartController =
+      Get.find<CartController>(tag: CartController.tag);
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         statusBarColor: Colors.black,
         statusBarIconBrightness: Brightness.light));
-    return Scaffold(backgroundColor: Colors.white, body: TabBarAndTabViews());
+    // GetStorage().erase();
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: TabBarAndTabViews(),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () => Get.toNamed(Routes.cartRoute),
+        child: Obx(() => badge.Badge(
+              showBadge: cartController.numberOfItemsInCart.value > 0,
+              badgeContent: Obx(
+                () => Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: Text(
+                    cartController.numberOfItemsInCart.value.toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              child: const Icon(
+                EneftyIcons.shopping_cart_outline,
+                size: 35,
+              ),
+            )),
+      ),
+    );
   }
 }
 
@@ -64,9 +90,9 @@ class TabBarController extends GetxController
       var coverImage = await getCoverImagesbySubCatID(
           Get.arguments['id'], ThemeModeController.languageCode.value);
       coverImages.assignAll(coverImage);
-      var events = await getEventsBySubCategoryId(
+      var portions = await foodPortionsByFoodId(
           Get.arguments['id'], ThemeModeController.languageCode.value);
-      foodPortions.assignAll(events);
+      foodPortions.assignAll(portions);
       var mealTypesFromAPI = await getMealTypes();
       mealTypes.assignAll(mealTypesFromAPI);
       hasError.value = false;
@@ -78,89 +104,176 @@ class TabBarController extends GetxController
   }
 
   var isPaying = false.obs;
+  var isDeliveryPaying = false.obs;
   var mealType = '1'.obs;
 
-  Future<void> payForPortion(
-      BuildContext context, String location, int index) async {
-    if (location.isEmpty) {
-      Get.snackbar('error'.tr, 'please_enter_location'.tr);
-      return;
-    }
-    if (mealType.value.isEmpty) {
-      Get.snackbar('error'.tr, 'please_select_meal_type'.tr);
-      return;
-    }
-    isPaying.value = true;
-    try {
-      final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
-      final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
-      String? phone =
-          accountProvider.loginData?.phone?.replaceFirst("251", "0");
-      String txRef = TxRefRandomGenerator.generate(prefix: 'ticketmaster');
-      String storedTxRef = TxRefRandomGenerator.gettxRef;
+  Future<void> payForPortion(BuildContext context, String location, int index,
+      {bool? onDelivery = false}) async {
+    Logger().i(foodPortions[index].price);
+    final CartController controller =
+        Get.find<CartController>(tag: CartController.tag);
+    controller.addProductToCart(foodPortions[index]);
 
-      if (loginDataProvider.loginData != null ||
-          await loginDataProvider.isUserRegistered == true) {
-        await Chapa.getInstance.startPayment(
-          context: context,
-          onInAppPaymentSuccess: (successMsg) async {
-            BookingResponse l;
-            isPaying.value = true;
-            l = await bookEvent(
-              Booking(
-                customerId: loginDataProvider.loginData?.id,
-                foodId: foodPortions[index].foodId,
-                foodPortionId: foodPortions[index].id,
-                mealTypeId: mealType.value,
-                location: location,
-                date: DateTime.now().toIso8601String(),
-              ),
-            );
-            isPaying.value = false;
-
-            if (l.error == null) {
-              Get.dialog(AlertDialog(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20)),
-                title: Text("food_purchase_successful".tr),
-                content:
-                    Text("${foodPortions[0].price!} Birr ${"paid_enjoy".tr}"),
-                actions: [
-                  TextButton(
-                    child: Text("ok".tr),
-                    onPressed: () {
-                      Get.back();
-                      Get.back();
-                    },
-                  ),
-                ],
-              ));
-              if (Get.isRegistered<UserOrdersController>()) {
-                Get.find<UserOrdersController>().updateCategories();
-              }
-            } else {
-              Get.snackbar("error".tr, "error_ordering_food".tr);
-            }
-          },
-          amount: '${foodPortions[0].price!}',
-          currency: 'ETB',
-          txRef: storedTxRef,
-          firstName: accountProvider.loginData?.firstName ?? '',
-          lastName: accountProvider.loginData?.lastName ?? '',
-          phoneNumber: phone ?? '',
-          onInAppPaymentError: (errorMsg) {
-            Get.snackbar("payment_failure".tr, "try_again".tr);
-          },
-        );
-      } else {
-        Get.to(() => const SignupScreen());
-      }
-    } catch (e, s) {
-      Logger().t(e, stackTrace: s);
-      Get.snackbar("error".tr, "error_ordering_food".tr);
-    } finally {
-      isPaying.value = false;
-    }
+    // if (location.isEmpty) {
+    //   Get.snackbar('error'.tr, 'please_enter_location'.tr,
+    //       backgroundColor: Colors.red, colorText: Colors.white);
+    //   return;
+    // }
+    // if (mealType.value.isEmpty) {
+    //   Get.snackbar('error'.tr, 'please_select_meal_type'.tr,
+    //       backgroundColor: Colors.red, colorText: Colors.white);
+    //   return;
+    // }
+    // if (onDelivery != true) {
+    //   isPaying.value = true;
+    //   try {
+    //     final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+    //     final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
+    //     String? phone =
+    //         accountProvider.loginData?.phone?.replaceFirst("251", "0");
+    //     String txRef = TxRefRandomGenerator.generate(prefix: 'ticketmaster');
+    //     String storedTxRef = TxRefRandomGenerator.gettxRef;
+    //
+    //     if (loginDataProvider.loginData != null ||
+    //         await loginDataProvider.isUserRegistered == true) {
+    //       await Chapa.getInstance.startPayment(
+    //         context: context,
+    //         onInAppPaymentSuccess: (successMsg) async {
+    //           BookingResponse l;
+    //           isPaying.value = true;
+    //           l = await bookEvent(
+    //             Booking(
+    //               customerId: loginDataProvider.loginData?.id,
+    //               foodId: foodPortions[index].foodId,
+    //               foodPortionId: foodPortions[index].id,
+    //               mealTypeId: mealType.value,
+    //               location: location,
+    //               date: DateTime.now().toIso8601String(),
+    //             ),
+    //           );
+    //           isPaying.value = false;
+    //
+    //           if (l.error == null) {
+    //             Get.dialog(AlertDialog(
+    //               shape: RoundedRectangleBorder(
+    //                   borderRadius: BorderRadius.circular(20)),
+    //               title: Text("food_purchase_successful".tr),
+    //               content:
+    //                   Text("${foodPortions[0].price!} Birr ${"paid_enjoy".tr}"),
+    //               actions: [
+    //                 TextButton(
+    //                   child: Text("ok".tr),
+    //                   onPressed: () {
+    //                     Get.back();
+    //                     Get.back();
+    //                   },
+    //                 ),
+    //               ],
+    //             ));
+    //             if (Get.isRegistered<UserOrdersController>()) {
+    //               Get.find<UserOrdersController>().updateCategories();
+    //             }
+    //           } else {
+    //             Get.snackbar("error".tr, "error_ordering_food".tr,
+    //                 backgroundColor: Colors.red, colorText: Colors.white);
+    //           }
+    //         },
+    //         amount: '${foodPortions[index].price!}',
+    //         currency: 'ETB',
+    //         txRef: storedTxRef,
+    //         firstName: accountProvider.loginData?.firstName ?? '',
+    //         lastName: accountProvider.loginData?.lastName ?? '',
+    //         phoneNumber: phone ?? '',
+    //         onInAppPaymentError: (errorMsg) {
+    //           Get.snackbar("payment_failure".tr, "try_again".tr,
+    //               backgroundColor: Colors.red, colorText: Colors.white);
+    //         },
+    //       );
+    //     } else {
+    //       Get.to(() => const SignupScreen());
+    //     }
+    //   } catch (e, s) {
+    //     Logger().t(e, stackTrace: s);
+    //     Get.snackbar("error".tr, "error_ordering_food".tr,
+    //         backgroundColor: Colors.red, colorText: Colors.white);
+    //   } finally {
+    //     isPaying.value = false;
+    //   }
+    // } else {
+    //   isDeliveryPaying.value = true;
+    //   try {
+    //     final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+    //     final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
+    //     // String? phone =
+    //     //     accountProvider.loginData?.phone?.replaceFirst("251", "0");
+    //     // String txRef = TxRefRandomGenerator.generate(prefix: 'ticketmaster');
+    //     // String storedTxRef = TxRefRandomGenerator.gettxRef;
+    //
+    //     if (loginDataProvider.loginData != null ||
+    //         await loginDataProvider.isUserRegistered == true) {
+    //       // await Chapa.getInstance.startPayment(
+    //       //   context: context,
+    //       //   onInAppPaymentSuccess: (successMsg) async {
+    //       BookingResponse l;
+    //       isDeliveryPaying.value = true;
+    //       l = await bookEvent(
+    //         Booking(
+    //           customerId: loginDataProvider.loginData?.id,
+    //           foodId: foodPortions[index].foodId,
+    //           foodPortionId: foodPortions[index].id,
+    //           mealTypeId: mealType.value,
+    //           location: location,
+    //           date: DateTime.now().toIso8601String(),
+    //         ),
+    //       );
+    //       isDeliveryPaying.value = false;
+    //
+    //       if (l.error == null) {
+    //         Get.dialog(AlertDialog(
+    //           shape: RoundedRectangleBorder(
+    //               borderRadius: BorderRadius.circular(20)),
+    //           title: Text("food_purchase_successful".tr),
+    //           content:
+    //               Text("${foodPortions[0].price!} Birr ${"paid_enjoy".tr}"),
+    //           actions: [
+    //             TextButton(
+    //               child: Text("ok".tr),
+    //               onPressed: () {
+    //                 Get.back();
+    //                 Get.back();
+    //               },
+    //             ),
+    //           ],
+    //         ));
+    //         if (Get.isRegistered<UserOrdersController>()) {
+    //           Get.find<UserOrdersController>().updateCategories();
+    //         }
+    //       } else {
+    //         Get.snackbar("error".tr, "error_ordering_food".tr,
+    //             backgroundColor: Colors.red, colorText: Colors.white);
+    //       }
+    //       //   },
+    //       //   amount: '${foodPortions[index].price!}',
+    //       //   currency: 'ETB',
+    //       //   txRef: storedTxRef,
+    //       //   firstName: accountProvider.loginData?.firstName ?? '',
+    //       //   lastName: accountProvider.loginData?.lastName ?? '',
+    //       //   phoneNumber: phone ?? '',
+    //       //   onInAppPaymentError: (errorMsg) {
+    //       //     Get.snackbar("payment_failure".tr, "try_again".tr);
+    //       //   },
+    //       // );
+    //     } else {
+    //       Get.to(() => const SignupScreen());
+    //     }
+    //   } catch (e, s) {
+    //     Logger().t(e, stackTrace: s);
+    //     Get.snackbar("error".tr, "error_ordering_food".tr,
+    //         backgroundColor: Colors.red, colorText: Colors.white);
+    //   } finally {
+    //     isDeliveryPaying.value = false;
+    //   }
+    // }
   }
 }
 
@@ -226,118 +339,153 @@ class TabBarAndTabViews extends StatelessWidget {
                                   itemBuilder: (context, index) {
                                     return GestureDetector(
                                       onTap: () {
-                                        String location = '';
-                                        String mealType = '1';
-                                        Get.dialog(
-                                          AlertDialog(
-                                            backgroundColor: Colors.white,
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                TextField(
-                                                  onChanged: (val) {
-                                                    location = val;
-                                                  },
-                                                  decoration: InputDecoration(
-                                                    hintText:
-                                                        'enter_location'.tr,
-                                                    enabledBorder:
-                                                        const OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .green,
-                                                                    width: 2)),
-                                                    focusedBorder:
-                                                        const OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .green,
-                                                                    width: 2)),
-                                                    border:
-                                                        const OutlineInputBorder(
-                                                            borderSide:
-                                                                BorderSide(
-                                                                    color: Colors
-                                                                        .green,
-                                                                    width: 2)),
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Row(
-                                                  children: [
-                                                    Expanded(
-                                                      child: SizedBox(
-                                                        height: 50,
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                              border: Border.all(
-                                                                  color: Colors
-                                                                      .green,
-                                                                  width: 2)),
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(8.0),
-                                                            child:
-                                                                DropdownButton(
-                                                              value: int.parse(
-                                                                  controller
-                                                                      .mealType
-                                                                      .value),
-                                                              isExpanded: true,
-                                                              hint: Text(
-                                                                  'meal_type'
-                                                                      .tr),
-                                                              items: controller
-                                                                  .mealTypes
-                                                                  .map((e) => DropdownMenuItem(
-                                                                      value:
-                                                                          e.id,
-                                                                      child: Text(
-                                                                          e.name ??
-                                                                              '')))
-                                                                  .toList(),
-                                                              onChanged: (v) {
-                                                                controller
-                                                                        .mealType
-                                                                        .value =
-                                                                    v.toString();
-                                                              },
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                            actions: [
-                                              Obx(() => ElevatedButton(
-                                                    onPressed: controller
-                                                            .isPaying.value
-                                                        ? null
-                                                        : () async {
-                                                            await controller
-                                                                .payForPortion(
-                                                              context,
-                                                              location,
-                                                              index,
-                                                            );
-                                                          },
-                                                    child: controller
-                                                            .isPaying.value
-                                                        ? const CircularProgressIndicator()
-                                                        : Text(
-                                                            '${'pay'.tr} ${controller.foodPortions[index].price}'),
-                                                  )),
-                                            ],
-                                          ),
-                                        );
+                                        controller.payForPortion(
+                                            context, '', index);
+                                        // String location = '';
+                                        // String mealType = '1';
+                                        // Get.dialog(
+                                        //   AlertDialog(
+                                        //     backgroundColor: Colors.white,
+                                        //     content: Column(
+                                        //       mainAxisSize: MainAxisSize.min,
+                                        //       children: [
+                                        //         TextField(
+                                        //           onChanged: (val) {
+                                        //             location = val;
+                                        //           },
+                                        //           decoration: InputDecoration(
+                                        //             hintText:
+                                        //                 'enter_location'.tr,
+                                        //             enabledBorder:
+                                        //                 const OutlineInputBorder(
+                                        //                     borderSide:
+                                        //                         BorderSide(
+                                        //                             color: Colors
+                                        //                                 .green,
+                                        //                             width: 2)),
+                                        //             focusedBorder:
+                                        //                 const OutlineInputBorder(
+                                        //                     borderSide:
+                                        //                         BorderSide(
+                                        //                             color: Colors
+                                        //                                 .green,
+                                        //                             width: 2)),
+                                        //             border:
+                                        //                 const OutlineInputBorder(
+                                        //                     borderSide:
+                                        //                         BorderSide(
+                                        //                             color: Colors
+                                        //                                 .green,
+                                        //                             width: 2)),
+                                        //           ),
+                                        //         ),
+                                        //         const SizedBox(
+                                        //           height: 5,
+                                        //         ),
+                                        //         Row(
+                                        //           children: [
+                                        //             Expanded(
+                                        //               child: SizedBox(
+                                        //                 height: 50,
+                                        //                 child: Container(
+                                        //                   decoration: BoxDecoration(
+                                        //                       border: Border.all(
+                                        //                           color: Colors
+                                        //                               .green,
+                                        //                           width: 2)),
+                                        //                   child: Padding(
+                                        //                     padding:
+                                        //                         const EdgeInsets
+                                        //                             .all(8.0),
+                                        //                     child:
+                                        //                         DropdownButton(
+                                        //                       value: int.parse(
+                                        //                           controller
+                                        //                               .mealType
+                                        //                               .value),
+                                        //                       isExpanded: true,
+                                        //                       hint: Text(
+                                        //                           'meal_type'
+                                        //                               .tr),
+                                        //                       items: controller
+                                        //                           .mealTypes
+                                        //                           .map((e) => DropdownMenuItem(
+                                        //                               value:
+                                        //                                   e.id,
+                                        //                               child: Text(
+                                        //                                   e.name ??
+                                        //                                       '')))
+                                        //                           .toList(),
+                                        //                       onChanged: (v) {
+                                        //                         controller
+                                        //                                 .mealType
+                                        //                                 .value =
+                                        //                             v.toString();
+                                        //                       },
+                                        //                     ),
+                                        //                   ),
+                                        //                 ),
+                                        //               ),
+                                        //             ),
+                                        //           ],
+                                        //         )
+                                        //       ],
+                                        //     ),
+                                        //     actions: [
+                                        //       Obx(() => ElevatedButton(
+                                        //             onPressed: controller
+                                        //                     .isPaying.value
+                                        //                 ? null
+                                        //                 : () async {
+                                        //                     Logger().f(controller
+                                        //                         .foodPortions[
+                                        //                             index]
+                                        //                         .price);
+                                        //                     await controller
+                                        //                         .payForPortion(
+                                        //                       context,
+                                        //                       location,
+                                        //                       index,
+                                        //                     );
+                                        //                   },
+                                        //             child: controller
+                                        //                     .isPaying.value
+                                        //                 ? const CircularProgressIndicator(
+                                        //                     color: Colors.white,
+                                        //                   )
+                                        //                 : Text(
+                                        //                     '${'pay_now'.tr}: ${controller.foodPortions[index].price} Birr'),
+                                        //           )),
+                                        //       Obx(() => ElevatedButton(
+                                        //             onPressed: controller
+                                        //                     .isDeliveryPaying
+                                        //                     .value
+                                        //                 ? null
+                                        //                 : () async {
+                                        //                     Logger().f(controller
+                                        //                         .foodPortions[
+                                        //                             index]
+                                        //                         .price);
+                                        //                     await controller
+                                        //                         .payForPortion(
+                                        //                             context,
+                                        //                             location,
+                                        //                             index,
+                                        //                             onDelivery:
+                                        //                                 true);
+                                        //                   },
+                                        //             child: controller
+                                        //                     .isDeliveryPaying
+                                        //                     .value
+                                        //                 ? const CircularProgressIndicator(
+                                        //                     color: Colors.white,
+                                        //                   )
+                                        //                 : Text(
+                                        //                     'on_delivery'.tr),
+                                        //           )),
+                                        //     ],
+                                        //   ),
+                                        // );
                                       },
                                       child: PortionCard(
                                           foodPortion:
@@ -441,7 +589,7 @@ class PortionCard extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Text(
                   'order'.tr,
-                  style: TextStyle(color: Colors.white),
+                  style: const TextStyle(color: Colors.white),
                 ),
               ))
         ],

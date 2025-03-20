@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:app_links/app_links.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -22,7 +23,6 @@ import 'package:ticketmaster_et/screens/organizerdetail.dart';
 import 'controllers/theme_controller.dart';
 import 'functions/functions.dart';
 import 'models/newmodels.dart';
-import 'models/translation.dart';
 
 SettingsProvider settingsProvider = SettingsProvider();
 late String langCode;
@@ -56,7 +56,7 @@ Future<void> appInit() async {
   //         channelDescription: 'Scheduled Notifications'),
   //   ],
   // );
-  await EasyLocalization.ensureInitialized();
+  // await EasyLocalization.ensureInitialized();
   SharedPreferences preferences = await SharedPreferences.getInstance();
   langCode = await preferences.getString('langCode') ?? 'en';
   countryCode = await preferences.getString('countryCode') ?? '';
@@ -71,6 +71,7 @@ Future<void> appInit() async {
 void main() async {
   Chapa.configure(privateKey: "CHASECK-kSr6JwoZUw0IlZ6maJJqgxiFQMnz4MUX");
   await appInit();
+  await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   ConfigPreference.init();
   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
@@ -78,15 +79,11 @@ void main() async {
     statusBarIconBrightness: Brightness.light, // For light icons
     statusBarBrightness: Brightness.dark, // For iOS status bar
   ));
-  runApp(EasyLocalization(
-    supportedLocales: Translation.all,
-    path: 'assets/translations',
-    fallbackLocale: const Locale('en'),
-    startLocale: Locale(langCode, countryCode),
-    child: TicketMasterET(
+  runApp(
+    TicketMasterET(
       settingsProvider: settingsProvider,
     ),
-  ));
+  );
 }
 
 class TicketMasterET extends StatefulWidget {
@@ -453,7 +450,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                               gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
-                                  stops: [
+                                  stops: const [
                                 0.0,
                                 0.2
                               ],
@@ -487,20 +484,20 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                             children: [
                                               Text(
                                                 modified[0].desc!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 20,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.white),
                                               ),
                                               Text(
                                                 modified[0].place!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.white),
                                               ),
                                               Text(
                                                 modified[0].date!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.white),
                                               ),
@@ -530,7 +527,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                             'Check out Ticketmaster ET to book a ticket for ${modified[0].title}',
                                       );
                                     },
-                                    icon: Icon(
+                                    icon: const Icon(
                                       Icons.share,
                                       size: 20,
                                     )),
@@ -557,7 +554,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                         backgroundColor:
                                             const MaterialStatePropertyAll(
                                                 Colors.transparent)),
-                                    child: Text(tr('buy_tickets'))),
+                                    child: Text('buy_tickets'.tr)),
                               ],
                             ),
                           ],
@@ -570,7 +567,7 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
             ),
           );
         } else {
-          return Center(child: CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       }),
     );

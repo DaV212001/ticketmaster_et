@@ -32,8 +32,7 @@ class HomeCarouselController extends GetxController {
 }
 
 class HomeScreenCarouselSlider extends StatelessWidget {
-  final ValueNotifier<int> selectedIndex;
-  HomeScreenCarouselSlider({super.key, required this.selectedIndex});
+  HomeScreenCarouselSlider({super.key});
   final HomeCarouselController controller = Get.put(HomeCarouselController());
   @override
   Widget build(BuildContext context) {

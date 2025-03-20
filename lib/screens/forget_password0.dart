@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/prefs/language_selector.dart';
 import 'package:ticketmaster_et/screens/forget_password1.dart';
 
 import '../functions/functions.dart';
@@ -87,49 +89,8 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
             elevation: 0,
             actions: [
               Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.transparent),
-                  child: DropdownButton(
-                      value: languageChange.languageCode,
-                      items: const [
-                        DropdownMenuItem(value: 'en', child: Text('English')),
-                        DropdownMenuItem(value: 'am', child: Text('Amharic')),
-                        DropdownMenuItem(
-                            value: 'en-AU', child: Text('Afaan Oromo')),
-                      ],
-                      onChanged: (String? value) {
-                        setState(() async {
-                          languageChange.languageCode = value!;
-                          List<String> codes =
-                              languageChange.languageCode.split('-');
-                          String langCode = codes[0];
-                          String countryCode = codes.length > 1 ? codes[1] : '';
-
-                          // Save langCode and countryCode in shared preferences
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setString('langCode', langCode);
-                          if (countryCode.isNotEmpty) {
-                            await prefs.setString('countryCode', countryCode);
-                          } else {
-                            await prefs.remove('countryCode');
-                          }
-
-                          // Set locale for EasyLocalization
-                          if (countryCode.isNotEmpty) {
-                            EasyLocalization.of(context)!
-                                .setLocale(Locale(langCode, countryCode));
-                          } else {
-                            EasyLocalization.of(context)!
-                                .setLocale(Locale(langCode));
-                          }
-                        });
-                      }),
-                ),
-              ),
+                  alignment: Alignment.centerLeft,
+                  child: LanguageSelectorButton(onChange: () {})),
             ],
           ),
           body: SingleChildScrollView(
@@ -151,7 +112,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                       children: [
                         Center(
                           child: Text(
-                            tr("forgot_password"),
+                            "forgot_password".tr,
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -164,7 +125,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                         Align(
                             alignment: Alignment.centerLeft,
                             child: Text(
-                              tr("phone"),
+                              "phone".tr,
                               style:
                                   TextStyle(color: Colors.black, fontSize: 18),
                             )),
@@ -194,10 +155,10 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                     key: const ValueKey("phone"),
                                     validator: (value) {
                                       if (value!.isEmpty) {
-                                        return tr('phone_empty');
+                                        return 'phone_empty'.tr;
                                       } else if (value.length > 9 ||
                                           value.length < 9) {
-                                        return tr("phone_number_invalid");
+                                        return "phone_number_invalid".tr;
                                       }
                                       return null;
                                     },
@@ -292,7 +253,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                           .showSnackBar(
                                         SnackBar(
                                           content: Text(
-                                              tr('phone_number_is_not_found')),
+                                              'phone_number_is_not_found'.tr),
                                           backgroundColor: Colors.green,
                                           duration: Duration(seconds: 3),
                                         ),
@@ -304,7 +265,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(
                                         SnackBar(
-                                          content: Text(tr('error')),
+                                          content: Text('error'.tr),
                                           backgroundColor: Colors.green,
                                           duration: Duration(seconds: 3),
                                         ),
@@ -313,7 +274,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                   }
                                 },
                                 child: Text(
-                                  tr('submit'),
+                                  'submit'.tr,
                                   style: TextStyle(fontSize: 20),
                                 )),
                         const SizedBox(

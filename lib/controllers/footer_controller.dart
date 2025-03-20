@@ -29,6 +29,7 @@ Future<FooterData> getFooterData() async {
         "Content-type": "application/json",
       },
     );
+    Logger().d('STATCODE: ${response.statusCode}');
     dynamic jsonData = json.decode(response.body);
     Logger().d(jsonData);
     if (response.statusCode == 200) {

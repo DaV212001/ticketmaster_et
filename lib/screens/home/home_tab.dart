@@ -1,20 +1,28 @@
 // ignore_for_file: unused_element, no_leading_underscores_for_local_identifiers
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_tab_widget.dart';
+import 'package:ticketmaster_et/screens/video_screen.dart';
 
 class HomeTab extends StatefulWidget {
-  final ValueNotifier<int> selectedIndex;
+  // final ValueNotifier<int> selectedIndex;
 
-  const HomeTab({Key? key, required this.selectedIndex}) : super(key: key);
+  const HomeTab({Key? key}) : super(key: key);
 
   @override
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
+class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   bool isImageZoomed = false;
+  late TabController tabController;
   // late SettingsProvider languageChange;
+  @override
+  void initState() {
+    tabController = TabController(length: 2, vsync: this);
+    super.initState();
+  }
 
   void toggleImageZoom() {
     setState(() {
@@ -110,8 +118,32 @@ class _HomeTabState extends State<HomeTab> {
 
     // super.build(context);
     //   print(tabController.index);
-    return HomeTabWidget(
-      selectedIndex: widget.selectedIndex,
+    return Column(
+      children: [
+        Container(
+          color: const Color(0xFF23981C),
+          child: TabBar(
+              indicatorColor: Colors.white,
+              controller: tabController,
+              tabs: [
+                Tab(
+                  text: 'home'.tr,
+                ),
+                Tab(
+                  text: 'video'.tr,
+                ),
+              ]),
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: tabController,
+            children: [
+              HomeTabWidget(),
+              VideoPromotionScreen(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 

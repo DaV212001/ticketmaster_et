@@ -6,10 +6,9 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../prefs/routes.dart';
 
 class CategoryChildList extends StatefulWidget {
-  const CategoryChildList(
-      {required this.subCategories, super.key, required this.selectedIndex});
+  const CategoryChildList({required this.subCategories, super.key});
   final List<Food> subCategories;
-  final ValueNotifier<int> selectedIndex;
+  // final ValueNotifier<int> selectedIndex;
   @override
   State<CategoryChildList> createState() => _CategoryChildListState();
 }
@@ -19,7 +18,9 @@ class _CategoryChildListState extends State<CategoryChildList> {
   Widget build(BuildContext context) {
     final ScrollController scrollController = ScrollController();
     if (widget.subCategories.isNotEmpty) {
-      return ListView.builder(
+      return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2),
           controller: scrollController,
           physics: const BouncingScrollPhysics(),
           itemCount: widget.subCategories.length,
@@ -45,7 +46,7 @@ class _CategoryChildListState extends State<CategoryChildList> {
                   ),
                   child: Column(
                     children: [
-                      Row(
+                      Column(
                         children: [
                           Padding(
                             padding: const EdgeInsets.only(right: 10.0),
@@ -92,19 +93,17 @@ class _CategoryChildListState extends State<CategoryChildList> {
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.subCategories[index].name!,
-                                  style: const TextStyle(
-                                      fontFamily: 'PoppinsSB',
-                                      fontSize: 15,
-                                      overflow: TextOverflow.ellipsis),
-                                ),
-                              ],
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.subCategories[index].name!,
+                                style: const TextStyle(
+                                    fontFamily: 'PoppinsSB',
+                                    fontSize: 15,
+                                    overflow: TextOverflow.ellipsis),
+                              ),
+                            ],
                           )
                         ],
                       ),

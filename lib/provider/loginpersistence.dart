@@ -31,11 +31,24 @@ class LoginDataProvider extends GetxController {
     }
   }
 
-  Future<void> updateName(String firstName, String lastName) async {
+  Future<void> updateName(
+      String firstName, String lastName, String phone, String email) async {
     if (loginDataObs.value != null) {
       loginDataObs.value = loginDataObs.value!.copyWith(
         firstName: firstName,
         lastName: lastName,
+        phone: phone,
+        email: email,
+      );
+      loginDataObs.refresh();
+      await setLoginData(loginDataObs.value!);
+    }
+  }
+
+  Future<void> updateProfileImage(String image) async {
+    if (loginDataObs.value != null) {
+      loginDataObs.value = loginDataObs.value!.copyWith(
+        profileImage: image,
       );
       loginDataObs.refresh();
       await setLoginData(loginDataObs.value!);

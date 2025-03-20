@@ -7,10 +7,9 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import '../../../prefs/routes.dart';
 
 class CategoryChild extends StatefulWidget {
-  const CategoryChild(
-      {required this.subCategories, super.key, required this.selectedIndex});
+  const CategoryChild({required this.subCategories, super.key});
   final List<Food> subCategories;
-  final ValueNotifier<int> selectedIndex;
+  // final ValueNotifier<int> selectedIndex;
 
   @override
   State<CategoryChild> createState() => _CategoryChildState();
