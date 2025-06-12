@@ -4,6 +4,7 @@ class AppTranslation extends Translations {
   @override
   Map<String, Map<String, String>> get keys => {
         'en_US': {
+          'forgot_pass': 'Forgot Password',
           'top_specials': 'Today\'s Specials',
           'reset_password': 'Reset Password',
           // 'phone_number': 'Phone Number',
@@ -162,6 +163,7 @@ class AppTranslation extends Translations {
           'no_update_available': 'You are up to date',
         },
         'am': {
+          'forgot_pass': 'የይለፍ ቃል ረሱ',
           'top_specials': 'የዛሬ ልዩ ምግቦች',
           'reset_password': 'የይለፍ ቃል መቀየር',
           // 'phone_number': 'ስልክ ቁጥር',
@@ -317,6 +319,7 @@ class AppTranslation extends Translations {
           'no_update_available': 'አዲስ አፕልኬሽን የለም',
         },
         'es': {
+          'forgot_pass': 'ፓስዎርድ ረሲዐዮ',
           'top_specials': 'ፍሉያት መግብታት',
           'reset_password': 'ቃል ኪዳን ኣቐዲሙ',
           // 'phone_number': 'ቁፅሪ ስልኪ',
@@ -472,6 +475,7 @@ class AppTranslation extends Translations {
           'no_update_available': 'እዋናዊ ሓበሬታ ኣለካ',
         },
         'it': {
+          'forgot_pass': 'Password dagadheera',
           'top_specials': 'Nyaata addaa',
           'reset_password': 'Jecha Cabsaa Jijjiiruu',
           // 'phone_number': 'Lakkoofsa Bilbilaa',
@@ -633,6 +637,7 @@ class AppTranslation extends Translations {
           'no_update_available': 'Yeroo ammaatti jirta',
         },
         'fr': {
+          'forgot_pass': 'Furaha la ilaaway',
           'top_specials': 'Cuntooyinka gaarka ah',
           'reset_password': 'Beddel Furaha',
           // 'phone_number': 'Lambarka Telefoonka',

@@ -61,7 +61,7 @@ class Styles {
             fontFamily: 'PoppinsSB',
             fontSize: 21),
       ),
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
           backgroundColor: isDarkTheme ? Color(0xFF171717) : Color(0xFFdedede)),
       primaryColor: isM3Enabled
           ? isDarkTheme

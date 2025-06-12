@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
+import 'package:ticketmaster_et/screens/otp_screen.dart';
 
 import '../constants/endpoints.dart';
 import '../functions/functions.dart';
@@ -262,6 +263,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ],
                                 ),
+                                Align(
+                                    alignment: Alignment.centerRight,
+                                    child: GestureDetector(
+                                        onTap: () {
+                                          Get.to(OtpScreen());
+                                        },
+                                        child: Text('forgot_pass'.tr))),
                                 const SizedBox(
                                   height: 5,
                                 ),
