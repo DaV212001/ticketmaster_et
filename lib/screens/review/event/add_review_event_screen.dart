@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../functions/functions.dart';
@@ -30,8 +30,7 @@ class _EventReviewState extends State<EventReview> {
   Future<http.Response> reviewBySubCategory(
       int? eventId, String star, String comment) async {
     print("reviewBySubCategory");
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     List<Review> tickets = [];
 
     // String? user_id = int.parse(loginDataProvider.loginData!.id);
@@ -119,8 +118,8 @@ class _EventReviewState extends State<EventReview> {
       child: ListView(scrollDirection: Axis.vertical, children: [
         Row(
           children: [
-            Text(tr("give_a_review"),
-                style: TextStyle(
+            Text("give_a_review".tr,
+                style: const TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
                 )),
@@ -131,8 +130,8 @@ class _EventReviewState extends State<EventReview> {
               direction: Axis.horizontal,
               allowHalfRating: true,
               itemCount: 5,
-              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-              itemBuilder: (context, _) => Icon(
+              itemPadding: const EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => const Icon(
                 Icons.star,
                 color: Colors.amber,
               ),
@@ -146,11 +145,11 @@ class _EventReviewState extends State<EventReview> {
             )
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
-        Text(tr("give_a_comment"),
-            style: TextStyle(
+        Text("give_a_comment".tr,
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
             )),
@@ -177,19 +176,19 @@ class _EventReviewState extends State<EventReview> {
             ),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           height: 10,
         ),
         _isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : OutlinedButton(
                 style: const ButtonStyle(
-                    backgroundColor: MaterialStatePropertyAll(Colors.green),
-                    foregroundColor: MaterialStatePropertyAll(Colors.white),
+                    backgroundColor: WidgetStatePropertyAll(Colors.green),
+                    foregroundColor: WidgetStatePropertyAll(Colors.white),
                     minimumSize:
-                        MaterialStatePropertyAll(Size(double.infinity, 50))),
+                        WidgetStatePropertyAll(Size(double.infinity, 50))),
                 onPressed: () async {
                   setState(() {
                     _isLoading = true;
@@ -198,7 +197,7 @@ class _EventReviewState extends State<EventReview> {
                   // final review = Review(
                   //
                   // );
-                  print("star = ${ratingController}");
+                  print("star = $ratingController");
                   print("star = ${commentController.text}");
                   var response = await reviewBySubCategory(widget.event.id,
                       ratingController.toString(), commentController.text);
@@ -214,9 +213,9 @@ class _EventReviewState extends State<EventReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("thank_you_for_adding_a_review")),
+                        content: Text("thank_you_for_adding_a_review".tr),
                         backgroundColor: Colors.green,
-                        duration: Duration(seconds: 3),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   } else {
@@ -225,9 +224,9 @@ class _EventReviewState extends State<EventReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("failed_to_add_review")),
+                        content: Text("failed_to_add_review".tr),
                         backgroundColor: Colors.green,
-                        duration: Duration(seconds: 3),
+                        duration: const Duration(seconds: 3),
                       ),
                     );
                   }
@@ -242,10 +241,10 @@ class _EventReviewState extends State<EventReview> {
                   print("Back");
                 },
                 child: Text(
-                  tr("add_review"),
-                  style: TextStyle(fontSize: 18),
+                  "add_review".tr,
+                  style: const TextStyle(fontSize: 18),
                 )),
-        SizedBox(height: 5),
+        const SizedBox(height: 5),
         ListView.builder(
           scrollDirection: Axis.vertical,
           shrinkWrap: true,
@@ -257,12 +256,12 @@ class _EventReviewState extends State<EventReview> {
               children: [
                 Container(
                     child: index == 0
-                        ? Text(tr("other_reviews"),
+                        ? Text("other_reviews".tr,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ))
-                        : SizedBox(
+                        : const SizedBox(
                             height: 0,
                           )),
                 const SizedBox(

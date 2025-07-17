@@ -1,70 +1,65 @@
-import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:logger/logger.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/prefs/config_preferences.dart';
 
 import '../models/newmodels.dart';
 
-class LoginDataProvider with ChangeNotifier {
-  LoginData? _loginData;
+class LoginDataProvider extends GetxController {
+  Rxn<LoginData> loginDataObs = Rxn<LoginData>();
 
-  LoginData? get loginData => _loginData;
+  LoginData? get loginData => loginDataObs.value;
 
   Future<void> setLoginData(LoginData loginData) async {
-    _loginData = loginData;
+    loginDataObs.value = loginData;
 
-    // Convert loginData to JSON and save it in SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('loginData', json.encode(loginData.toJson()));
-
-    notifyListeners();
   }
 
   Future<void> loadLoginData() async {
-    // Load loginData from SharedPreferences
-    final prefs = await SharedPreferences.getInstance();
+    final prefs = ConfigPreference.getStorage();
     final storedLoginData = prefs.getString('loginData');
+    Logger().d(storedLoginData);
 
     if (storedLoginData != null) {
-      _loginData = LoginData.fromJson(json.decode(storedLoginData));
-      notifyListeners();
+      loginDataObs.value = LoginData.fromJson(json.decode(storedLoginData));
     }
   }
 
-  Future<void> updateName(String firstName, String lastName) async {
-    _loginData = LoginData(
-        id: _loginData?.id,
-        email: _loginData?.email,
-        password: _loginData?.password,
+  Future<void> updateName(
+      String firstName, String lastName, String phone, String email) async {
+    if (loginDataObs.value != null) {
+      loginDataObs.value = loginDataObs.value!.copyWith(
         firstName: firstName,
         lastName: lastName,
-        profileImage: _loginData?.profileImage,
-        phone: _loginData?.phone,
-        cityId:_loginData?.cityId,
-        emailVerifiedAt:_loginData?.emailVerifiedAt,
-        roleId:_loginData?.roleId,
-        lang:_loginData?.lang,
-        darkMode:_loginData?.darkMode,
-        promocode:_loginData?.promocode,
-        token:_loginData?.token,
-        createdAt:_loginData?.createdAt,
-        updatedAt:_loginData?.updatedAt
-    );
-    if (_loginData != null) {
-      await setLoginData(_loginData!);
+        phone: phone,
+        email: email,
+      );
+      loginDataObs.refresh();
+      await setLoginData(loginDataObs.value!);
     }
-    notifyListeners();
   }
 
-
+  Future<void> updateProfileImage(String image) async {
+    if (loginDataObs.value != null) {
+      loginDataObs.value = loginDataObs.value!.copyWith(
+        profileImage: image,
+      );
+      loginDataObs.refresh();
+      await setLoginData(loginDataObs.value!);
+    }
+  }
 
   Future<void> clear() async {
-    _loginData = null;
+    loginDataObs.value = null;
 
-    // Clear login data from SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('loginData');
-
-    notifyListeners();
   }
 
   Future<bool> get isUserRegistered async {
@@ -73,11 +68,8 @@ class LoginDataProvider with ChangeNotifier {
   }
 
   Future<void> setUserRegistered(bool isRegistered) async {
-    // Save isUserRegistered to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isUserRegistered', isRegistered);
-
-    notifyListeners();
   }
 
   Future<bool> get isUserLoggedIn async {
@@ -86,16 +78,16 @@ class LoginDataProvider with ChangeNotifier {
   }
 
   Future<void> setUserLoggedIn(bool isLoggedIn) async {
-    // Save isUserLoggedIn to SharedPreferences
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isUserLoggedIn', isLoggedIn);
-
-    notifyListeners();
   }
 
+  @override
+  void onInit() {
+    loadLoginData();
+    super.onInit();
+  }
 }
-
-
 
 class CommentsModel extends ChangeNotifier {
   List<Comment> _comments = [];

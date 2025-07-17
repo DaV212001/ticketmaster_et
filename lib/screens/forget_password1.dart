@@ -1,12 +1,11 @@
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:ticketmaster_et/screens/forget_password2.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/prefs/language_selector.dart';
+import 'package:ticketmaster_et/screens/forget_password2.dart';
 
-import '../main_layout_screen.dart';
-import '../models/newmodels.dart';
 import '../provider/settings_provider.dart';
 
 class ForgetPassword1 extends StatefulWidget {
@@ -35,7 +34,7 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             leading: IconButton(
-              onPressed: (){
+              onPressed: () {
                 Navigator.of(context).pop();
               },
               icon: Icon(Icons.arrow_back),
@@ -45,50 +44,8 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
             elevation: 0,
             actions: [
               Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colors.transparent
-                  ),
-                  child:  DropdownButton(
-                      value: languageChange.languageCode,
-                      items: const [
-                        DropdownMenuItem(
-                            value: 'en', child: Text('English')),
-                        DropdownMenuItem(
-                            value: 'am', child: Text('Amharic')),
-                        DropdownMenuItem(
-                            value: 'en-AU', child: Text('Afaan Oromo')),
-
-                      ],
-                      onChanged: (String? value) {
-                        setState(() async {
-                          languageChange.languageCode = value!;
-                          List<String> codes = languageChange.languageCode.split('-');
-                          String langCode = codes[0];
-                          String countryCode = codes.length > 1 ? codes[1] : '';
-
-                          // Save langCode and countryCode in shared preferences
-                          SharedPreferences prefs = await SharedPreferences.getInstance();
-                          await prefs.setString('langCode', langCode);
-                          if (countryCode.isNotEmpty) {
-                            await prefs.setString('countryCode', countryCode);
-                          } else {
-                            await prefs.remove('countryCode');
-                          }
-
-                          // Set locale for EasyLocalization
-                          if (countryCode.isNotEmpty) {
-                            EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
-                          } else {
-                            EasyLocalization.of(context)!.setLocale(Locale(langCode));
-                          }
-                        });
-                      }
-                  ),
-                ),
-              ),
+                  alignment: Alignment.centerLeft,
+                  child: LanguageSelectorButton(onChange: () {})),
             ],
           ),
           body: SingleChildScrollView(
@@ -96,15 +53,14 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
               key: formKey,
               child: Column(
                 children: [
-
                   Center(
                     child: Image(
-                      image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
+                      image:
+                          AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
                       width: 160.0, // Set the desired width
                       height: 160.0, // Set the desired height
                     ),
                   ),
-
 
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30.0),
@@ -112,8 +68,12 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                       children: [
                         Center(
                           child: Text(
-                            tr('please_enter_the_5_digit_code_sent_to_your_phone_number'),
-                            style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 15),
+                            'please_enter_the_5_digit_code_sent_to_your_phone_number'
+                                .tr,
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 15),
                           ),
                         ),
                         const SizedBox(
@@ -121,7 +81,9 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                         ),
                         Align(
                             alignment: Alignment.centerLeft,
-                            child: Text(tr('code'), style: TextStyle(color: Colors.black, fontSize: 18))),
+                            child: Text('code'.tr,
+                                style: TextStyle(
+                                    color: Colors.black, fontSize: 18))),
                         const SizedBox(
                           height: 10,
                         ),
@@ -143,7 +105,7 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                               return null;
                             },
                             decoration: InputDecoration(
-                              hintText: tr('xxxxx'),
+                              hintText: 'xxxxx'.tr,
                               border: InputBorder.none,
                               contentPadding: EdgeInsets.all(16.0),
                             ),
@@ -155,72 +117,76 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                         const SizedBox(
                           height: 25,
                         ),
-                        _isLoading?
-                        CircularProgressIndicator():
-                        OutlinedButton(
-                            style: const ButtonStyle(
-                                backgroundColor:
-                                MaterialStatePropertyAll(Colors.green),
-                                foregroundColor:
-                                MaterialStatePropertyAll(Colors.white),
-                                minimumSize: MaterialStatePropertyAll(
-                                    Size(double.infinity, 50))),
-                            onPressed: () async {
-                              if(otpController.text.length!=0){
+                        _isLoading
+                            ? CircularProgressIndicator()
+                            : OutlinedButton(
+                                style: const ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStatePropertyAll(Colors.green),
+                                    foregroundColor:
+                                        MaterialStatePropertyAll(Colors.white),
+                                    minimumSize: MaterialStatePropertyAll(
+                                        Size(double.infinity, 50))),
+                                onPressed: () async {
+                                  if (otpController.text.length != 0) {
+                                    setState(() {
+                                      pressed--;
+                                    });
 
-                              setState(() {
-                                pressed--;
-                              });
-
-                              print("pressed");
-                              final SharedPreferences shared = await SharedPreferences.getInstance();
-                              var otp = shared.getString(
-                                  'otp');
-                              print(otp);
-                              if(otpController.text == otp){
-                                setState(() {
-                                  _isLoading = true;
-                                });
-                                print("Correct");
-                                await shared.remove('otp');
-                                Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            ForgetPassword2(phone: widget.phone)));
-                              }else{
-                                setState(() {
-                                  _isLoading = false;
-                                });
-                                if(pressed>0){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-
-                                      content: Text(tr("chances_left" +" "+ pressed.toString())),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 2),
-                                    ),
-                                  );
-                                }else if(pressed == 0){
-                                  await shared.remove('otp');
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(tr("enter_your_phone_number_again_please")),
-                                      backgroundColor: Colors.green,
-                                      duration: Duration(seconds: 3),
-                                    ),
-                                  );
-                                  Navigator.pop(context);
-
-                                }
-                              }
-                              }
-                            },
-                            child: Text(
-                              tr('submit'),
-                              style: TextStyle(fontSize: 20),
-                            )),
-
+                                    print("pressed");
+                                    final SharedPreferences shared =
+                                        await SharedPreferences.getInstance();
+                                    var otp = shared.getString('otp');
+                                    print(otp);
+                                    if (otpController.text == otp) {
+                                      setState(() {
+                                        _isLoading = true;
+                                      });
+                                      print("Correct");
+                                      await shared.remove('otp');
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ForgetPassword2(
+                                                      phone: widget.phone)));
+                                    } else {
+                                      setState(() {
+                                        _isLoading = false;
+                                      });
+                                      if (pressed > 0) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(("chances_left" +
+                                                    " " +
+                                                    pressed.toString())
+                                                .tr),
+                                            backgroundColor: Colors.green,
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+                                      } else if (pressed == 0) {
+                                        await shared.remove('otp');
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                                "enter_your_phone_number_again_please"
+                                                    .tr),
+                                            backgroundColor: Colors.green,
+                                            duration: Duration(seconds: 3),
+                                          ),
+                                        );
+                                        Navigator.pop(context);
+                                      }
+                                    }
+                                  }
+                                },
+                                child: Text(
+                                  'submit'.tr,
+                                  style: TextStyle(fontSize: 20),
+                                )),
                       ],
                     ),
                   ),
@@ -238,19 +204,20 @@ class _ForgetPassword1State extends State<ForgetPassword1> {
                     padding: EdgeInsets.all(0),
                     transformAlignment: Alignment.topCenter,
                     child: Image(
-                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
+                        image: AssetImage(
+                            'assets/images/THICKET_MASTER_PATERN_04.png'),
                         width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,// Set the desired width
-                        height: MediaQuery.of(context).size.height // Set the desired height
-                    ),
+                        fit: BoxFit.fill, // Set the desired width
+                        height: MediaQuery.of(context)
+                            .size
+                            .height // Set the desired height
+                        ),
                   )
                 ],
               ),
             ),
-
           ),
         ),
-
       ),
     );
   }

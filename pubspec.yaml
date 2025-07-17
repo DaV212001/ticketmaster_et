@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 7.1.7+18
+version: 7.1.10+21
 
 environment:
   sdk: '>=3.0.5 <4.0.0'
@@ -42,7 +42,7 @@ dependencies:
   cached_network_image: ^3.2.3
   carousel_slider: ^5.0.0
   shared_preferences: ^2.5.1
-  easy_localization: ^3.0.2
+#  easy_localization: ^3.0.2
   ticket_widget: ^0.0.1
   chapa_unofficial: ^0.0.5
   retry: ^3.1.2
@@ -55,10 +55,26 @@ dependencies:
   iconsax: ^0.0.8
   firebase_core: ^2.24.2
   firebase_messaging: ^14.7.10
-  awesome_notifications: ^0.9.3+1
+  awesome_notifications: ^0.10.1
   share_plus: ^10.1.4
   get: ^4.6.6
   logger: ^2.5.0
+  dropdown_button2: ^2.3.9
+  flutter_svg: ^2.0.17
+  youtube_player_flutter: ^9.1.1
+  auto_size_text: ^3.0.0
+  enefty_icons: ^1.0.7
+  connectivity_plus: ^6.1.3
+  badges: ^3.1.2
+  get_storage: ^2.1.1
+  shimmer: ^3.0.0
+  cached_video_player_plus: ^3.0.3
+  intl: ^0.20.2
+  intl_phone_field: ^3.2.0
+  pinput: ^5.0.1
+  image_picker: ^1.1.2
+  package_info_plus: ^8.3.0
+  in_app_update: ^4.2.3
 
 dev_dependencies:
   flutter_test:
@@ -88,6 +104,8 @@ flutter:
     - assets/images/splash_screens/
     - assets/translations/
     - assets/images/carousel/
+    - assets/images/social/
+    - assets/images/errors/
   fonts:
     - family:  TikTokIcons
       fonts:

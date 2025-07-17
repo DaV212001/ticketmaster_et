@@ -28,36 +28,36 @@ class Endpoints {
   static String loginEndpoint() {
     return '$baseUrlFunc' 'login';
   }
-//
-// static String registrationEndpoint() {
-//   return '$baseUrlFunc' '/register';
-// }
-//
-// static String eventbyorganizerid (String id){
-//   return '$baseUrlFunc' '/event-by-organizer-id/$id';
-// }
-//
-// static String listofeventsbycat (String id){
-//   return '$baseUrlFunc' '/event-by-category-id/$id';
-// }
-//
-// static String signupEndpoint() {
-//   return '$baseUrlFunc' "/register";
-// }
-//
-// static String paymentVerifyEndpoint() {
-//   return '$baseUrlFunc' '/payment_verify';
-// }
-//
-// static String privacyEndpoint() {
-//   return '$baseUrlFunc' '/privacy';
-// }
-//
-// static String termAndConditionEndpoint() {
-//   return '$baseUrlFunc' '/term_and_condition';
-// }
+  //
+  // static String registrationEndpoint() {
+  //   return '$baseUrlFunc' '/register';
+  // }
+  //
+  // static String eventbyorganizerid (String id){
+  //   return '$baseUrlFunc' '/event-by-organizer-id/$id';
+  // }
+  //
+  // static String listofeventsbycat (String id){
+  //   return '$baseUrlFunc' '/event-by-category-id/$id';
+  // }
+  //
+  // static String signupEndpoint() {
+  //   return '$baseUrlFunc' "/register";
+  // }
+  //
+  // static String paymentVerifyEndpoint() {
+  //   return '$baseUrlFunc' '/payment_verify';
+  // }
+  //
+  // static String privacyEndpoint() {
+  //   return '$baseUrlFunc' '/privacy';
+  // }
+  //
+  // static String termAndConditionEndpoint() {
+  //   return '$baseUrlFunc' '/term_and_condition';
+  // }
 
-// static String faqEndpoint() {
-//   return '$baseUrlFunc' '/faq';
-// }
+  // static String faqEndpoint() {
+  //   return '$baseUrlFunc' '/faq';
+  // }
 }

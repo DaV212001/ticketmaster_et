@@ -1,5 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
@@ -96,10 +97,10 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Text(
-            tr('organizers'),
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            'organizers'.tr,
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ),
         SizedBox(
@@ -109,7 +110,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
               scrollDirection: Axis.horizontal,
               itemCount: ep.length,
               itemBuilder: (context, index) {
-                if (ep.length != 0) {
+                if (ep.isNotEmpty) {
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(children: [

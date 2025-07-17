@@ -1,7 +1,8 @@
 import 'dart:ui';
 
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ticketmaster_et/components/tiktokicons.dart';
@@ -153,23 +154,23 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                 ),
                               ),
                             ),
-                          SizedBox(
+                          const SizedBox(
                             height: 30,
                           ),
                           InterestButton(event: widget.modified[iindex]),
-                          SizedBox(
+                          const SizedBox(
                             height: 20,
                           ),
                           HeartIconButton(
                             event: widget.modified[iindex],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 20,
                           ),
                           CommentIconButton(
                             event: widget.modified[iindex],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 20,
                           ),
                           ShareIconButton(
@@ -196,7 +197,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                               gradient: LinearGradient(
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
-                                  stops: [
+                                  stops: const [
                                 0.0,
                                 0.2
                               ],
@@ -230,20 +231,20 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                             children: [
                                               Text(
                                                 widget.modified[iindex].desc!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 20,
                                                     fontWeight: FontWeight.bold,
                                                     color: Colors.white),
                                               ),
                                               Text(
                                                 widget.modified[iindex].place!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.white),
                                               ),
                                               Text(
                                                 widget.modified[iindex].date!,
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                     fontSize: 15,
                                                     color: Colors.white),
                                               ),
@@ -281,7 +282,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                         backgroundColor:
                                             const WidgetStatePropertyAll(
                                                 Colors.transparent)),
-                                    child: Text(tr('buy_tickets'))),
+                                    child: Text('buy_tickets'.tr)),
                               ],
                             ),
                           ],
@@ -344,7 +345,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                             gradient: LinearGradient(
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
-                                stops: [
+                                stops: const [
                               0.0,
                               0.2
                             ],
@@ -378,20 +379,20 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                           children: [
                                             Text(
                                               widget.modified[iindex].desc!,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 20,
                                                   fontWeight: FontWeight.bold,
                                                   color: Colors.white),
                                             ),
                                             Text(
                                               widget.modified[iindex].place!,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 15,
                                                   color: Colors.white),
                                             ),
                                             Text(
                                               widget.modified[iindex].date!,
-                                              style: TextStyle(
+                                              style: const TextStyle(
                                                   fontSize: 15,
                                                   color: Colors.white),
                                             ),
@@ -420,7 +421,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                       Colors.white.withOpacity(0.5)),
                                   backgroundColor: const WidgetStatePropertyAll(
                                       Colors.transparent)),
-                              child: Text(tr('buy_tickets'))),
+                              child: Text('buy_tickets'.tr)),
                         ],
                       ),
                     ),
@@ -489,8 +490,7 @@ class _HeartIconButtonState extends State<HeartIconButton>
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     int userId = loginDataProvider.loginData!.id!;
     return GestureDetector(
       onTap: () async {
@@ -654,8 +654,7 @@ class _CommentIconButtonState extends State<CommentIconButton>
             ),
           ),
           builder: (BuildContext context) {
-            final loginDataProvider =
-                Provider.of<LoginDataProvider>(context, listen: false);
+            final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
 
             ValueNotifier<String> commentText = ValueNotifier('');
             return FutureBuilder(
@@ -893,8 +892,7 @@ class _InterestButtonState extends State<InterestButton>
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     int userId = loginDataProvider.loginData!.id!;
     return GestureDetector(
       onTap: () async {

@@ -1,7 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
@@ -132,7 +133,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
           tab: Tab(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [Flexible(child: Text(tr('events')))],
+              children: [Flexible(child: Text('events'.tr))],
             ),
           ),
           view: events.isNotEmpty || !_hasError
@@ -201,7 +202,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
         tab: Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Flexible(child: Text(tr('desc')))],
+            children: [Flexible(child: Text('desc'.tr))],
           ),
         ),
         view: widget.organizer.desc == '0' || widget.organizer.desc == null
@@ -227,7 +228,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
         tab: Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Flexible(child: Text(tr('review')))],
+            children: [Flexible(child: Text('review'.tr))],
           ),
         ),
         view: OrganizerReview(organizer: widget.organizer),

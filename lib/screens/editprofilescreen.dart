@@ -1,14 +1,17 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:easy_localization/easy_localization.dart';
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import '../components/fields.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:ticketmaster_et/prefs/language_selector.dart';
+
 import '../functions/functions.dart';
-import '../main_layout_screen.dart';
 import '../models/newmodels.dart';
 import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
+import '../widgets/phone_input_field.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -20,40 +23,119 @@ class EditProfile extends StatefulWidget {
 class _EditProfileState extends State<EditProfile> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
-  String? _firstName, _lastName,
-      _phoneNumber;
+  String? _firstName, _lastName, _email;
+  final ImagePicker _picker = ImagePicker();
+  File? _imageFile;
+  bool _isUploading = false;
+  Future<void> _pickImage() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+      });
+      await _uploadProfileImage(_imageFile!);
+    }
+  }
+
+  Future<void> _uploadProfileImage(File imageFile) async {
+    try {
+      setState(() {
+        _isUploading = true; // Start uploading
+      });
+
+      final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+      int? userId = loginDataProvider.loginData?.id;
+
+      var request = http.MultipartRequest('POST',
+          Uri.parse('https://api.hellomesa6810.com/api/change-profile-image'));
+      request.fields['user_id'] = userId.toString();
+      request.files
+          .add(await http.MultipartFile.fromPath('image', imageFile.path));
+
+      var response = await request.send();
+      if (response.statusCode == 200) {
+        final responseData = await http.Response.fromStream(response);
+        final jsonResponse = json.decode(responseData.body);
+
+        // Update the profile image in LoginData
+        LoginData updatedData = LoginData.fromJson(jsonResponse['data']);
+        loginDataProvider.updateProfileImage(updatedData.profileImage!);
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Text(
+                'Profile picture updated successfully!',
+                style: TextStyle(color: Colors.green),
+              ),
+            );
+          },
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const AlertDialog(
+              content: Text(
+                'Failed to update profile picture!',
+                style: TextStyle(color: Colors.red),
+              ),
+            );
+          },
+        );
+      }
+    } catch (e) {
+      print('Error uploading profile picture: $e');
+    } finally {
+      setState(() {
+        _isUploading = false; // Finish uploading
+      });
+    }
+  }
+
+  final TextEditingController _phoneNumber = TextEditingController(
+      text: Get.find<LoginDataProvider>(tag: 'login')
+          .loginData
+          ?.phone
+          ?.replaceFirst('251', ''));
 
   Future submitForm() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
     if (isValid) {
-
       _formKey.currentState!.save();
       setState(() {
         _isLoading = true;
       });
 
-      final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+      final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
 
-      String? phone = accountProvider.loginData?.phone!;
+      int? id = accountProvider.loginData?.id!;
       UpdatedUser data = UpdatedUser(
-        firstName: _firstName,
-        lastName: _lastName,
-        phone: phone,
-      );
+          id: id,
+          firstName: _firstName,
+          lastName: _lastName,
+          phone: '251${_phoneNumber.text}',
+          email: _email);
 
       await updateUser(data).then((value) async {
-
         if (value.message != null) {
-
           if (value.message == "User Updated successfully") {
-
-            await accountProvider.updateName(_firstName!, _lastName!);
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) {
-                  return const TicketMatserHomePage(title: 'title');
-                }));
+            await accountProvider.updateName(_firstName!, _lastName!,
+                '251${_phoneNumber.text}', _email ?? '');
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return const AlertDialog(
+                  content: Text(
+                    'Successfully Edited',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                );
+              },
+            );
           }
         } else {
           String errorMessage = "Error Updating";
@@ -66,12 +148,18 @@ class _EditProfileState extends State<EditProfile> {
           if (value.error!.phone != null) {
             errorMessage = errorMessageConcatenator(value.error!.phone!);
           }
+          if (value.error!.email != null) {
+            errorMessage = errorMessageConcatenator(value.error!.email!);
+          }
 
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                content: Text(errorMessage, style: TextStyle(color: Colors.green),),
+                content: Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.green),
+                ),
               );
             },
           );
@@ -85,107 +173,121 @@ class _EditProfileState extends State<EditProfile> {
 
   @override
   Widget build(BuildContext context) {
-    final loginDataProvider = Provider.of<LoginDataProvider>(context, listen: false);
-    final languageChange = Provider.of<SettingsProvider>(context);
-    final accountProvider = Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+    // final languageChange = Provider.of<SettingsProvider>(context);
+    final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
+
+    final profileImage = loginDataProvider.loginData?.profileImage;
     return Container(
       color: Colors.grey[100],
       child: Scaffold(
-              appBar: AppBar(
-                backgroundColor: Colors.white,
-                elevation: 0,
-                actions: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Colors.transparent
-                      ),
-                      child:  DropdownButton(
-                          value: languageChange.languageCode,
-                          items: const [
-                            DropdownMenuItem(
-                                value: 'en', child: Text('English')),
-                            DropdownMenuItem(
-                                value: 'am', child: Text('Amharic')),
-                            DropdownMenuItem(
-                                value: 'en-AU', child: Text('Afaan Oromo')),
-
-                          ],
-                          onChanged: (String? value) {
-                            setState(() async {
-                              languageChange.languageCode = value!;
-                              List<String> codes = languageChange.languageCode.split('-');
-                              String langCode = codes[0];
-                              String countryCode = codes.length > 1 ? codes[1] : '';
-
-                              // Save langCode and countryCode in shared preferences
-                              SharedPreferences prefs = await SharedPreferences.getInstance();
-                              await prefs.setString('langCode', langCode);
-                              if (countryCode.isNotEmpty) {
-                                await prefs.setString('countryCode', countryCode);
-                              } else {
-                                await prefs.remove('countryCode');
-                              }
-
-                              // Set locale for EasyLocalization
-                              if (countryCode.isNotEmpty) {
-                                EasyLocalization.of(context)!.setLocale(Locale(langCode, countryCode));
-                              } else {
-                                EasyLocalization.of(context)!.setLocale(Locale(langCode));
-                              }
-                            });
-                          }
-                      ),
-                    ),
-                  ),
-                ],
+          appBar: AppBar(
+            backgroundColor: Colors.white,
+            elevation: 0,
+            actions: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Colors.transparent),
+                  child: LanguageSelectorButton(onChange: () {}),
+                ),
               ),
-              body: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: const EdgeInsets.all(30.0),
-                        child: Form(
-                          key: _formKey,
+            ],
+          ),
+          body: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(30.0),
                           child: Column(
                             children: [
-
-
                               Center(
-                                child: Image(
-                                  image: AssetImage('assets/images/THICKET_MASTER_LOGO.png'),
-                                  width: 170.0, // Set the desired width
-                                  height: 170.0, // Set the desired height
+                                child: Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 85,
+                                      backgroundImage: profileImage != null
+                                          ? NetworkImage(profileImage)
+                                          : const AssetImage(
+                                                  'assets/images/THICKET_MASTER_LOGO.png')
+                                              as ImageProvider,
+                                    ),
+                                    Positioned(
+                                      bottom: 0,
+                                      right: -10,
+                                      child: IconButton(
+                                        icon: const Icon(
+                                          Icons.edit,
+                                          color: Colors.green,
+                                          size: 30,
+                                        ),
+                                        onPressed: _pickImage,
+                                      ),
+                                    ),
+                                    if (_isUploading)
+                                      Positioned.fill(
+                                        child: Container(
+                                          height: 85,
+                                          width: 85,
+                                          decoration: const BoxDecoration(
+                                            color: Colors
+                                                .black45, // Semi-transparent overlay
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                               Text(
-                                tr('editprofile'),
-                                style: TextStyle(
-                                    fontSize: 25,
-                                    fontWeight: FontWeight.bold
-                                ),
+                                'editprofile'.tr,
+                                style: const TextStyle(
+                                    fontSize: 25, fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 15),
                               Align(
                                 alignment: Alignment.topLeft,
-                                child: Text(tr('first_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
+                                child: Text(
+                                  'first_name'.tr,
+                                  style: TextStyle(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.04),
+                                ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15.0),
                                   color: Colors.grey[200], // Background color
                                 ),
                                 child: TextFormField(
-                                  initialValue: loginDataProvider.loginData?.firstName,
+                                  initialValue:
+                                      loginDataProvider.loginData?.firstName,
                                   key: const ValueKey("name"),
                                   validator: (value) {
                                     if (value!.isEmpty) {
                                       return "name_empty";
-                                    } else if (value.length > 40 || value.length < 2) {
+                                    } else if (value.length > 40 ||
+                                        value.length < 2) {
                                       return "name_short_long";
                                     }
                                     return null;
@@ -197,32 +299,42 @@ class _EditProfileState extends State<EditProfile> {
                                     _firstName = value;
                                   },
                                   decoration: InputDecoration(
-                                    hintText: accountProvider.loginData?.firstName!,
+                                    hintText:
+                                        accountProvider.loginData?.firstName!,
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.all(16.0),
+                                    contentPadding: const EdgeInsets.all(16.0),
                                   ),
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Align(
                                 alignment: Alignment.topLeft,
-                                child: Text(tr('last_name'), style: TextStyle(fontSize: MediaQuery.of(context).size.width*0.04),),
+                                child: Text(
+                                  'last_name'.tr,
+                                  style: TextStyle(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.04),
+                                ),
                               ),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15.0),
                                   color: Colors.grey[200], // Background color
                                 ),
                                 child: TextFormField(
-                                  initialValue: loginDataProvider.loginData?.lastName,
+                                  initialValue:
+                                      loginDataProvider.loginData?.lastName,
                                   key: const ValueKey("name"),
                                   validator: (value) {
                                     if (value!.isEmpty) {
                                       return "name_empty";
-                                    } else if (value.length > 40 || value.length < 2) {
+                                    } else if (value.length > 40 ||
+                                        value.length < 2) {
                                       return "name_short_long";
                                     }
                                     return null;
@@ -234,72 +346,128 @@ class _EditProfileState extends State<EditProfile> {
                                     _lastName = value;
                                   },
                                   decoration: InputDecoration(
-                                    hintText: accountProvider.loginData?.lastName,
+                                    hintText:
+                                        accountProvider.loginData?.lastName,
                                     border: InputBorder.none,
-                                    contentPadding: EdgeInsets.all(16.0),
+                                    contentPadding: const EdgeInsets.all(16.0),
                                   ),
                                 ),
                               ),
                               const SizedBox(
                                 height: 15,
                               ),
+                              Align(
+                                alignment: Alignment.topLeft,
+                                child: Text(
+                                  'email'.tr,
+                                  style: TextStyle(
+                                      fontSize:
+                                          MediaQuery.of(context).size.width *
+                                              0.04),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15.0),
+                                  color: Colors.grey[200], // Background color
+                                ),
+                                child: TextFormField(
+                                  initialValue:
+                                      loginDataProvider.loginData?.email,
+                                  key: const ValueKey("email"),
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return "email_empty".tr;
+                                    } else if (!value.isEmail) {
+                                      return "invalid_email".tr;
+                                    }
+                                    return null;
+                                  },
+                                  onSaved: (newValue) {
+                                    _email = newValue;
+                                  },
+                                  onChanged: (value) {
+                                    _email = value;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: accountProvider.loginData?.email,
+                                    border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.all(16.0),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 15,
+                              ),
+                              PhoneInputField(
+                                controller: _phoneNumber,
+                                initialValue: accountProvider.loginData?.phone,
+                              ),
                             ],
                           ),
                         ),
-                      ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                              top: 15, bottom: 15, right: 30, left: 30),
+                          child: Column(
+                            children: [
+                              _isLoading
+                                  ? const CircularProgressIndicator()
+                                  : ElevatedButton(
+                                      style: const ButtonStyle(
+                                          backgroundColor:
+                                              WidgetStatePropertyAll(
+                                                  Colors.green),
+                                          foregroundColor:
+                                              WidgetStatePropertyAll(
+                                                  Colors.white),
+                                          minimumSize: WidgetStatePropertyAll(
+                                              Size(double.infinity, 50))),
+                                      onPressed: () => {
+                                            submitForm(),
+                                            // Navigator.push(context,
+                                            //     MaterialPageRoute(builder: ((context) {
+                                            //   return const VerificationScreen();
+                                            // })))
+                                          },
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text('submit'.tr),
+                                          const Icon(Icons.arrow_forward)
+                                        ],
+                                      )),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: 250,
+                          alignment: Alignment.topCenter,
+                          padding: const EdgeInsets.all(0),
+                          transformAlignment: Alignment.topCenter,
+                          child: Image(
+                              image: const AssetImage(
+                                  'assets/images/THICKET_MASTER_PATERN_04.png'),
+                              width: MediaQuery.of(context).size.width,
+                              fit: BoxFit.fill, // Set the desired width
+                              height: MediaQuery.of(context)
+                                  .size
+                                  .height // Set the desired height
+                              ),
+                        )
+                      ],
                     ),
                   ),
-                  Container(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 15, bottom: 15, right: 30, left: 30),
-                      child: Column(
-                        children: [
-                          _isLoading
-                              ? const CircularProgressIndicator()
-                              : ElevatedButton(
-                              style: const ButtonStyle(
-                                  backgroundColor:
-                                  MaterialStatePropertyAll(Colors.green),
-                                  foregroundColor:
-                                  MaterialStatePropertyAll(Colors.white),
-                                  minimumSize: MaterialStatePropertyAll(
-                                      Size(double.infinity, 50))),
-                              onPressed: () => {
-                                submitForm(),
-                                // Navigator.push(context,
-                                //     MaterialPageRoute(builder: ((context) {
-                                //   return const VerificationScreen();
-                                // })))
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text(tr('submit')),
-                                  Icon(Icons.arrow_forward)
-                                ],
-                              )),
-
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 250,
-                    alignment: Alignment.topCenter,
-                    padding: EdgeInsets.all(0),
-                    transformAlignment: Alignment.topCenter,
-                    child: Image(
-                        image: AssetImage('assets/images/THICKET_MASTER_PATERN_04.png'),
-                        width: MediaQuery.of(context).size.width,
-                        fit: BoxFit.fill,// Set the desired width
-                        height: MediaQuery.of(context).size.height // Set the desired height
-                    ),
-                  )
-                ],
-              )),
-
+                ),
+              ),
+            ],
+          )),
     );
   }
 }

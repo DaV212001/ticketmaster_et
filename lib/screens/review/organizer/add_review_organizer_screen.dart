@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../functions/functions.dart';
@@ -30,8 +30,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
   Future<http.Response> reviewByOrganizer(
       int? organizerId, String star, String comment) async {
     print("reviewByOrganizer");
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
+    final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
     List<Review> tickets = [];
 
     // String? user_id = int.parse(loginDataProvider.loginData!.id);
@@ -118,7 +117,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
       child: ListView(scrollDirection: Axis.vertical, children: [
         Row(
           children: [
-            Text(tr("give_a_review"),
+            Text("give_a_review".tr,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.bold,
@@ -148,7 +147,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
         SizedBox(
           height: 10,
         ),
-        Text(tr("give_a_comment"),
+        Text("give_a_comment".tr,
             style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
@@ -213,7 +212,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("thank_you_for_adding_a_review")),
+                        content: Text("thank_you_for_adding_a_review".tr),
                         backgroundColor: Colors.green,
                         duration: Duration(seconds: 3),
                       ),
@@ -224,7 +223,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
                     });
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(tr("failed_to_add_review")),
+                        content: Text("failed_to_add_review".tr),
                         backgroundColor: Colors.green,
                         duration: Duration(seconds: 3),
                       ),
@@ -241,7 +240,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
                   print("Back");
                 },
                 child: Text(
-                  tr("add_review"),
+                  "add_review".tr,
                   style: TextStyle(fontSize: 18),
                 )),
         SizedBox(height: 5),
@@ -256,7 +255,7 @@ class _OrganizerReviewState extends State<OrganizerReview> {
               children: [
                 Container(
                     child: index == 0
-                        ? Text(tr("other_reviews"),
+                        ? Text("other_reviews".tr,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

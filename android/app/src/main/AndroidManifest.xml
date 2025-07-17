@@ -53,7 +53,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="https" android:host="ticketmaster-et.com" />
+                <data android:scheme="https" android:host="api.hellomesa6810.com" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

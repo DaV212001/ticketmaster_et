@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:retry/retry.dart';
@@ -11,6 +12,7 @@ import '../models/faq.dart';
 import '../models/privacy_policy.dart';
 import '../models/review.dart';
 import '../models/terms_and_conditions.dart';
+import '../provider/loginpersistence.dart';
 
 const String baseUrlFunc = 'https://api.hellomesa6810.com/api/';
 
@@ -72,8 +74,8 @@ Future<List<PromotionalImages>> getPromotionalImages(
   return events;
 }
 
-Future<SubCategory> getSubCatbyID(int id, String language) async {
-  List<SubCategory> events = [];
+Future<Food> getFoodbyID(int id, String language) async {
+  List<Food> events = [];
 
   try {
     var res = await retryOptions.retry(
@@ -85,7 +87,7 @@ Future<SubCategory> getSubCatbyID(int id, String language) async {
     var data = jsonDecode(res.body);
     if (data['message'] == 'Food detail get successfully') {
       var eventsData = data['data'][0];
-      events = [SubCategory.fromJson(eventsData, language)];
+      events = [Food.fromJson(eventsData, language)];
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -128,20 +130,18 @@ Future<List<CoverImage>> getCoverImagesbySubCatID(
 
   try {
     var res = await retryOptions.retry(
-      () =>
-          http.get(Uri.parse("${baseUrlFunc}cover-image-by-sub-category/$id")),
+      () => http.get(Uri.parse("${baseUrlFunc}food-cover-image/$id")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
     var data = jsonDecode(res.body);
-    if (data['message'] ==
-        'Cover image By selected Sub category get successfully') {
+    if (data['message'] == 'Cover image By Selected Food  get successfully') {
       var eventsData = data['data'] as List;
       coverimages = eventsData
           .map((eventData) => CoverImage.fromJson(eventData, language))
           .toList();
     } else {
-      if (data['message'] == 'No cover image By selected Sub Category found') {
+      if (data['message'] == 'No cover image By Selected Food not found') {
         return [];
       } else {
         throw Exception('Unexpected message from API: ${data['message']}');
@@ -212,10 +212,12 @@ Future<List<Category>> getCategorySubCategory(String language) async {
 
   try {
     var res = await retryOptions.retry(
-      () => http.get(Uri.parse("${baseUrlFunc}food-by-category")),
+      () => http.get(
+          Uri.parse("https://api.hellomesa6810.com/api/food-by-category"),
+          headers: {'User-Agent': 'Mozilla/5.0'}),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    Logger().d(jsonDecode(res.body));
+    Logger().d(res.body);
     // print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
     //  print("=================Category============${res.body}");
     // print(res.body);
@@ -260,8 +262,7 @@ Future<List<Organizer>> getOrganizers(String language) async {
   return organizers;
 }
 
-Future<List<FoodPortions>> getEventsBySubCategoryId(
-    int id, String language) async {
+Future<List<FoodPortions>> foodPortionsByFoodId(int id, String language) async {
   List<FoodPortions> events = [];
 
   try {
@@ -272,11 +273,12 @@ Future<List<FoodPortions>> getEventsBySubCategoryId(
 
     //  print("=================getEventsBySubCategoryId============${res.body}");
     var data = jsonDecode(res.body);
+    Logger().d(data);
     if (data['message'] == 'Food detail get successfully') {
       var eventsData = data['data'][0]['food_portion'] as List;
       // print(eventsData);
       events = eventsData
-          .map((eventData) => FoodPortions.fromJson(eventData, language))
+          .map((eventData) => FoodPortions.fromJson(eventData))
           .toList();
     } else {
       if (data['message'] == 'No Event By selected Sub Category found') {
@@ -292,9 +294,8 @@ Future<List<FoodPortions>> getEventsBySubCategoryId(
   return events;
 }
 
-Future<List<SubCategory>> getSubCategoryByCategoryId(
-    int id, String language) async {
-  List<SubCategory> subcategories = [];
+Future<List<Food>> getSubCategoryByCategoryId(int id, String language) async {
+  List<Food> subcategories = [];
 
   try {
     var res = await retryOptions.retry(
@@ -310,7 +311,7 @@ Future<List<SubCategory>> getSubCategoryByCategoryId(
       for (var item in dataList) {
         var subcategoryData = item['food_list'] as List;
         subcategories += subcategoryData
-            .map((eventData) => SubCategory.fromJson(eventData, language))
+            .map((eventData) => Food.fromJson(eventData, language))
             .toList();
       }
     } else {
@@ -391,7 +392,7 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
     'email': data.email,
     'password': data.password,
     'phone': data.phoneNumber,
-    'city_id': data.cityid
+    // 'city_id': data.cityid
   };
 
   String requestBody = jsonEncode(jsonData);
@@ -488,12 +489,12 @@ Future<BookingResponse> bookEvent(Booking data) async {
 
   String requestBody = jsonEncode(jsonData);
   var client = http.Client();
-  var retryOptions = RetryOptions(maxAttempts: 3);
+  var retryOptions = const RetryOptions(maxAttempts: 3);
 
   try {
     var res = await retryOptions.retry(
       () => client.post(
-        Uri.parse('${baseUrlFunc}book'),
+        Uri.parse('${baseUrlFunc}payment-transaction'),
         body: requestBody,
         headers: <String, String>{
           'content-type': 'application/json',
@@ -501,8 +502,8 @@ Future<BookingResponse> bookEvent(Booking data) async {
       ),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    var decodeRes = jsonDecode(res.body);
     print(res.body);
+    var decodeRes = jsonDecode(res.body);
     bookingData = BookingResponse.formJson(decodeRes);
   } finally {
     client.close();
@@ -655,23 +656,24 @@ Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
   return termsAndConditions;
 }
 
-Future<List<Ticket>> getTickets(String phone, String language) async {
-  List<Ticket> tickets = [];
+Future<List<Order>> getTickets(String phone, String language) async {
+  List<Order> tickets = [];
 
   try {
     var res = await retryOptions.retry(
       () => http.get(Uri.parse(
-          "https://api.hellomesa6810.com/api/my_order/${int.parse(phone)}")),
+          "https://api.hellomesa6810.com/api/my_order/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("My Order ${res.body}");
     var data = jsonDecode(res.body);
-    if (data['message'] == 'Event detail get successfully') {
+    Logger().i(data);
+    if (data['message'] == 'My Order  get successfully') {
       var eventsData = data['data'] as List;
       tickets = eventsData
-          .map((eventData) => Ticket.fromJson(eventData, language))
+          .map((eventData) => Order.fromJson(eventData, language))
           .toList();
-    } else if (data['message'] == 'No Order Found') {
+    } else if (data['message'] == 'No  Order found') {
       return [];
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
@@ -686,6 +688,29 @@ Future<List<Ticket>> getTickets(String phone, String language) async {
 // https://api.ticketmaster-et.com/api/review-by-sub-category/4
 // https://api.ticketmaster-et.com/api/review-by-organizer/3
 // https://api.ticketmaster-et.com/api/review
+
+Future<List<MealType>> getMealTypes() async {
+  List<MealType> mealTypes = [];
+  try {
+    var res = await retryOptions.retry(
+      () => http.get(Uri.parse("${baseUrlFunc}meal-type")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    Logger().d(jsonDecode(res.body));
+    var data = jsonDecode(res.body);
+    if (data['message'] == 'Meal type get successfully') {
+      var mealTypesData = data['data'] as List;
+      mealTypes = mealTypesData
+          .map((mealTypeData) => MealType.fromJson(mealTypeData))
+          .toList();
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+  return mealTypes;
+}
 
 Future<List<Review>> getReviewByEvent(String id) async {
   List<Review> review = [];

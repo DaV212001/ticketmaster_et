@@ -1,101 +1,118 @@
-import 'package:easy_localization/easy_localization.dart';
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
+import 'package:logger/web.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:ticketmaster_et/screens/editprofilescreen.dart';
-import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
+import 'package:ticketmaster_et/api_call_status.dart';
+import 'package:ticketmaster_et/controllers/footer_controller.dart';
+import 'package:ticketmaster_et/functions/functions.dart';
+import 'package:ticketmaster_et/screens/organizations_screen.dart';
+import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
-import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
+import 'package:ticketmaster_et/utils/update_enforcer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../functions/functions.dart';
-import '../models/faq.dart';
-import '../models/privacy_policy.dart';
-import '../models/terms_and_conditions.dart';
+import '../models/newmodels.dart';
+import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
-import 'faq_screen.dart';
+import 'change_password_screen.dart';
+import 'editprofilescreen.dart';
 
-class ProfileWidget extends StatefulWidget {
-  const ProfileWidget({Key? key}) : super(key: key);
+class ProfileController extends GetxController {
+  var loginData = Rxn<LoginData>();
+  var freeMeals = 0.obs;
+  var targetCount = 0.obs;
+  var loadingMealData = ApiCallStatus.holding.obs;
 
   @override
-  ProfileWidgetState createState() => ProfileWidgetState();
-}
-
-class ProfileWidgetState extends State<ProfileWidget> {
-  final scaffoldKey = GlobalKey<ScaffoldState>();
-  List<PrivacyPolicy> privacyPolicy = [];
-  List<FAQ> faq = [];
-  List<TermsAndConditions> termsAndConditions = [];
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Load login data after the widget has been built
-      await Provider.of<LoginDataProvider>(context, listen: false)
-          .loadLoginData();
-      await getTermsAndConditions(
-              Provider.of<SettingsProvider>(context, listen: false)
-                  .languageCode)
-          .then((value) => setState(() {
-                termsAndConditions = value;
-                print('ProfileWidget termsAndConditions: $termsAndConditions');
-                print(
-                    'ProfileWidget termsAndConditions title: ${termsAndConditions[0].title}');
-                print(
-                    'ProfileWidget termsAndConditions id: ${termsAndConditions[0].id}');
-              }));
-      await getPrivacyPolicy(
-              Provider.of<SettingsProvider>(context, listen: false)
-                  .languageCode)
-          .then((value) => setState(() {
-                privacyPolicy = value;
-                print('privacyPolicy: $privacyPolicy');
-                print('ProfileWidget privacyPolicy: $privacyPolicy');
-                print(
-                    'ProfileWidget privacyPolicy title: ${privacyPolicy[0].title}');
-                print('ProfileWidget privacyPolicy id: ${privacyPolicy[0].id}');
-              }));
-      await getFAQ(Provider.of<SettingsProvider>(context, listen: false)
-              .languageCode)
-          .then((value) => setState(() {
-                faq = value;
-                print('faq: $faq');
-                print('ProfileWidget faq: $faq');
-                print('ProfileWidget faq title: ${faq[0].title}');
-                print('ProfileWidget faq id: ${faq[0].id}');
-                print('ProfileWidget faq description: ${faq[0].description}');
-              }));
+  void onInit() {
+    super.onInit();
+    loadData();
+    ever(Get.find<LoginDataProvider>(tag: 'login').loginDataObs, (value) {
+      loadData();
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
+  Future<void> loadData() async {
+    loginData.value = Get.find<LoginDataProvider>(tag: 'login').loginData;
+    loadingMealData.value = ApiCallStatus.loading;
+    getFreeMeal();
+    getTargetCount();
+    loadingMealData.value = ApiCallStatus.success;
   }
+
+  void getFreeMeal() async {
+    try {
+      var res = await http
+          .get(Uri.parse('${baseUrlFunc}free-meal/${loginData.value?.id}'));
+      Logger().d(res.body);
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        freeMeals.value = data['data'];
+      }
+    } catch (e, s) {
+      Logger().t(e, stackTrace: s);
+      loadingMealData.value = ApiCallStatus.error;
+    }
+  }
+
+  void getTargetCount() async {
+    try {
+      var res = await http
+          .get(Uri.parse('${baseUrlFunc}target-count/${loginData.value?.id}'));
+      Logger().d(res.body);
+      if (res.statusCode == 200) {
+        var data = jsonDecode(res.body);
+        targetCount.value = data['data'];
+      }
+    } catch (e, s) {
+      Logger().t(e, stackTrace: s);
+      loadingMealData.value = ApiCallStatus.error;
+    }
+  }
+
+  void logout() async {
+    await Get.find<LoginDataProvider>(tag: 'login').clear();
+    Get.offAllNamed(Routes.mainLayoutRoute);
+  }
+}
+
+class ProfileWidget extends StatelessWidget {
+  final ProfileController controller = Get.put(ProfileController());
+  final FooterController footerController = Get.put(FooterController());
+  ProfileWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
     final List<Map<String, dynamic>> general = [
       {
-        "title": tr('darktheme'),
+        "title": 'darktheme'.tr,
         "leadingIcon": Icons.dark_mode,
         "onTap": () {},
         "trailing": const Text("")
       },
       {
-        "title": tr("changelanguage"),
+        "title": "changelanguage".tr,
         "leadingIcon": Icons.language,
         "onTap": () {},
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
       {
-        "title": tr("support"),
+        "title": "change_pass".tr,
+        "leadingIcon": Icons.language,
+        "onTap": () {
+          Get.to(() => ChangePasswordScreen());
+        },
+        "trailing": const Text("")
+      },
+      {
+        "title": "support".tr,
         "leadingIcon": Icons.help_outline_rounded,
         "onTap": () async {
-          const url = "tel:6810"; // replace with the actual number
+          const url = "tel:6810";
           if (await canLaunchUrl(Uri.parse(url))) {
             await launchUrl(Uri.parse(url));
           } else {
@@ -105,202 +122,217 @@ class ProfileWidgetState extends State<ProfileWidget> {
         "trailing": const Text("")
       },
       {
-        "title": tr("privpol"),
+        "title": "privpol".tr,
         "leadingIcon": Icons.privacy_tip,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  PrivacyPolicyScreen(privacyPolicy: privacyPolicy),
-            ),
-          );
+          Get.toNamed(Routes.privacyRoute);
         },
         "trailing": const Text("")
       },
       {
-        "title": tr("faq"),
+        "title": "faq".tr,
         "leadingIcon": Icons.question_mark_rounded,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FAQScreen(faq: faq),
-            ),
-          );
+          Get.toNamed(Routes.faqRoute);
         },
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
       {
-        "title": tr("tos"),
+        "title": "tos".tr,
         "leadingIcon": Icons.gavel,
         "onTap": () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => TermsAndConditionsScreen(
-                  termsAndConditions: termsAndConditions),
-            ),
-          );
+          Get.toNamed(Routes.termsRoute);
         },
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
       {
-        "title": tr("invitefriends"),
+        "title": "new_version".tr,
+        "leadingIcon": Icons.settings_applications,
+        "onTap": () {
+          Get.showOverlay(
+              asyncFunction: UpdateChecker().checkForUpdates,
+              loadingWidget: const SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Center(child: CircularProgressIndicator())));
+        },
+        "trailing": Icon(Icons.chevron_right_outlined)
+      },
+      {
+        "title": "invitefriends".tr,
         "leadingIcon": Icons.share,
         "onTap": () {
           Share.share(
-            'https://play.google.com/store/apps/details?id=com.macictsolution.ticketmasteret',
+            'https://play.google.com/store/apps/details?id=com.hello.mesa',
             subject: 'Check out my app on the Play Store',
           );
         },
-        "trailing": const Text(""),
+        "trailing": const Text("")
       },
     ];
+
     final List<Map<String, dynamic>> profile = [
-      {
-        "title": tr('editprofile'),
-        "leadingIcon": Icons.account_circle_outlined,
-        "onTap": () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return EditProfile();
-          }));
-        },
-        "trailing": Text('')
-      },
+      // {
+      //   "title": 'editprofile'.tr,
+      //   "leadingIcon": Icons.account_circle_outlined,
+      //   "onTap": () {
+      //     Get.to(() => const EditProfile());
+      //   },
+      //   "trailing": const Text('')
+      // },
+      // {
+      //   "title": "how_we_cook".tr,
+      //   "leadingIcon": Icons.kitchen,
+      //   "onTap": () {
+      //     Get.toNamed(Routes.howWeCookRoute);
+      //   },
+      //   "trailing": const Text("")
+      // }
     ];
-    final loginDataProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
-    final themeChange = Provider.of<SettingsProvider>(context);
-    final languageChange = Provider.of<SettingsProvider>(context);
+
     return Scaffold(
-      key: scaffoldKey,
+      // key: controller.scaffoldKey,
       body: SafeArea(
         top: true,
         child: ListView(
           scrollDirection: Axis.vertical,
           children: [
-            // Padding(
-            //   padding: const EdgeInsetsDirectional.fromSTEB(0, 1, 0, 0),
-            //   child: Container(
-            //     width: double.infinity,
-            //     decoration: const BoxDecoration(
-            //       boxShadow: [
-            //         BoxShadow(
-            //           blurRadius: 0.5,
-            //           color: Color(0x33000000),
-            //           offset: Offset(0, 1),
-            //         )
-            //       ],
-            //     ),
-            //     child: Padding(
-            //       padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
-            //       child: Row(
-            //         mainAxisSize: MainAxisSize.max,
-            //         children: [
-            //           Container(
-            //             width: 90,
-            //             height: 80,
-            //             decoration: BoxDecoration(
-            //               color: Colors.transparent,
-            //               shape: BoxShape.circle,
-            //               border: Border.all(
-            //                 color: const Color(0xFF39D2C0),
-            //                 width: 2,
-            //               ),
-            //             ),
-            //             child: Padding(
-            //               padding:
-            //                   const EdgeInsetsDirectional.fromSTEB(2, 2, 2, 2),
-            //               child: ClipRRect(
-            //                 borderRadius: BorderRadius.circular(50),
-            //                 child: Image.asset(
-            //                   'assets/images/THICKET_MASTER_LOGO.png',
-            //                 ),
-            //               ),
-            //             ),
-            //           ),
-            //           Padding(
-            //             padding:
-            //                 const EdgeInsetsDirectional.fromSTEB(16, 0, 0, 0),
-            //             child: Column(
-            //               mainAxisSize: MainAxisSize.max,
-            //               mainAxisAlignment: MainAxisAlignment.center,
-            //               crossAxisAlignment: CrossAxisAlignment.start,
-            //               children: [
-            //                 Text(
-            //                   loginDataProvider.loginData == null
-            //                       ? '...'
-            //                       : loginDataProvider.loginData!.firstName!,
-            //                   style: Theme.of(context)
-            //                       .textTheme
-            //                       .headlineSmall!
-            //                       .copyWith(
-            //                         fontSize: 24,
-            //                         fontWeight: FontWeight.w500,
-            //                       ),
-            //                 ),
-            //                 Padding(
-            //                   padding: const EdgeInsetsDirectional.fromSTEB(
-            //                       0, 4, 0, 0),
-            //                   child: Text(
-            //                     loginDataProvider.loginData == null
-            //                         ? '...'
-            //                         : loginDataProvider.loginData!.email!,
-            //                     style: Theme.of(context)
-            //                         .textTheme
-            //                         .labelMedium!
-            //                         .copyWith(
-            //                           fontFamily: 'Plus Jakarta Sans',
-            //                           color: const Color(0xFF57636C),
-            //                           fontSize: 14,
-            //                           fontWeight: FontWeight.normal,
-            //                         ),
-            //                   ),
-            //                 ),
-            //               ],
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
-            UserScreenHeader(
-                reFresh: () {},
-                firstName: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.firstName!,
-                lastName: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.lastName!,
-                email: loginDataProvider.loginData == null
-                    ? '...'
-                    : loginDataProvider.loginData!.email!),
+            Container(
+              color: Theme.of(context).cardColor,
+              child: Column(
+                children: [
+                  Obx(
+                    () => UserScreenHeader(
+                        reFresh: controller.loadData,
+                        firstName:
+                            controller.loginData.value?.firstName ?? '...',
+                        lastName: controller.loginData.value?.lastName ?? '...',
+                        phone: controller.loginData.value?.phone ?? '...',
+                        email: controller.loginData.value?.email ?? '...',
+                        loyaltyPoints:
+                            controller.loginData.value?.loyaltyPoints),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: GestureDetector(
+                        onTap: () => Get.to(() => const EditProfile()),
+                        child: Text(
+                          'editprofile'.tr,
+                          style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
+                        )),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Row(
+                      children: [
+                        Obx(
+                          () => Text(controller.targetCount.value.toString()),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Obx(() => AnimatedContainer(
+                                  duration: const Duration(milliseconds: 500),
+                                  curve: Curves.easeInOut,
+                                  height: 10,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: FractionallySizedBox(
+                                      widthFactor:
+                                          (controller.targetCount.value / 100)
+                                              .clamp(0.0, 1.0),
+                                      child: Container(
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )),
+                          ),
+                        ),
+                        const Text('10'),
+                      ],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "target_count".trParams(
+                          {"count": "${10 - controller.targetCount.value}"}),
+                      style: const TextStyle(fontSize: 11),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          'free_meals'.tr,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            controller.freeMeals.value.toString(),
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                            onPressed: () {
+                              Get.to(() => OrganizationScreen());
+                            },
+                            child: Text('donate_fm'.tr))),
+                  )
+                ],
+              ),
+            ),
             RouteContainer(
               routePart: profile,
-              indexTwo: 1,
-              routeName: tr("profile"),
+              indexTwo: 2,
+              routeName: 'profile'.tr,
             ),
             RouteContainer(
               routePart: general,
-              indexTwo: 6,
-              routeName: tr("general"),
+              indexTwo: 5,
+              routeName: "general".tr,
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: ElevatedButton(
-                  onPressed: () {
-                    loginDataProvider.clear();
-                  },
-                  child: Text(tr("logout"))),
-            )
+                  onPressed: controller.logout, child: Text("logout".tr)),
+            ),
+            Obx(() => footerController.footer.value.copyWriteText == null
+                ? const SizedBox(
+                    width: 20, height: 20, child: CircularProgressIndicator())
+                : UserScreenFooter(footerData: footerController.footer.value)),
           ],
         ),
       ),
     );
   }
 }
+
 // Padding(
 // padding: const EdgeInsetsDirectional.fromSTEB(16, 9, 0, 0),
 // child: Text(

@@ -1,5 +1,6 @@
-import 'package:easy_localization/easy_localization.dart';
+// import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -34,7 +35,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         spacing: 5,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
-                          Text(tr('user')),
+                          Text('user'.tr),
                           // Visibility(
                           //     visible: snapshot.data!['verified'] ?? false,
                           //     child: ClipRRect(

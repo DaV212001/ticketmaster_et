@@ -1,209 +1,215 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
+import 'package:ticketmaster_et/controllers/theme_controller.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
-import 'package:ticketmaster_et/screens/user_ticket_details.dart';
+import 'package:ticketmaster_et/prefs/routes.dart';
+import 'package:ticketmaster_et/screens/home/cart/cart_screen.dart';
 
 import '../functions/functions.dart';
 import '../provider/loginpersistence.dart';
-import '../provider/settings_provider.dart';
 
-class UserTickets extends StatefulWidget {
-  const UserTickets({super.key});
+class UserOrdersController extends GetxController
+    with GetSingleTickerProviderStateMixin {
+  var orders = <Order>[].obs;
+  var isLoading = true.obs;
+  late TabController tabController;
 
   @override
-  State<UserTickets> createState() => _UserTicketsState();
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 2, vsync: this);
+    updateCategories();
+    ever(ThemeModeController.languageCode, (_) => updateCategories());
+  }
+
+  void updateCategories() async {
+    isLoading.value = true;
+    String? phone = Get.find<LoginDataProvider>(tag: 'login').loginData?.phone;
+    if (phone != null) {
+      orders.value =
+          await getTickets(phone, ThemeModeController.languageCode.value);
+      orders.sort(
+          (a, b) => DateTime.parse(b.date!).compareTo(DateTime.parse(a.date!)));
+    } else {
+      Logger().i('No Phone');
+    }
+    isLoading.value = false;
+  }
 }
 
-class _UserTicketsState extends State<UserTickets> {
-  List<Ticket> tickets = [];
+class UserOrders extends StatelessWidget {
+  final UserOrdersController controller = Get.put(UserOrdersController());
 
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      updateCategories();
-    });
-  }
-
-  void updateCategories() {
-    setState(() {
-      _isLoading = true;
-    });
-    final accountProvider =
-        Provider.of<LoginDataProvider>(context, listen: false);
-    String? phone = accountProvider.loginData?.phone;
-    getTickets(phone!,
-            Provider.of<SettingsProvider>(context, listen: false).languageCode)
-        .then((value) => setState(() {
-              tickets = value;
-              print('VALUE OF THE EVENTS: $value');
-            }));
-    setState(() {
-      _isLoading = false;
-    });
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Here we start listening to changes in SettingsProvider
-    Provider.of<SettingsProvider>(context).addListener(updateCategories);
-  }
-
-  @override
-  void dispose() {
-    Provider.of<SettingsProvider>(context).removeListener(updateCategories);
-    super.dispose();
-  }
+  UserOrders({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final ScrollController scrollController = ScrollController();
-
-    return ListView.builder(
-        controller: scrollController,
-        physics: const BouncingScrollPhysics(),
-        itemCount: tickets.length,
-        itemBuilder: (BuildContext context, int index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          UserTicketDetails(ticket: tickets[index])));
-            },
-            child: Container(
-              color: Colors.transparent,
-              child: Padding(
-                padding: const EdgeInsets.only(
-                  top: 8.0,
-                  bottom: 3.0,
-                  left: 10,
+    return Scaffold(
+        body: Column(
+      children: [
+        Container(
+          color: const Color(0xFF23981C),
+          child: TabBar(
+              indicatorColor: Colors.white,
+              controller: controller.tabController,
+              tabs: [
+                Tab(
+                  text: 'active_orders'.tr,
                 ),
+                Tab(
+                  text: 'past_orders'.tr,
+                ),
+              ]),
+        ),
+        Expanded(
+          child: TabBarView(controller: controller.tabController, children: [
+            CartScreen(
+              fromBottomNav: true,
+            ),
+            PastOrders(controller: controller),
+          ]),
+        )
+      ],
+    ));
+  }
+}
+
+class PastOrders extends StatelessWidget {
+  const PastOrders({
+    super.key,
+    required this.controller,
+  });
+
+  final UserOrdersController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() => controller.isLoading.value
+        ? const Center(child: CircularProgressIndicator())
+        : controller.orders.isEmpty
+            ? Center(
                 child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(right: 10.0),
-                          child: SizedBox(
-                            width: 130,
-                            height: 130,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10.0),
-                              child: tickets[index].eventImage == null ||
-                                      tickets[index].eventImage! ==
-                                          'https://admin.ticketmaster-et.com/public/storage' ||
-                                      tickets[index].eventImage! ==
-                                          'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
-                                      tickets[index].eventImage! ==
-                                          'https://admin.ticketmaster-et.com/public/storage/aaa' ||
-                                      tickets[index].eventImage! ==
-                                          'https://admin.ticketmaster-et.com/public/storage/' ||
-                                      tickets[index].eventImage! ==
-                                          'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                                  ? Image.asset(
-                                      'assets/images/na_logo.jpg',
-                                      fit: BoxFit.cover,
-                                    )
-                                  : CachedNetworkImage(
-                                      //  cacheManager: cacheProp(),
-                                      fadeOutDuration:
-                                          const Duration(milliseconds: 300),
-                                      fadeOutCurve: Curves.easeOut,
-                                      fadeInDuration:
-                                          const Duration(milliseconds: 700),
-                                      fadeInCurve: Curves.easeIn,
-                                      imageUrl: tickets[index]
-                                                      .eventImage!
-                                                      .trim() ==
-                                                  'https://admin.ticketmaster-et.com/public/storage' ||
-                                              tickets[index]
-                                                      .eventImage!
-                                                      .trim() ==
-                                                  'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' ||
-                                              tickets[index]
-                                                      .eventImage!
-                                                      .trim() ==
-                                                  'https://admin.ticketmaster-et.com/public/storage/aaa' ||
-                                              tickets[index]
-                                                      .eventImage!
-                                                      .trim() ==
-                                                  'https://admin.ticketmaster-et.com/public/storage/' ||
-                                              tickets[index]
-                                                      .eventImage!
-                                                      .trim() ==
-                                                  'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                                          ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
-                                          : tickets[index].eventImage!.trim(),
-                                      imageBuilder: (context, imageProvider) =>
-                                          Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
-                                          ),
-                                        ),
-                                      ),
-                                      // placeholder: (context, url) =>
-                                      //     mainPageVerticalScrollImageShimmer(
-                                      //         isDark),
-                                      errorWidget: (context, url, error) =>
-                                          Image.asset(
-                                        'assets/images/na_logo.jpg',
+                children: [
+                  Text('no_orders_found'.tr),
+                  ElevatedButton(
+                      onPressed: () => controller.updateCategories(),
+                      child: Text('try_again'.tr)),
+                ],
+              ))
+            : ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                itemCount: controller.orders.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Get.toNamed(Routes.orderDetailRoute,
+                          arguments: {'order': controller.orders[index]});
+                    },
+                    child: Container(
+                      color: Colors.transparent,
+                      child: Padding(
+                        padding: const EdgeInsets.only(
+                            top: 8.0, bottom: 3.0, left: 10),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: SizedBox(
+                                    width: 130,
+                                    height: 130,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: CachedNetworkImage(
+                                        imageUrl: controller.orders[index].image
+                                                ?.trim() ??
+                                            '',
                                         fit: BoxFit.cover,
+                                        errorWidget: (context, url, error) =>
+                                            Image.asset(
+                                                'assets/images/na_logo.jpg',
+                                                fit: BoxFit.cover),
                                       ),
                                     ),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        controller.orders[index].className!,
+                                        style: const TextStyle(
+                                            fontFamily: 'PoppinsSB',
+                                            fontSize: 15,
+                                            overflow: TextOverflow.ellipsis),
+                                      ),
+                                      Text(controller.orders[index].status!),
+                                      Row(
+                                        children: <Widget>[
+                                          const Icon(Icons.calendar_month),
+                                          Text(
+                                            formatOrderDate(DateTime.parse(
+                                                    controller.orders[index]
+                                                        .eventDate!))
+                                                .toString(),
+                                          ),
+                                        ],
+                                      ),
+                                      Text(controller.orders[index].mealType ??
+                                          ' '),
+                                      Text(controller.orders[index]
+                                                  .paymentStatus ==
+                                              true
+                                          ? 'paid'.tr
+                                          : 'Not Paid'.tr),
+                                    ],
+                                  ),
+                                )
+                              ],
                             ),
-                          ),
+                            const Divider(
+                              color: Colors.white54,
+                              thickness: 1,
+                              endIndent: 20,
+                              indent: 10,
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                tickets[index].eventName!,
-                                style: const TextStyle(
-                                    fontFamily: 'PoppinsSB',
-                                    fontSize: 15,
-                                    overflow: TextOverflow.ellipsis),
-                              ),
-                              Text(tickets[index].eventTime!),
-                              Row(
-                                children: <Widget>[
-                                  const Icon(
-                                    Icons.calendar_month,
-                                  ),
-                                  Text(
-                                    tickets[index].eventDate!,
-                                    style:
-                                        const TextStyle(fontFamily: 'Poppins'),
-                                  ),
-                                ],
-                              ),
-                              Text(tickets[index].eventPlace ?? ' '),
-                              Text(tickets[index].ticket_number ?? ' '),
-                            ],
-                          ),
-                        )
-                      ],
+                      ),
                     ),
-                    const Divider(
-                      //  color: !isDark ? Colors.black54 : Colors.white54,
-                      color: Colors.white54,
-                      thickness: 1,
-                      endIndent: 20,
-                      indent: 10,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          );
-        });
+                  );
+                }));
+  }
+
+  String formatOrderDate(DateTime eventDate) {
+    final now = DateTime.now();
+    final difference = now.difference(eventDate);
+
+    // If the difference is less than a minute
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    }
+    // If the difference is less than an hour
+    else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes} minute${difference.inMinutes > 1 ? 's' : ''} ago';
+    }
+    // If the difference is less than a day
+    else if (difference.inHours < 24) {
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    }
+    // If the difference is less than a week
+    else if (difference.inDays < 7) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    }
+    // Otherwise, format it as a specific date
+    else {
+      return DateFormat('yMMMd').format(eventDate);
+    }
   }
 }

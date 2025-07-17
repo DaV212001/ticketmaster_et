@@ -1,14 +1,14 @@
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/endpoints.dart';
 import '../functions/functions.dart';
 import '../models/newmodels.dart';
+import '../prefs/language_selector.dart';
+import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
-import 'login.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -38,8 +38,7 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         _isLoading = true;
       });
-      final signupProvider =
-          Provider.of<LoginDataProvider>(context, listen: false);
+      final signupProvider = Get.find<LoginDataProvider>(tag: 'login');
       LoginData? log = LoginData();
       log.firstName = _firstName;
       log.lastName = _lastName;
@@ -48,14 +47,14 @@ class _SignupScreenState extends State<SignupScreen> {
       await signupResponse(
               Signup(
                   confirmPassword: "$_confirmPassword",
-                  cityid: _cityid,
+                  cityid: _cityid ?? '',
                   email: _email,
                   firstName: _firstName,
                   lastName: _lastName,
                   password: _password,
                   phoneNumber: "251$_phoneNumber",
                   promoCode: _promoCode),
-              Endpoints.signupEndpoint())
+              '${baseUrlFunc}register')
           .then((value) async {
         // Add async here
         if (value.message != null) {
@@ -66,10 +65,7 @@ class _SignupScreenState extends State<SignupScreen> {
             log.phone = '251$_phoneNumber';
             signupProvider.setUserRegistered(true);
             await signupProvider.setLoginData(log); // Use await here
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) {
-              return LoginScreen();
-            }));
+            Get.offNamed(Routes.loginRoute);
           }
         } else {
           signupProvider.setUserRegistered(false);
@@ -106,9 +102,16 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
+  var obscure = true.obs;
+  var obscureConf = true.obs;
   @override
   Widget build(BuildContext context) {
     final languageChange = Provider.of<SettingsProvider>(context);
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     return Container(
       decoration: BoxDecoration(color: Colors.grey[100]),
       child: SafeArea(
@@ -117,7 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
           body: Stack(
             children: [
               Image.asset(
-                'assets/images/sign_up_backg.png',
+                'assets/images/login_backg.png',
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 fit: BoxFit.fill,
@@ -130,53 +133,11 @@ class _SignupScreenState extends State<SignupScreen> {
                       Container(
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(15),
-                            color: Colors.transparent),
-                        child: DropdownButton(
-                            value: languageChange.languageCode,
-                            style: TextStyle(color: Colors.white),
-                            dropdownColor: Color(0xFF207D36),
-                            items: const [
-                              DropdownMenuItem(
-                                  value: 'en', child: Text('English')),
-                              DropdownMenuItem(
-                                  value: 'am', child: Text('Amharic')),
-                              DropdownMenuItem(
-                                  value: 'en-AU', child: Text('Afaan Oromo')),
-                              DropdownMenuItem(
-                                  value: 'es', child: Text('Somali')),
-                              DropdownMenuItem(
-                                  value: 'fr', child: Text('Tigrinya')),
-                            ],
-                            onChanged: (String? value) {
-                              setState(() async {
-                                languageChange.languageCode = value!;
-                                List<String> codes =
-                                    languageChange.languageCode.split('-');
-                                String langCode = codes[0];
-                                String countryCode =
-                                    codes.length > 1 ? codes[1] : '';
-
-                                // Save langCode and countryCode in shared preferences
-                                SharedPreferences prefs =
-                                    await SharedPreferences.getInstance();
-                                await prefs.setString('langCode', langCode);
-                                if (countryCode.isNotEmpty) {
-                                  await prefs.setString(
-                                      'countryCode', countryCode);
-                                } else {
-                                  await prefs.remove('countryCode');
-                                }
-
-                                // Set locale for EasyLocalization
-                                if (countryCode.isNotEmpty) {
-                                  EasyLocalization.of(context)!
-                                      .setLocale(Locale(langCode, countryCode));
-                                } else {
-                                  EasyLocalization.of(context)!
-                                      .setLocale(Locale(langCode));
-                                }
-                              });
-                            }),
+                            color: Colors.white),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: LanguageSelectorButton(onChange: () {}),
+                        ),
                       ),
                     ],
                   ),
@@ -188,483 +149,612 @@ class _SignupScreenState extends State<SignupScreen> {
                           key: _formKey,
                           child: Column(
                             children: [
-                              Image(
-                                image: AssetImage(
-                                    'assets/images/sign_up_backg_sec.png'),
-                                width: 170.0, // Set the desired width
-                                height: 170.0, // Set the desired height
+                              Center(
+                                child: Image(
+                                  image: AssetImage(
+                                      'assets/images/hello_mesa_string.png'),
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.5,
+                                ),
                               ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
                                       children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            key: const ValueKey("name"),
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "name_empty";
-                                              } else if (value.length > 40 ||
-                                                  value.length < 2) {
-                                                return "name_short_long";
-                                              }
-                                              return null;
-                                            },
-                                            onSaved: (newValue) {
-                                              _firstName = newValue;
-                                            },
-                                            onChanged: (value) {
-                                              _firstName = value;
-                                            },
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            decoration: InputDecoration(
-                                              hintText: tr('first_name'),
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(16.0),
-                                            ),
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
                                           ),
                                         ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            key: const ValueKey("name"),
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "name_empty";
-                                              } else if (value.length > 40 ||
-                                                  value.length < 2) {
-                                                return "name_short_long";
-                                              }
-                                              return null;
-                                            },
-                                            onSaved: (newValue) {
-                                              _lastName = newValue;
-                                            },
-                                            onChanged: (value) {
-                                              _lastName = value;
-                                            },
-                                            decoration: InputDecoration(
-                                              hintText: tr('last_name'),
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(16.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
-                                      children: [
-                                        Text(
-                                          "+251",
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyLarge
-                                              ?.copyWith(color: Colors.white),
-                                        ),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        Expanded(
-                                            flex: 4,
-                                            child: Container(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 16.0),
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(15.0),
-                                                color: Colors
-                                                    .transparent, // Background color
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
                                               ),
-                                              child: TextFormField(
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                                key: const ValueKey("phone"),
-                                                validator: (value) {
-                                                  if (value!.isEmpty) {
-                                                    return "phone empty";
-                                                  } else if (value.length > 9 ||
-                                                      value.length < 9) {
-                                                    return "phone number invalid";
-                                                  }
-                                                  return null;
-                                                },
-                                                onSaved: (newValue) {
-                                                  _phoneNumber = newValue;
-                                                },
-                                                onChanged: (value) {
-                                                  _phoneNumber = value;
-                                                },
-                                                decoration:
-                                                    const InputDecoration(
-                                                  fillColor: Colors.transparent,
-                                                  filled: true,
-                                                  hintText: "9xxxxxxxx",
-                                                  hintStyle: TextStyle(
-                                                      color: Colors.white),
-                                                  border: InputBorder.none,
-                                                  contentPadding:
-                                                      EdgeInsets.all(16.0),
+                                              Expanded(
+                                                flex: 4,
+                                                child: TextFormField(
+                                                  key: const ValueKey("name"),
+                                                  validator: (value) {
+                                                    if (value!.isEmpty) {
+                                                      return "name_empty";
+                                                    } else if (value.length >
+                                                            40 ||
+                                                        value.length < 2) {
+                                                      return "name_short_long";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onSaved: (newValue) {
+                                                    _firstName = newValue;
+                                                  },
+                                                  onChanged: (value) {
+                                                    _firstName = value;
+                                                  },
+                                                  // style:
+                                                  //     TextStyle(color: Colors.white),
+                                                  decoration: InputDecoration(
+                                                    hintText: 'first_name'.tr,
+                                                    // hintStyle: TextStyle(
+                                                    //     color: Colors.white),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.all(16.0),
+                                                  ),
                                                 ),
                                               ),
-                                            )),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            key: const ValueKey("promocode"),
-                                            onSaved: (newValue) {
-                                              _promoCode = newValue;
-                                            },
-                                            onChanged: (value) {
-                                              _promoCode = value;
-                                            },
-                                            decoration: const InputDecoration(
-                                              hintText: "Promo code",
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(16.0),
-                                            ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
+                                    SizedBox(
+                                      height: 10,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
+                                    Stack(
+                                      alignment: Alignment.center,
                                       children: [
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: DropdownButton(
-                                                dropdownColor:
-                                                    Color(0xFF207D36),
-                                                style: TextStyle(
-                                                    color: Colors.white),
-                                                hint: Text(
-                                                  tr('city'),
-                                                  style: TextStyle(
-                                                      color: Colors.white),
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: TextFormField(
+                                                  // style:
+                                                  //     TextStyle(color: Colors.white),
+                                                  key: const ValueKey("name"),
+                                                  validator: (value) {
+                                                    if (value!.isEmpty) {
+                                                      return "name_empty";
+                                                    } else if (value.length >
+                                                            40 ||
+                                                        value.length < 2) {
+                                                      return "name_short_long";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  onSaved: (newValue) {
+                                                    _lastName = newValue;
+                                                  },
+                                                  onChanged: (value) {
+                                                    _lastName = value;
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    hintText: 'last_name'.tr,
+                                                    // hintStyle: TextStyle(
+                                                    //     color: Colors.white),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.all(16.0),
+                                                  ),
                                                 ),
-                                                isExpanded: true,
-                                                underline: Container(
-                                                  color: Colors.transparent,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              Text("+251",
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyLarge
+                                                  // ?.copyWith(color: Colors.white),
+                                                  ),
+                                              const SizedBox(
+                                                width: 5,
+                                              ),
+                                              Expanded(
+                                                  flex: 4,
+                                                  child: Container(
+                                                    padding: const EdgeInsets
+                                                        .symmetric(
+                                                        horizontal: 16.0),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              15.0),
+                                                      color: Colors
+                                                          .transparent, // Background color
+                                                    ),
+                                                    child: TextFormField(
+                                                      // style: TextStyle(
+                                                      //     color: Colors.white),
+                                                      key: const ValueKey(
+                                                          "phone"),
+                                                      validator: (value) {
+                                                        if (value!.isEmpty) {
+                                                          return "phone empty";
+                                                        } else if (value
+                                                                    .length >
+                                                                9 ||
+                                                            value.length < 9) {
+                                                          return "phone number invalid";
+                                                        }
+                                                        return null;
+                                                      },
+                                                      onSaved: (newValue) {
+                                                        _phoneNumber = newValue;
+                                                      },
+                                                      onChanged: (value) {
+                                                        _phoneNumber = value;
+                                                      },
+                                                      decoration:
+                                                          const InputDecoration(
+                                                        fillColor:
+                                                            Colors.transparent,
+                                                        filled: true,
+                                                        hintText: "9xxxxxxxx",
+                                                        // hintStyle: TextStyle(
+                                                        //     color: Colors.white),
+                                                        border:
+                                                            InputBorder.none,
+                                                        contentPadding:
+                                                            EdgeInsets.all(
+                                                                16.0),
+                                                      ),
+                                                    ),
+                                                  )),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: TextFormField(
+                                                  // style:
+                                                  //     TextStyle(color: Colors.white),
+                                                  key: const ValueKey(
+                                                      "promocode"),
+                                                  onSaved: (newValue) {
+                                                    _promoCode = newValue;
+                                                  },
+                                                  onChanged: (value) {
+                                                    _promoCode = value;
+                                                  },
+                                                  decoration:
+                                                      const InputDecoration(
+                                                    hintText: "Promo code",
+                                                    // hintStyle: TextStyle(
+                                                    //     color: Colors.white),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        EdgeInsets.all(16.0),
+                                                  ),
                                                 ),
-                                                icon: Icon(
-                                                  Icons.expand_circle_down,
-                                                  color: Colors.white,
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    // Stack(
+                                    //   alignment: Alignment.center,
+                                    //   children: [
+                                    //     Container(
+                                    //       child: Image.asset(
+                                    //         'assets/images/input_backg.png',
+                                    //         width: MediaQuery.of(context).size.width,
+                                    //       ),
+                                    //     ),
+                                    //     Padding(
+                                    //       padding: const EdgeInsets.symmetric(
+                                    //           horizontal: 16.0),
+                                    //       child: Row(
+                                    //         children: [
+                                    //           Expanded(
+                                    //             child: Padding(
+                                    //               padding: const EdgeInsets.all(8.0),
+                                    //               child: DropdownButton(
+                                    //                   // dropdownColor:
+                                    //                   //     Color(0xFF207D36),
+                                    //                   // style: TextStyle(
+                                    //                   //     color: Colors.white),
+                                    //                   hint: Text(
+                                    //                     'city'.tr,
+                                    //                     // style: TextStyle(
+                                    //                     //     color: Colors.white),
+                                    //                   ),
+                                    //                   isExpanded: true,
+                                    //                   underline: Container(
+                                    //                     color: Colors.transparent,
+                                    //                   ),
+                                    //                   icon: Icon(
+                                    //                     Icons.expand_circle_down,
+                                    //                     color: Colors.white,
+                                    //                   ),
+                                    //                   value: _cityid,
+                                    //                   items: const [
+                                    //                     DropdownMenuItem(
+                                    //                         value: '1',
+                                    //                         child:
+                                    //                             Text('Addis Ababa')),
+                                    //                     DropdownMenuItem(
+                                    //                         value: '2',
+                                    //                         child: Text('Hawassa')),
+                                    //                   ],
+                                    //                   onChanged: (String? value) {
+                                    //                     setState(() {
+                                    //                       _cityid = value;
+                                    //                     });
+                                    //                   }),
+                                    //             ),
+                                    //           ),
+                                    //         ],
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: TextFormField(
+                                                  // style:
+                                                  //     TextStyle(color: Colors.white),
+                                                  key: const ValueKey("email"),
+                                                  onSaved: (newValue) {
+                                                    _email = newValue;
+                                                  },
+                                                  onChanged: (value) {
+                                                    _email = value;
+                                                  },
+                                                  validator: (value) {
+                                                    if (value!.isEmpty) {
+                                                      return "email empty";
+                                                    } else if (value.length >
+                                                            50 ||
+                                                        value.length < 6 ||
+                                                        !value.contains('@')) {
+                                                      return "email invalid";
+                                                    }
+                                                    return null;
+                                                  },
+                                                  decoration: InputDecoration(
+                                                    hintText: 'email'.tr,
+                                                    // hintStyle: TextStyle(
+                                                    //     color: Colors.white),
+                                                    border: InputBorder.none,
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            16.0),
+                                                  ),
                                                 ),
-                                                value: _cityid,
-                                                items: const [
-                                                  DropdownMenuItem(
-                                                      value: '1',
-                                                      child:
-                                                          Text('Addis Ababa')),
-                                                  DropdownMenuItem(
-                                                      value: '2',
-                                                      child: Text('Hawassa')),
-                                                ],
-                                                onChanged: (String? value) {
-                                                  setState(() {
-                                                    _cityid = value;
-                                                  });
-                                                }),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
+                                    SizedBox(
+                                      height: 10,
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
+                                    Stack(
+                                      alignment: Alignment.center,
                                       children: [
-                                        const SizedBox(
-                                          width: 15,
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
                                         ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            key: const ValueKey("email"),
-                                            onSaved: (newValue) {
-                                              _email = newValue;
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: Obx(
+                                                  () => TextFormField(
+                                                    // style:
+                                                    //     TextStyle(color: Colors.white),
+                                                    key: const ValueKey(
+                                                        "password"),
+                                                    validator: (value) {
+                                                      if (value!.isEmpty) {
+                                                        return "password empty";
+                                                      } else if (value.length >
+                                                              40 ||
+                                                          value.length < 3) {
+                                                        return "password too short or too long";
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onSaved: (newValue) {
+                                                      _password = newValue;
+                                                    },
+                                                    onChanged: (value) {
+                                                      _password = value;
+                                                    },
+                                                    obscureText: obscure.value,
+                                                    decoration: InputDecoration(
+                                                      suffixIcon:
+                                                          GestureDetector(
+                                                        onTap: () {
+                                                          obscure.toggle();
+                                                        },
+                                                        child: Obx(() => obscure
+                                                                .value
+                                                            ? const Icon(Icons
+                                                                .visibility_off)
+                                                            : const Icon(Icons
+                                                                .visibility)),
+                                                      ),
+                                                      hintText: 'password'.tr,
+                                                      // hintStyle: TextStyle(
+                                                      //     color: Colors.white),
+                                                      border: InputBorder.none,
+                                                      contentPadding:
+                                                          EdgeInsets.all(16.0),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          child: Image.asset(
+                                            'assets/images/input_backg.png',
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 16.0),
+                                          child: Row(
+                                            children: [
+                                              const SizedBox(
+                                                width: 15,
+                                              ),
+                                              Expanded(
+                                                flex: 4,
+                                                child: Obx(
+                                                  () => TextFormField(
+                                                    // style:
+                                                    //     TextStyle(color: Colors.white),
+                                                    key: const ValueKey(
+                                                        "password_confirm"),
+                                                    validator: (value) {
+                                                      if (value!.isEmpty) {
+                                                        return "password empty";
+                                                      } else if (_password !=
+                                                          _confirmPassword) {
+                                                        return "passwords don't match";
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onSaved: (newValue) {
+                                                      _confirmPassword =
+                                                          newValue;
+                                                    },
+                                                    onChanged: (value) {
+                                                      _confirmPassword = value;
+                                                    },
+                                                    obscureText:
+                                                        obscureConf.value,
+                                                    decoration: InputDecoration(
+                                                      suffixIcon:
+                                                          GestureDetector(
+                                                        onTap: () {
+                                                          obscureConf.toggle();
+                                                        },
+                                                        child: Obx(() => obscureConf
+                                                                .value
+                                                            ? const Icon(Icons
+                                                                .visibility_off)
+                                                            : const Icon(Icons
+                                                                .visibility)),
+                                                      ),
+                                                      hintText:
+                                                          'confirm_pass'.tr,
+                                                      // hintStyle: TextStyle(
+                                                      //     color: Colors.white),
+                                                      border: InputBorder.none,
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              16.0),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    _isLoading
+                                        ? const CircularProgressIndicator()
+                                        : GestureDetector(
+                                            onTap: () => {
+                                              submitForm(),
+                                              // Navigator.push(context,
+                                              //     MaterialPageRoute(builder: ((context) {
+                                              //   return const VerificationScreen();
+                                              // })))
                                             },
-                                            onChanged: (value) {
-                                              _email = value;
-                                            },
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "email empty";
-                                              } else if (value.length > 50 ||
-                                                  value.length < 6 ||
-                                                  !value.contains('@')) {
-                                                return "email invalid";
-                                              }
-                                              return null;
-                                            },
-                                            decoration: InputDecoration(
-                                              hintText: tr('email'),
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  const EdgeInsets.all(16.0),
+                                            child: Image.asset(
+                                              'assets/images/sign_up_but.png',
+                                              height: MediaQuery.of(context)
+                                                      .size
+                                                      .height *
+                                                  0.09,
                                             ),
                                           ),
-                                        ),
-                                      ],
+                                    const SizedBox(
+                                      height: 25,
                                     ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
+                                    Column(
                                       children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            key: const ValueKey("password"),
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "password empty";
-                                              } else if (value.length > 40 ||
-                                                  value.length < 3) {
-                                                return "password too short or too long";
-                                              }
-                                              return null;
-                                            },
-                                            onSaved: (newValue) {
-                                              _password = newValue;
-                                            },
-                                            onChanged: (value) {
-                                              _password = value;
-                                            },
-                                            decoration: InputDecoration(
-                                              hintText: tr('password'),
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(16.0),
-                                            ),
-                                          ),
-                                        ),
+                                        Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: <Widget>[
+                                              // Add a text widget to display "Don't have an account?"
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                    bottom: 0.0),
+                                                child: Text(
+                                                  'alr_hv_acc'.tr,
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                      color: Color(0xFFFF9100),
+                                                      fontSize: 19,
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                width: 3,
+                                              ),
+                                              // Add a gesture detector widget to handle the tap event on the link
+                                              GestureDetector(
+                                                onTap: () {
+                                                  Get.toNamed(
+                                                      Routes.loginRoute);
+                                                },
+                                                // Add a text widget to display "Register" as a link
+                                                child: Image.asset(
+                                                  'assets/images/sign_in_but.png',
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .height *
+                                                      0.09,
+                                                ),
+                                              )
+                                            ]),
                                       ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  Container(
-                                    child: Image.asset(
-                                      'assets/images/sign_up_input_backg.png',
-                                      width: MediaQuery.of(context).size.width,
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16.0),
-                                    child: Row(
-                                      children: [
-                                        const SizedBox(
-                                          width: 15,
-                                        ),
-                                        Expanded(
-                                          flex: 4,
-                                          child: TextFormField(
-                                            style:
-                                                TextStyle(color: Colors.white),
-                                            key: const ValueKey(
-                                                "password_confirm"),
-                                            validator: (value) {
-                                              if (value!.isEmpty) {
-                                                return "password empty";
-                                              } else if (_password !=
-                                                  _confirmPassword) {
-                                                return "passwords don't match";
-                                              }
-                                              return null;
-                                            },
-                                            onSaved: (newValue) {
-                                              _confirmPassword = newValue;
-                                            },
-                                            onChanged: (value) {
-                                              _confirmPassword = value;
-                                            },
-                                            decoration: InputDecoration(
-                                              hintText: tr('confirm_pass'),
-                                              hintStyle: TextStyle(
-                                                  color: Colors.white),
-                                              border: InputBorder.none,
-                                              contentPadding:
-                                                  EdgeInsets.all(16.0),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              _isLoading
-                                  ? const CircularProgressIndicator()
-                                  : GestureDetector(
-                                      onTap: () => {
-                                        submitForm(),
-                                        // Navigator.push(context,
-                                        //     MaterialPageRoute(builder: ((context) {
-                                        //   return const VerificationScreen();
-                                        // })))
-                                      },
-                                      child: Image.asset(
-                                        'assets/images/sign_up_but.png',
-                                        height:
-                                            MediaQuery.of(context).size.height *
-                                                0.09,
-                                      ),
-                                    ),
-                              const SizedBox(
-                                height: 25,
+                                    )
+                                  ],
+                                ),
                               ),
                             ],
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                  Center(
-                    child: Image(
-                      image: AssetImage('assets/images/hello_mesa_string.png'),
-                      width: MediaQuery.of(context).size.width * 0.7,
                     ),
                   ),
 

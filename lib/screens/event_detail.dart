@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:chapa_unofficial/chapa_unofficial.dart';
-import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
@@ -287,7 +287,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
         tab: Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Flexible(child: Text(tr('desc')))],
+            children: [Flexible(child: Text('desc'.tr))],
           ),
         ),
         view: widget.event.desc == '0' || widget.event.desc == null
@@ -311,7 +311,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
         tab: Tab(
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: [Flexible(child: Text(tr('review')))],
+            children: [Flexible(child: Text('review'.tr))],
           ),
         ),
         view: EventReview(event: widget.event),
@@ -338,9 +338,9 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                   _isLoading = true;
                 });
                 final loginDataProvider =
-                    Provider.of<LoginDataProvider>(context, listen: false);
+                    Get.find<LoginDataProvider>(tag: 'login');
                 final accountProvider =
-                    Provider.of<LoginDataProvider>(context, listen: false);
+                    Get.find<LoginDataProvider>(tag: 'login');
                 String? phone =
                     accountProvider.loginData?.phone?.replaceFirst("251", "0");
                 if (events.isNotEmpty && events[0].classes!.isNotEmpty) {
@@ -364,12 +364,14 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                               });
                               l = await bookEvent(
                                 Booking(
-                                    customerId: int.parse(
+                                    userId: int.parse(
                                         phone!.replaceFirst("0", "251")),
                                     foodId: events[0].id,
-                                    foodPortionId: events[0].classes![0].id,
-                                    mealTypeId: phone.replaceFirst("0", "251"),
-                                    location: ticketNum,
+                                    foodOrderId: events[0].classes![0].id,
+                                    paymentStatus:
+                                        phone.replaceFirst("0", "251"),
+                                    amount: '',
+                                    transaction: ticketNum,
                                     date: events[0]
                                         .classes![0]
                                         .price!
@@ -437,12 +439,12 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                     });
                     BookingResponse l = await bookEvent(
                       Booking(
-                          customerId:
-                              int.parse(phone!.replaceFirst("0", "251")),
+                          userId: int.parse(phone!.replaceFirst("0", "251")),
                           foodId: events[0].id,
-                          foodPortionId: events[0].classes![0].id,
-                          mealTypeId: phone.replaceFirst("0", "251"),
-                          location: ticketNum,
+                          foodOrderId: events[0].classes![0].id,
+                          paymentStatus: phone.replaceFirst("0", "251"),
+                          transaction: ticketNum,
+                          amount: '',
                           date: events[0].classes![0].price!.toString()),
                     );
                     print(l);
@@ -462,11 +464,12 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                   });
                   BookingResponse l = await bookEvent(
                     Booking(
-                        customerId: int.parse(phone!.replaceFirst("0", "251")),
+                        userId: int.parse(phone!.replaceFirst("0", "251")),
                         foodId: events[0].id,
-                        foodPortionId: events[0].classes![0].id,
-                        mealTypeId: phone.replaceFirst("0", "251"),
-                        location: ticketNum,
+                        foodOrderId: events[0].classes![0].id,
+                        paymentStatus: phone.replaceFirst("0", "251"),
+                        transaction: ticketNum,
+                        amount: '',
                         date: events[0].classes![0].price!.toString()),
                   );
                   print(l);
@@ -485,7 +488,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                   ? const CircularProgressIndicator(
                       color: Colors.white,
                     )
-                  : Text('order'.tr()),
+                  : Text('order'.tr),
             ),
           ),
         ),

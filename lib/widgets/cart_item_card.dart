@@ -1,0 +1,243 @@
+import 'package:enefty_icons/enefty_icons.dart';
+import 'package:flutter/material.dart';
+
+import '../controllers/theme_controller.dart';
+import '../utils/cached_image_widget_wrapper.dart';
+
+class CartItemCard extends StatelessWidget {
+  final String image;
+  final String name;
+  final String description;
+  final String price;
+  final String amount;
+  final VoidCallback onAdd;
+  final VoidCallback onRemove;
+  // final VoidCallback onDuplicate;
+  final VoidCallback onImageTap;
+  final bool? isSelected;
+  // final bool favorited;
+  final Function()? onHeartTap;
+  const CartItemCard({
+    super.key,
+    required this.image,
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.onAdd,
+    required this.onRemove,
+    required this.amount,
+    // required this.onDuplicate,
+    this.isSelected,
+    required this.onImageTap,
+    // required this.favorited,
+    this.onHeartTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    var maincolor = Theme.of(context).primaryColor;
+    return Stack(children: [
+      Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardColor,
+              borderRadius: BorderRadius.circular(15),
+              boxShadow: [
+                BoxShadow(
+                  color: ThemeModeController.isCurrentlyLight()
+                      ? Colors.grey.withValues(alpha: 0.3)
+                      : Colors.black38,
+                  spreadRadius: 1,
+                  blurRadius: 10,
+                  offset: const Offset(0, 3), // changes position of shadow
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GestureDetector(
+                    onTap: onImageTap,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        cachedNetworkImageWrapper(
+                          imageUrl: image,
+                          width: MediaQuery.of(context).size.height * 0.12,
+                          height: MediaQuery.of(context).size.height * 0.12,
+                          fit: BoxFit.cover,
+                          imageBuilder: (context, imageProvider) =>
+                              SmallCardImageHolder(
+                            image: Image.network(
+                              image,
+                              width: MediaQuery.of(context).size.height * 0.12,
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          placeholderBuilder: (context, path) => Container(
+                              width: MediaQuery.of(context).size.height * 0.12,
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(15),
+                                  color: Colors.grey.withOpacity(0.2)),
+                              child: const CircularProgressIndicator()),
+                          errorWidgetBuilder: (context, path, obj) =>
+                              SmallCardImageHolder(
+                            image: Image.asset(
+                              'assets/images/logo.png',
+                              width: MediaQuery.of(context).size.height * 0.12,
+                              height: MediaQuery.of(context).size.height * 0.12,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                        if (isSelected == true)
+                          Container(
+                            width: MediaQuery.of(context).size.height * 0.12,
+                            height: MediaQuery.of(context).size.height * 0.12,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                // border: Border.all(color: Colors.white, width: 2),
+                                color: Colors.white.withOpacity(0.65)),
+                            child: Icon(
+                              EneftyIcons.tick_circle_bold,
+                              color: maincolor,
+                              size: 50,
+                            ),
+                          )
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            name,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleSmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          // SizedBox(
+                          //   width: MediaQuery.of(context).size.height * 0.25,
+                          //   child: Text(
+                          //     description,
+                          //     maxLines: 2,
+                          //     overflow: TextOverflow.ellipsis,
+                          //     softWrap: true,
+                          //     style: Theme.of(context)
+                          //         .textTheme
+                          //         .bodySmall
+                          //         ?.copyWith(color: Colors.grey, fontSize: 10),
+                          //   ),
+                          // ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            'ETB $price',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(fontWeight: FontWeight.w600),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Row(children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: GestureDetector(
+                                onTap: onRemove,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      color: amount != '1'
+                                          ? maincolor
+                                          : Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(3.0),
+                                      child: amount != '1'
+                                          ? const Icon(
+                                              Icons.remove,
+                                              color: Colors.white,
+                                            )
+                                          : const Icon(
+                                              EneftyIcons.trash_outline,
+                                              color: Colors.white,
+                                            ),
+                                    )),
+                              ),
+                            ),
+                            Text(amount),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: GestureDetector(
+                                onTap: onAdd,
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      color: maincolor,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Padding(
+                                      padding: EdgeInsets.all(3.0),
+                                      child: Icon(
+                                        Icons.add,
+                                        color: Colors.white,
+                                      ),
+                                    )),
+                              ),
+                            ),
+                          ])
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )),
+      // Positioned(
+      //   bottom: 10,
+      //   right: 10,
+      //   child: GestureDetector(
+      //     onTap: onDuplicate,
+      //     child: const Padding(
+      //       padding: EdgeInsets.all(5.0),
+      //       child: Icon(
+      //         EneftyIcons.add_circle_outline,
+      //         color: Colors.grey,
+      //       ),
+      //     ),
+      //   ),
+      // ),
+      // Positioned(
+      //   top: 10,
+      //   right: 10,
+      //   child: Padding(
+      //     padding: const EdgeInsets.all(8.0),
+      //     child: GestureDetector(
+      //       onTap: onHeartTap,
+      //       child: Icon(
+      //         favorited ? EneftyIcons.heart_bold : EneftyIcons.heart_outline,
+      //         color: maincolor,
+      //       ),
+      //     ),
+      //   ),
+      // ),
+    ]);
+  }
+}
