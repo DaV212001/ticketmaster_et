@@ -10,7 +10,7 @@ class RouteCard extends StatefulWidget {
   final VoidCallback onTap;
   final IconData icon;
   final String title;
-  RouteCard(
+  const RouteCard(
       {super.key,
       required this.onTap,
       required this.icon,
