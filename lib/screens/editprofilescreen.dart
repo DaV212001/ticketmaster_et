@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:ticketmaster_et/controllers/theme_controller.dart';
 import 'package:ticketmaster_et/prefs/language_selector.dart';
 
 import '../functions/functions.dart';
@@ -64,10 +65,10 @@ class _EditProfileState extends State<EditProfile> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return const AlertDialog(
+            return AlertDialog(
               content: Text(
-                'Profile picture updated successfully!',
-                style: TextStyle(color: Colors.green),
+                'profile_pic_updated'.tr,
+                style: const TextStyle(color: Colors.green),
               ),
             );
           },
@@ -76,10 +77,10 @@ class _EditProfileState extends State<EditProfile> {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return const AlertDialog(
+            return AlertDialog(
               content: Text(
-                'Failed to update profile picture!',
-                style: TextStyle(color: Colors.red),
+                'failed_pic_update'.tr,
+                style: const TextStyle(color: Colors.red),
               ),
             );
           },
@@ -113,32 +114,32 @@ class _EditProfileState extends State<EditProfile> {
       final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
 
       int? id = accountProvider.loginData?.id!;
+      String? languageCode = ThemeModeController.languageCode.value == 'es'
+          ? 'tg'
+          : ThemeModeController.languageCode.value == 'it'
+              ? 'or'
+              : ThemeModeController.languageCode.value == 'fr'
+                  ? 'so'
+                  : ThemeModeController.languageCode.value;
       UpdatedUser data = UpdatedUser(
           id: id,
           firstName: _firstName,
           lastName: _lastName,
           phone: '251${_phoneNumber.text}',
-          email: _email);
+          email: _email,
+          language: languageCode);
 
       await updateUser(data).then((value) async {
         if (value.message != null) {
           if (value.message == "User Updated successfully") {
             await accountProvider.updateName(_firstName!, _lastName!,
                 '251${_phoneNumber.text}', _email ?? '');
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return const AlertDialog(
-                  content: Text(
-                    'Successfully Edited',
-                    style: TextStyle(color: Colors.green),
-                  ),
-                );
-              },
-            );
+            Get.back();
+            Get.snackbar('success'.tr, 'success_edit'.tr,
+                backgroundColor: Colors.green, colorText: Colors.white);
           }
         } else {
-          String errorMessage = "Error Updating";
+          String errorMessage = "error_update".tr;
           if (value.error!.firstName != null) {
             errorMessage = errorMessageConcatenator(value.error!.firstName!);
           }
@@ -177,7 +178,7 @@ class _EditProfileState extends State<EditProfile> {
     // final languageChange = Provider.of<SettingsProvider>(context);
     final accountProvider = Get.find<LoginDataProvider>(tag: 'login');
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF23981C), // Change this to your desired color
+      statusBarColor: Colors.transparent, // Change this to your desired color
       statusBarIconBrightness: Brightness.light, // For light icons
       statusBarBrightness: Brightness.dark, // For iOS status bar
     ));

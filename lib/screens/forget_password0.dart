@@ -203,7 +203,7 @@ class _ForgetPassword0State extends State<ForgetPassword0> {
                                   } else if (phoneController.text.length > 9 ||
                                       phoneController.text.length < 9) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
+                                      const SnackBar(
                                         content: Text("Invalid amount"),
                                         backgroundColor: Colors.green,
                                         duration: Duration(seconds: 3),

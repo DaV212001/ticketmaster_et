@@ -1,12 +1,12 @@
 import 'dart:convert';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/controllers/theme_controller.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/prefs/shimmer_wrapper.dart';
 import 'package:ticketmaster_et/utils/cached_image_widget_wrapper.dart';
 
 import '../../../../functions/functions.dart';
@@ -19,7 +19,8 @@ class HomeCategoryController extends GetxController {
   var popularevents = <Event>[].obs;
   var organizers = <Organizer>[].obs;
   var specials = <Food>[].obs;
-  var isLoading = true.obs;
+  var isLoading = false.obs;
+  var isSpecialsLoading = false.obs;
 
   @override
   void onInit() {
@@ -29,17 +30,20 @@ class HomeCategoryController extends GetxController {
 
   void updateCategories() async {
     isLoading.value = true;
+    isSpecialsLoading.value = true;
     var languageCode = ThemeModeController.languageCode.value;
     try {
       var res = await http.get(Uri.parse('${baseUrlFunc}today_special'));
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
+        Logger().d(data);
         specials.value =
-            data['data'].map<Food>((e) => Food.fromJson(e, '')).toList();
+            data['data'].map<Food>((e) => Food.fromJson(e)).toList();
       }
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
     }
+    isSpecialsLoading.value = false;
     var fetchedCategories = await getCategorySubCategory(languageCode);
     categories.assignAll(fetchedCategories);
     //categories.insert(
@@ -73,170 +77,107 @@ class HomeScreenCategories extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Text(
-            'top_specials'.tr,
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-        ),
+        Obx(() => controller.specials.isNotEmpty
+            ? Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Text(
+                  'top_specials'.tr,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              )
+            : const SizedBox.shrink()),
         Obx(() {
-          if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+          if (controller.isSpecialsLoading.value) {
+            return SizedBox(
+              height:
+                  202, // adjust height to match your card height (image + labels)
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: 10,
+                shrinkWrap: true,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                itemBuilder: (context, subIndex) {
+                  final subCategory = Category.sampleCat.foods?[0];
+
+                  // Your card — mostly copied from your original code, trimmed a bit
+                  return HomeFoodCard(
+                    subCategory: subCategory ?? Food(),
+                    shimmering: true,
+                  );
+                },
+              ),
+            );
           }
 
-          return GridView.builder(
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: controller.specials.length,
-            itemBuilder: (context, subIndex) {
-              final subCategory = controller.specials![subIndex];
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GestureDetector(
-                  onTap: () {
-                    Get.toNamed(Routes.foodDetailRoute,
-                        arguments: {'id': subCategory.id!});
-                  },
-                  child: Container(
-                    width: 160,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).cardColor,
-                      shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 160,
-                          height: 150,
-                          decoration: const BoxDecoration(
-                              // shape: BoxShape.rectangle,
-                              // borderRadius: BorderRadius.only(
-                              //     topRight: Radius.circular(15),
-                              //     topLeft: Radius.circular(15)),
-                              ),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                                topRight: Radius.circular(15),
-                                topLeft: Radius.circular(15)),
-                            child: cachedNetworkImageWrapper(
-                              imageUrl: subCategory.image!.trim(),
-                              imageBuilder: (context, imageProvider) =>
-                                  Container(
-                                // width: 160,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.5),
-                                  // shape: BoxShape.rectangle,
-                                  // borderRadius: const BorderRadius.only(
-                                  //     topRight: Radius.circular(15),
-                                  //     topLeft: Radius.circular(15)),
-                                ),
-                                child: Image.network(
-                                  subCategory.image!.trim(),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              placeholderBuilder: (context, path) => Container(
-                                width: 160,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.5),
-                                  // shape: BoxShape.rectangle,
-                                  // borderRadius: const BorderRadius.only(
-                                  //     topRight: Radius.circular(15),
-                                  //     topLeft: Radius.circular(15)),
-                                ),
-                                child: const SizedBox(
-                                  height: 40,
-                                  width: 40,
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                              errorWidgetBuilder: (context, path, object) =>
-                                  Container(
-                                width: 160,
-                                height: 150,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .primaryColor
-                                      .withValues(alpha: 0.5),
-                                  // shape: BoxShape.rectangle,
-                                  // borderRadius: const BorderRadius.only(
-                                  //     topRight: Radius.circular(15),
-                                  //     topLeft: Radius.circular(15)),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(100),
-                                  child: Image.asset(
-                                    'assets/images/na_logo.jpg',
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                            child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                          child: AutoSizeText(
-                            subCategory.name!,
-                            minFontSize: 11,
-                            maxLines: 1,
-                            maxFontSize: 13,
-                          ),
-                        )),
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: SizedBox(
-                            width: double.infinity,
-                            height: 20,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Get.toNamed(Routes.foodDetailRoute,
-                                    arguments: {'id': subCategory.id!});
-                              },
-                              child: AutoSizeText(
-                                'see_detail'.tr,
-                                style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold),
-                                minFontSize: 10,
-                                maxLines: 1,
-                                maxFontSize: 12,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, childAspectRatio: 150 / 190),
+          final specials = controller.specials ?? [];
+
+          // Outer ListView for vertical scrolling of rows (each row is a horizontal ListView)
+          return SizedBox(
+            height:
+                202, // adjust height to match your card height (image + labels)
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: specials.length,
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+              itemBuilder: (context, subIndex) {
+                final subCategory = specials[subIndex];
+
+                // Your card — mostly copied from your original code, trimmed a bit
+                return HomeFoodCard(subCategory: subCategory);
+              },
+            ),
           );
-          //   },
-          // );
         }),
         Obx(() {
           if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator());
+            return ListView.builder(
+              shrinkWrap: true,
+              padding: EdgeInsets.zero,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 2,
+              itemBuilder: (context, index) {
+                final category = Category.sampleCat;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const ShimmerWrapper(
+                      isEnabled: true,
+                      child: Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          "category",
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      height: 172,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(left: 8),
+                        itemCount: 10,
+                        itemBuilder: (context, subIndex) {
+                          final subCategory = category.foods![0];
+                          return HomeFoodCard(
+                            subCategory: subCategory,
+                            shimmering: true,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
           }
 
           return ListView.builder(
             shrinkWrap: true,
+            padding: EdgeInsets.zero,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: controller.categories.length,
             itemBuilder: (context, index) {
@@ -249,7 +190,7 @@ class HomeScreenCategories extends StatelessWidget {
                     child: Text(
                       category.name!,
                       style: const TextStyle(
-                          fontSize: 24, fontWeight: FontWeight.bold),
+                          fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                   if (category.foods!.isEmpty)
@@ -266,173 +207,15 @@ class HomeScreenCategories extends StatelessWidget {
                     ))
                   else
                     SizedBox(
-                      height: 230,
+                      height: 172,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.only(left: 8),
                         itemCount: category.foods!.length,
                         itemBuilder: (context, subIndex) {
                           final subCategory = category.foods![subIndex];
-                          return Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GestureDetector(
-                              onTap: () {
-                                Get.toNamed(Routes.foodDetailRoute,
-                                    arguments: {'id': subCategory.id!});
-                              },
-                              child: Container(
-                                width: 160,
-                                decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  shape: BoxShape.rectangle,
-                                  borderRadius: BorderRadius.circular(15),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Stack(
-                                      children: [
-                                        Container(
-                                          width: 160,
-                                          height: 150,
-                                          decoration: const BoxDecoration(
-                                              // shape: BoxShape.rectangle,
-                                              // borderRadius: BorderRadius.only(
-                                              //     topRight: Radius.circular(15),
-                                              //     topLeft: Radius.circular(15)),
-                                              ),
-                                          child: ClipRRect(
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                    topRight:
-                                                        Radius.circular(15),
-                                                    topLeft:
-                                                        Radius.circular(15)),
-                                            child: cachedNetworkImageWrapper(
-                                              imageUrl:
-                                                  subCategory.image!.trim(),
-                                              imageBuilder:
-                                                  (context, imageProvider) =>
-                                                      Container(
-                                                // width: 160,
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .primaryColor
-                                                      .withValues(alpha: 0.5),
-                                                  // shape: BoxShape.rectangle,
-                                                  // borderRadius: const BorderRadius.only(
-                                                  //     topRight: Radius.circular(15),
-                                                  //     topLeft: Radius.circular(15)),
-                                                ),
-                                                child: Image.network(
-                                                  subCategory.image!.trim(),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              placeholderBuilder:
-                                                  (context, path) => Container(
-                                                width: 160,
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .primaryColor
-                                                      .withValues(alpha: 0.5),
-                                                  // shape: BoxShape.rectangle,
-                                                  // borderRadius: const BorderRadius.only(
-                                                  //     topRight: Radius.circular(15),
-                                                  //     topLeft: Radius.circular(15)),
-                                                ),
-                                                child: const SizedBox(
-                                                  height: 40,
-                                                  width: 40,
-                                                  child:
-                                                      CircularProgressIndicator(),
-                                                ),
-                                              ),
-                                              errorWidgetBuilder:
-                                                  (context, path, object) =>
-                                                      Container(
-                                                width: 160,
-                                                height: 150,
-                                                decoration: BoxDecoration(
-                                                  color: Theme.of(context)
-                                                      .primaryColor
-                                                      .withValues(alpha: 0.5),
-                                                  // shape: BoxShape.rectangle,
-                                                  // borderRadius: const BorderRadius.only(
-                                                  //     topRight: Radius.circular(15),
-                                                  //     topLeft: Radius.circular(15)),
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          100),
-                                                  child: Image.asset(
-                                                    'assets/images/na_logo.jpg',
-                                                    fit: BoxFit.cover,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        // Positioned(
-                                        //     top: 0,
-                                        //     left: 0,
-                                        //     child: Padding(
-                                        //       padding: const EdgeInsets.all(4.0),
-                                        //       child: Text(
-                                        //         'See details',
-                                        //         style: TextStyle(
-                                        //             fontSize: 10,
-                                        //             color: Theme.of(context)
-                                        //                 .primaryColor,
-                                        //             fontWeight: FontWeight.bold),
-                                        //       ),
-                                        //     )),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Expanded(
-                                        child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          left: 8.0, right: 8.0),
-                                      child: AutoSizeText(
-                                        subCategory.name!,
-                                        minFontSize: 11,
-                                        maxLines: 1,
-                                        maxFontSize: 13,
-                                      ),
-                                    )),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8),
-                                      child: SizedBox(
-                                        width: double.infinity,
-                                        height: 20,
-                                        child: ElevatedButton(
-                                          onPressed: () {
-                                            Get.toNamed(Routes.foodDetailRoute,
-                                                arguments: {
-                                                  'id': subCategory.id!
-                                                });
-                                          },
-                                          child: AutoSizeText(
-                                            'see_detail'.tr,
-                                            style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold),
-                                            minFontSize: 10,
-                                            maxLines: 1,
-                                            maxFontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                          return HomeFoodCard(
+                            subCategory: subCategory,
                           );
                         },
                       ),
@@ -443,6 +226,190 @@ class HomeScreenCategories extends StatelessWidget {
           );
         }),
       ],
+    );
+  }
+}
+
+class HomeFoodCard extends StatelessWidget {
+  const HomeFoodCard({
+    super.key,
+    required this.subCategory,
+    this.shimmering,
+  });
+
+  final Food subCategory;
+  final bool? shimmering;
+
+  @override
+  Widget build(BuildContext context) {
+    var width = 135.0;
+    var height = 100.0;
+    return Padding(
+      padding: const EdgeInsets.all(4.0),
+      child: GestureDetector(
+        onTap: () {
+          Get.toNamed(Routes.foodDetailRoute,
+              arguments: {'id': subCategory.id!});
+        },
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.2),
+              spreadRadius: -8,
+              blurRadius: 10,
+              offset: const Offset(0, 0), // changes position of shadow
+            ),
+          ]),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Image stack
+              ShimmerWrapper(
+                isEnabled: shimmering ?? false,
+                child: Stack(
+                  children: [
+                    Container(
+                      width: width,
+                      height: height,
+                      decoration: BoxDecoration(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(7),
+                            topRight: Radius.circular(7),
+                          ),
+                          color: Theme.of(context).cardColor),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(7),
+                          topRight: Radius.circular(7),
+                        ),
+                        child: SizedBox(
+                          width: width,
+                          height: height,
+                          child: cachedNetworkImageWrapper(
+                            imageUrl: subCategory.image!.trim(),
+                            imageBuilder: (context, imageProvider) =>
+                                Image.network(
+                              subCategory.image!.trim(),
+                              fit: BoxFit.cover,
+                              width: width,
+                              height: height,
+                            ),
+                            placeholderBuilder: (context, path) => Container(
+                              width: width,
+                              height: height,
+                              alignment: Alignment.center,
+                              child: const SizedBox(
+                                height: 40,
+                                width: 40,
+                                child: CircularProgressIndicator(),
+                              ),
+                            ),
+                            errorWidgetBuilder: (context, path, object) =>
+                                Container(
+                              width: width,
+                              height: height,
+                              child: Image.asset(
+                                'assets/images/na_logo.jpg',
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Discount badge
+                    if (subCategory.isDiscounted == true)
+                      Positioned(
+                        top: 5,
+                        left: 0,
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: Colors.green,
+                            borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(5),
+                              bottomRight: Radius.circular(5),
+                            ),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              '${subCategory.discountPercentage}% Discount',
+                              style: const TextStyle(
+                                  fontSize: 10, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                    // Bottom black overlay with name & price
+                  ],
+                ),
+              ),
+              Container(
+                width: width,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(7),
+                    bottomRight: Radius.circular(7),
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: ShimmerWrapper(
+                    isEnabled: shimmering,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0, vertical: 2),
+                          child: Text(
+                            subCategory.name!,
+                            style: const TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.bold),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        // const SizedBox(height: 4),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 4.0, vertical: 2),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '${subCategory.price!.toStringAsFixed(2)} ${'etb'.tr}',
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (subCategory.isDiscounted == true)
+                                Text(
+                                  '${subCategory.price! + subCategory.price! * (subCategory.discountPercentage! / 100)} ${'etb'.tr}',
+                                  style: const TextStyle(
+                                      decoration: TextDecoration.lineThrough,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 10),
+                                )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

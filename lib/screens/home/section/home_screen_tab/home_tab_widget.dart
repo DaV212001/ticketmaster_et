@@ -2,46 +2,43 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
 
-import '../../../../controllers/home_controller.dart';
 import 'home_screen_carousel.dart';
 import 'home_screen_categories.dart';
 
 class HomeTabWidget extends StatelessWidget {
-  HomeTabWidget({super.key});
+  const HomeTabWidget({super.key});
 
-  final HomeController controller = Get.put(HomeController());
+  // final HomeController controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
-      } else {
-        return SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                controller.isLoading.value
-                    ? const CircularProgressIndicator()
-                    : HomeScreenCarouselSlider(),
-                const SizedBox(
-                  height: 10,
-                ),
-                const TargetCountCard(),
-                controller.categories.isNotEmpty
-                    ? HomeScreenCategories()
-                    : Center(
-                        child: Image.network(
-                            'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
-                      ),
-              ],
-            ),
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          if (Get.isRegistered<HomeCategoryController>(
+              tag: HomeCategoryController.tag)) {
+            Get.find<HomeCategoryController>(tag: HomeCategoryController.tag)
+                .updateCategories();
+          }
+          if (Get.isRegistered<HomeCarouselController>()) {
+            Get.find<HomeCarouselController>().fetchPromotionalImages();
+          }
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeScreenCarouselSlider(),
+              // const SizedBox(
+              //   height: 10,
+              // ),
+              const TargetCountCard(),
+              HomeScreenCategories(),
+            ],
           ),
-        );
-      }
-    });
+        ),
+      ),
+    );
   }
 }
 
@@ -92,7 +89,7 @@ class TargetCountCard extends StatelessWidget {
                                   widthFactor: (Get.find<ProfileController>()
                                               .targetCount
                                               .value /
-                                          100)
+                                          10)
                                       .clamp(0.0, 1.0),
                                   child: Container(
                                     height: 10,

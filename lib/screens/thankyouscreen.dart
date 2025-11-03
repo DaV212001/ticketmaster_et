@@ -1,6 +1,5 @@
 // import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:ticketmaster_et/main_layout_screen.dart';
 
 import '../models/newmodels.dart';
@@ -34,7 +33,7 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
             child: ElevatedButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return TicketMatserHomePage(title: 'ticketmaster_name'.tr);
+                    return TicketMatserHomePage();
                   }));
                 },
                 style: ButtonStyle(

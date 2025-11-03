@@ -11,6 +11,7 @@ class PhoneInputField extends StatelessWidget {
   final double height;
   final bool? validate;
   final String? initialValue;
+  final bool? styled;
   final GlobalKey<FormState>? formKey;
 
   const PhoneInputField(
@@ -20,19 +21,21 @@ class PhoneInputField extends StatelessWidget {
       this.validate,
       this.formKey,
       this.initialValue,
-      this.onChanged});
+      this.onChanged,
+      this.styled});
 
   @override
   Widget build(BuildContext context) {
     return FormField<String>(
       // key: widget.formKey,
+      initialValue: initialValue,
       builder: (validationState) {
         return IntlPhoneField(
           // key: widget.formKey,
           initialValue: initialValue,
           controller: controller,
           decoration: InputDecoration(
-            filled: true,
+            filled: !(styled ?? false),
             fillColor: Colors.grey[200],
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),

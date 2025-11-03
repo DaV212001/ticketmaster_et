@@ -238,34 +238,37 @@ class Event {
   }
 }
 
-class Order {
-  String? className;
+class OrderItem {
+  DateTime? orderDate;
   String? image;
-  String? portion;
-  String? mealType;
-  String? eventDate;
-  String? date;
-  String? phone;
-  String? ticket_number;
-  String? status;
-  bool? paymentStatus;
+  String? foodName;
+  int? foodId;
+  String? price;
+  String? rating;
+  int? quantity;
+  String? paymentType;
+  String? paymentStatus;
 
-  Order(
-      {this.phone,
-      this.paymentStatus,
-      this.status,
-      this.className,
-      this.eventDate,
+  OrderItem(
+      {this.orderDate,
       this.image,
-      this.portion,
-      this.mealType,
-      this.date,
-      this.ticket_number});
+      this.foodName,
+      this.price,
+      this.foodId,
+      this.quantity,
+      this.rating,
+      this.paymentType,
+      this.paymentStatus});
 
-  Order.fromJson(Map<String, dynamic> json, String language) {
-    phone = json['order_date'];
-    status = statusConverter(json['status']);
-    paymentStatus = json['payment_status'] == 1 ? true : false;
+  OrderItem.fromJson(Map<String, dynamic> json) {
+    orderDate = DateTime.parse(json['order_date']);
+    foodId = json['food_id'] is String
+        ? int.parse(json['food_id'])
+        : json['food_id'];
+    image = json['image'];
+    quantity = json['quantity'] is String
+        ? int.parse(json['quantity'])
+        : json['quantity'];
     String? languageCode = ThemeModeController.languageCode.value == 'es'
         ? 'tg'
         : ThemeModeController.languageCode.value == 'it'
@@ -273,13 +276,90 @@ class Order {
             : ThemeModeController.languageCode.value == 'fr'
                 ? 'so'
                 : ThemeModeController.languageCode.value;
-    className = json['food_name_$languageCode'];
-    date = json['order_date'];
-    mealType = json['meal_type_$languageCode'];
-    ticket_number = "";
-    eventDate = json['order_date'];
+    foodName = json['food_name_$languageCode'];
+    price = json['price'];
+    rating = json['rating'];
+    paymentType = json['payment_type'];
+    paymentStatus = json['payment_status'];
+  }
+}
+
+class Order {
+  int? id;
+  String? className;
+  String? image;
+  String? organizationId;
+  String? location;
+  int? mealTypeId;
+  String? eventDate;
+  String? date;
+  String? phone;
+  int? totalFoods;
+  int? status;
+  int? statusNum;
+  int? rating;
+  double? price;
+  bool? paymentStatus;
+  int? paymentType;
+  List<OrderItem>? orderItems; // ✅ new field
+
+  Order(
+      {this.id,
+      this.phone,
+      this.paymentStatus,
+      this.status,
+      this.rating,
+      this.price,
+      this.mealTypeId,
+      this.statusNum,
+      this.className,
+      this.eventDate,
+      this.image,
+      this.organizationId,
+      this.location,
+      this.paymentType,
+      this.date,
+      this.totalFoods,
+      this.orderItems});
+
+  Order.fromJson(Map<String, dynamic> json, String language) {
+    id = json['id'] is String ? int.parse(json['id']) : json['id'];
+    phone = json['date'];
+    mealTypeId = json['meal_type_id'] is String
+        ? int.parse(json['meal_type_id'])
+        : json['meal_type_id'];
+    paymentType = json['payment_type'] is String
+        ? int.parse(json['payment_type'])
+        : json['payment_type'];
+    statusNum =
+        json['status'] is String ? int.parse(json['status']) : json['status'];
+    status =
+        json['status'] is String ? int.parse(json['status']) : json['status'];
+    paymentStatus = json['payment_status'] == 1 || json['payment_status'] == "1"
+        ? true
+        : false;
+    rating = json['total_quantity'] is String
+        ? int.parse(json['total_quantity'])
+        : json['total_quantity'];
+    price = json['total_price'] is String
+        ? double.parse(json['total_price'])
+        : json['total_price'];
+    // String? languageCode = ThemeModeController.languageCode.value == 'es'
+    //     ? 'tg'
+    //     : ThemeModeController.languageCode.value == 'it'
+    //         ? 'or'
+    //         : ThemeModeController.languageCode.value == 'fr'
+    //             ? 'so'
+    //             : ThemeModeController.languageCode.value;
+    className = '${'order_num'.tr}: ${json['id']}';
+    date = json['date'];
+    location = json['location'];
+    totalFoods = json['total_food'] is String
+        ? int.parse(json['total_food'])
+        : json['total_food'];
+    eventDate = json['date'];
     image = json.containsKey('image') ? json['image'] : '';
-    portion = json['food_portion_$languageCode'];
+    organizationId = json['organization_id'];
   }
 }
 
@@ -328,13 +408,13 @@ String statusConverter(int status) {
       statusString = "driver_on_the_way".tr;
       break;
     case 4:
-      statusString = "delivered";
+      statusString = "delivered".tr;
       break;
     case 5:
       statusString = "rejected".tr;
       break;
     default:
-      statusString = "Invalid status";
+      statusString = "invalid_status".tr;
       break;
   }
   return statusString;
@@ -349,12 +429,29 @@ class Category {
   List<Food>? foods;
 
   Category(
-      {required this.id,
-      required this.image,
-      required this.name,
-      required this.createdAt,
-      required this.updatedAt,
-      required this.foods});
+      {this.id,
+      this.image,
+      this.name,
+      this.createdAt,
+      this.updatedAt,
+      this.foods});
+
+  static Category get sampleCat => Category(foods: [
+        Food(
+          id: 0,
+          image: "asdasdadadadada",
+          categoryId: 0,
+          name: "ofasodfbasf",
+          desc: "cacacacaca",
+          status: 0,
+          price: 1000,
+          rating: 4.0,
+          discountPercentage: 0,
+          isDiscounted: false,
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        )
+      ]);
 
   Category.fromJson(Map<String, dynamic> json, String language) {
     id = json["id"];
@@ -372,7 +469,7 @@ class Category {
     updatedAt = DateTime.parse(json["updated_at"]);
 
     var foodsD = json["event_list"] as List;
-    foods = foodsD.map((data) => Food.fromJson(data, language)).toList();
+    foods = foodsD.map((data) => Food.fromJson(data)).toList();
   }
 }
 
@@ -463,12 +560,88 @@ class Food {
   int? categoryId;
   String? name;
   String? desc;
+  double? price;
+  int? amount = 1;
+  bool? isDiscounted;
+  double? rating;
+  int? discountPercentage;
+  bool? isSelected = false;
+  DateTime? createdAt;
+  DateTime? updatedAt;
+  int? status;
 
-  Food({this.id, this.image, this.categoryId, this.name, this.desc});
+  final Map<String, dynamic> _descriptions = {};
+  final Map<String, dynamic> _name = {};
+  Food(
+      {this.id,
+      this.image,
+      this.categoryId,
+      this.name,
+      this.desc,
+      this.status,
+      this.price,
+      this.rating,
+      this.discountPercentage,
+      this.isDiscounted,
+      this.createdAt,
+      this.updatedAt});
+  Map<String, dynamic> toJson() {
+    var jsonified = {
+      'id': id,
+      'food_id': id,
+      ..._name,
+      ..._descriptions,
+      'cover_image': image,
+      'price': price,
+      'rating': '$rating',
+      'status': '$status',
+      'discount_percent': discountPercentage,
+      'is_discount': isDiscounted,
+      'category_id': categoryId,
+      'amount': amount,
+      'isSelected': isSelected,
+      'created_at': createdAt.toString(),
+      'updated_at': updatedAt.toString()
+    };
+    return jsonified;
+  }
 
-  Food.fromJson(Map<String, dynamic> json, String language) {
+  Food.fromJson(
+    Map<String, dynamic> json,
+  ) {
     id = json["id"];
     image = json["cover_image"];
+    amount = json.containsKey('amount')
+        ? json['amount'] is String
+            ? int.parse(json['amount'])
+            : json['amount']
+        : 1;
+    rating = json.containsKey('rating')
+        ? json['rating'] is String
+            ? double.parse(json['rating'])
+            : json['rating']
+        : 3.5;
+    status = json.containsKey('status')
+        ? json['status'] is String
+            ? int.parse(json['status'])
+            : json['status']
+        : 0;
+    createdAt = DateTime.parse(json["created_at"]);
+    updatedAt = DateTime.parse(json["updated_at"]);
+    isSelected = json.containsKey('isSelected') ? json['isSelected'] : false;
+    price = json.containsKey('price')
+        ? json['price'] is String
+            ? double.parse(json['price'])
+            : json['price']
+        : 0.00;
+    isDiscounted = json.containsKey('is_discount')
+        ? json['is_discount'] == 1 || json['is_discount'] == '1'
+        : false;
+    discountPercentage = json.containsKey('discount_percent')
+        ? json['discount_percent'] is String
+            ? int.parse(json['discount_percent'])
+            : json['discount_percent']
+        : 0;
     categoryId = json["category_id"] is String
         ? int.parse(json["category_id"])
         : json["category_id"];
@@ -479,9 +652,25 @@ class Food {
             : ThemeModeController.languageCode.value == 'fr'
                 ? 'so'
                 : ThemeModeController.languageCode.value;
+    for (var lang in ['tg', 'or', 'so', 'en', 'am']) {
+      _descriptions['description_$lang'] = json['description_$lang'];
+      _name['name_$lang'] = json['name_$lang'];
+    }
 
     name = json['name_$languageCode'];
     desc = json['description_$languageCode'];
+  }
+
+  String totalPrice() {
+    double totalPrice = 0.00;
+
+    // if (addons != null) {
+    //   for (var addon in addons!) {
+    //     totalPrice +=
+    //     ((addon.price ?? 0).toDouble() * (addon.amount ?? 1).toDouble());
+    //   }
+    // }
+    return ((totalPrice + price!) * (amount ?? 1)).toStringAsFixed(2);
   }
 }
 
@@ -528,16 +717,19 @@ class Signup {
       password,
       confirmPassword,
       promoCode,
-      cityid;
-  Signup(
-      {required this.confirmPassword,
-      required this.email,
-      required this.password,
-      required this.phoneNumber,
-      required this.promoCode,
-      required this.firstName,
-      required this.lastName,
-      required this.cityid});
+      cityid,
+      language;
+  Signup({
+    required this.confirmPassword,
+    required this.email,
+    required this.password,
+    required this.phoneNumber,
+    required this.promoCode,
+    required this.firstName,
+    required this.lastName,
+    required this.cityid,
+    required this.language,
+  });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -548,6 +740,7 @@ class Signup {
     data['password'] = password;
     data['phone'] = phoneNumber;
     data['city_id'] = cityid;
+    data['lang'] = language;
     if (promoCode != null) {
       data['promocode'] = promoCode;
     }
@@ -633,7 +826,9 @@ class PromotionalImages {
   PromotionalImages.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     image = json['image'];
-    foodId = json['food_id'];
+    foodId = json['food_id'] is String
+        ? int.parse(json['food_id'])
+        : json['food_id'];
   }
 }
 
@@ -879,22 +1074,24 @@ class City {
 
 class UpdatedUser {
   int? id;
-  String? firstName, lastName, phone, email;
+  String? firstName, lastName, phone, email, language;
 
   UpdatedUser(
       {required this.firstName,
       required this.lastName,
       required this.phone,
       required this.email,
-      required this.id});
+      required this.id,
+      this.language});
 
   Map<String, dynamic> toJson() {
     return {
-      'user_id': id,
+      'id': id,
       'first_name': firstName,
       'last_name': lastName,
       'phone': phone,
       'email': email,
+      'lang': language
     };
   }
 }

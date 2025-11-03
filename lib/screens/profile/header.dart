@@ -1,7 +1,10 @@
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/screens/profile/profile_widget.dart';
+
+import '../editprofilescreen.dart';
 
 class UserScreenHeader extends StatelessWidget {
   final Function() reFresh;
@@ -35,81 +38,70 @@ class UserScreenHeader extends StatelessWidget {
 
     return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0),
-        child: SizedBox(
-          height: MediaQuery.of(context).size.height * 0.25,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              UserProfileWidget(
-                isUpdateScreen: false,
-                imagePath: Get.find<LoginDataProvider>(tag: 'login')
-                    .loginData
-                    ?.profileImage,
-                hasEditButton: false,
-                isFile: isFile,
-                onClicked: showOptions,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Text("$firstName $lastName",
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w800)),
-                    ),
-                    if (phone.isNotEmpty) const SizedBox(height: 5),
-                    if (phone.isNotEmpty)
-                      Expanded(
-                        child: Text(phone,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                            )),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            UserProfileWidget(
+              isUpdateScreen: false,
+              imagePath: Get.find<LoginDataProvider>(tag: 'login')
+                  .loginData
+                  ?.profileImage,
+              hasEditButton: false,
+              isFile: isFile,
+              onClicked: showOptions,
+            ),
+            // const SizedBox(width: 10),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("$firstName $lastName",
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.w800)),
+                Padding(
+                  padding: const EdgeInsets.only(left: 34.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (phone.isNotEmpty) const SizedBox(height: 5),
+                          if (phone.isNotEmpty)
+                            Text(phone,
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey)),
+                          // if (email.isNotEmpty) const SizedBox(height: 5),
+                          if (email.isNotEmpty)
+                            Text(email,
+                                style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w400,
+                                    color: Colors.grey)),
+                        ],
                       ),
-                    if (email.isNotEmpty) const SizedBox(height: 5),
-                    if (email.isNotEmpty)
-                      Expanded(
-                        child: Text(email,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w400,
-                            )),
-                      ),
-                  ],
-                ),
-              ),
-              // const SizedBox(width: 5),
-              // Expanded(
-              //   child: Container(
-              //       decoration: BoxDecoration(
-              //           color: theme.colorScheme.primary,
-              //           borderRadius: BorderRadius.circular(10)),
-              //       // style: ButtonStyle(
-              //       //     backgroundColor:
-              //       //         WidgetStatePropertyAll(theme.colorScheme.primary)),
-              //       // onPressed: () {
-              //       //   Get.to(
-              //       //     () => const EditProfile(),
-              //       //   );
-              //       // },
-              //       child: Padding(
-              //         padding: const EdgeInsets.all(16.0),
-              //         child: Center(
-              //           child: Text(loyaltyPoints ?? '',
-              //               style: const TextStyle(
-              //                 fontSize: 15,
-              //                 color: Colors.white,
-              //                 fontWeight: FontWeight.w800,
-              //               )),
-              //         ),
-              //       )),
-              // )
-            ],
-          ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: GestureDetector(
+                          onTap: () => Get.to(() => const EditProfile()),
+                          child: Icon(
+                            EneftyIcons.edit_outline,
+                            size: 18,
+                            color: Theme.of(context).textTheme.bodySmall?.color,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
         ));
   }
 

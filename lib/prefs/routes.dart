@@ -3,10 +3,10 @@ import 'package:ticketmaster_et/main.dart';
 import 'package:ticketmaster_et/main_layout_screen.dart';
 import 'package:ticketmaster_et/screens/editprofilescreen.dart';
 import 'package:ticketmaster_et/screens/faq_screen.dart';
+import 'package:ticketmaster_et/screens/order/user_order_details.dart';
 import 'package:ticketmaster_et/screens/privacy_policy_screen.dart';
 import 'package:ticketmaster_et/screens/profile/how_we_cook/how_we_cook_screen.dart';
 import 'package:ticketmaster_et/screens/terms_and_conditions_screen.dart';
-import 'package:ticketmaster_et/screens/user_ticket_details.dart';
 
 import '../screens/category/section/subcategorydetails.dart';
 import '../screens/home/cart/cart_screen.dart';
@@ -38,7 +38,7 @@ class Pages {
     GetPage(name: Routes.splashRoute, page: () => const SplashScreen()),
     GetPage(
         name: Routes.mainLayoutRoute,
-        page: () => const TicketMatserHomePage(title: 'Hello Mesa'),
+        page: () => const TicketMatserHomePage(),
         middlewares: [InitialNavigationMiddleware()]),
     GetPage(name: Routes.foodDetailRoute, page: () => const FoodDetail()),
     GetPage(

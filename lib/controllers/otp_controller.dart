@@ -22,7 +22,7 @@ class OtpController extends GetxController {
   Future<void> sendOtp(String phone) async {
     isLoading.value = true;
     fourDigitOtpGenerator();
-    final body = {"phone": phone, 'otp': otp.value};
+    final body = {"phone": '251$phone', 'otp': otp.value};
     Logger().d(body);
     try {
       final response = await http.post(
@@ -32,7 +32,7 @@ class OtpController extends GetxController {
       );
       Logger().d(response.body);
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         isOtpSent.value = true;
         Get.snackbar('success'.tr, 'otp_sent_success'.tr,
             backgroundColor: Colors.green, colorText: Colors.white);
@@ -48,7 +48,8 @@ class OtpController extends GetxController {
     }
   }
 
-  Future<void> verifyOtp(String phone, String otpPassed) async {
+  Future<void> verifyOtp(String phone, String otpPassed,
+      {bool fromSignUp = false}) async {
     // isLoading.value = true;
     // final body = {"phone": phone, "otp": otpPassed};
     //
@@ -60,10 +61,22 @@ class OtpController extends GetxController {
     //   );
 
     if (otpPassed == otp.value) {
+      if (fromSignUp) {
+        Get.back(result: true);
+        Get.snackbar('success'.tr, 'otp_verified_success'.tr,
+            backgroundColor: Colors.green, colorText: Colors.white);
+        return;
+      }
       isOtpVerified.value = true;
       Get.snackbar('success'.tr, 'otp_verified_success'.tr,
           backgroundColor: Colors.green, colorText: Colors.white);
     } else {
+      if (fromSignUp) {
+        Get.back(result: false);
+        Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
+            backgroundColor: Colors.red, colorText: Colors.white);
+        return;
+      }
       Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
           backgroundColor: Colors.red, colorText: Colors.white);
     }
@@ -78,7 +91,7 @@ class OtpController extends GetxController {
       String phone, String password, String passwordConfirmation) async {
     isLoading.value = true;
     final body = {
-      "phone": phone,
+      "phone": '251$phone',
       "password": password,
       "password_confirmation": passwordConfirmation,
     };
@@ -89,8 +102,10 @@ class OtpController extends GetxController {
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(body),
       );
+      Logger().d(response.body);
 
       if (response.statusCode == 200) {
+        Get.back();
         Get.snackbar('success'.tr, 'password_reset_success'.tr,
             backgroundColor: Colors.green, colorText: Colors.white);
       } else {

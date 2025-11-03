@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
@@ -36,7 +36,7 @@ class VideoPromotionController extends GetxController {
   }
 
   void checkIfLiked(int videoId) async {
-    Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
+    // Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
     try {
       var res = await http.get(Uri.parse(
           '${baseUrlFunc}my_like/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}/$videoId'));
@@ -69,18 +69,20 @@ class VideoPromotionController extends GetxController {
         //   fetchVideoComments(video.id.toString());
         // }
       } else {
-        Get.snackbar('Error', 'Failed to load videos');
+        Get.snackbar('Error', 'Failed to load videos',
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
-      Get.snackbar('Error', e.toString());
+      Get.snackbar('Error', e.toString(),
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> toggleLike(String videoId) async {
-    Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
+    // Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
     final userId = Get.find<LoginDataProvider>(tag: 'login').loginData?.id;
     String url = '${baseUrlFunc}video-like';
 
@@ -159,7 +161,7 @@ class VideoPromotionController extends GetxController {
 
   Future<void> addComment(String videoId, String comment) async {
     Logger().d(comment);
-    Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
+    // Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
     final userId = Get.find<LoginDataProvider>(tag: 'login').loginData?.id;
     const url = '${baseUrlFunc}video-comment';
 

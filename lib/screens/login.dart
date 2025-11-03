@@ -215,46 +215,100 @@ class _LoginScreenState extends State<LoginScreen> {
                                           ),
                                           Expanded(
                                             flex: 4,
-                                            child: Obx(() => TextFormField(
-                                                  key: const ValueKey(
-                                                      "password"),
-                                                  validator: (value) {
-                                                    if (value!.isEmpty) {
-                                                      return "password empty";
-                                                    } else if (value.length >
-                                                            40 ||
-                                                        value.length < 3) {
-                                                      return "password too short or too long";
-                                                    }
-                                                    return null;
-                                                  },
-                                                  onSaved: (newValue) {
-                                                    _password = newValue;
-                                                  },
-                                                  onChanged: (value) {
-                                                    _password = value;
-                                                  },
-                                                  obscureText: obscure.value,
-                                                  decoration: InputDecoration(
-                                                    suffixIcon: GestureDetector(
-                                                      onTap: () {
-                                                        obscure.toggle();
-                                                      },
-                                                      child: Obx(() => obscure
-                                                              .value
-                                                          ? const Icon(Icons
-                                                              .visibility_off)
-                                                          : const Icon(Icons
-                                                              .visibility)),
+                                            child: Obx(() => Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 16.0, top: 0),
+                                                  child: TextFormField(
+                                                    key: const ValueKey(
+                                                        "password"),
+                                                    validator: (value) {
+                                                      if (value!.isEmpty) {
+                                                        return "password empty";
+                                                      } else if (value.length >
+                                                              40 ||
+                                                          value.length < 3) {
+                                                        return "password too short or too long";
+                                                      }
+                                                      return null;
+                                                    },
+                                                    onSaved: (newValue) {
+                                                      _password = newValue;
+                                                    },
+                                                    onChanged: (value) {
+                                                      _password = value;
+                                                    },
+                                                    obscureText: obscure.value,
+                                                    decoration: InputDecoration(
+                                                      suffixIcon:
+                                                          GestureDetector(
+                                                        onTap: () {
+                                                          obscure.toggle();
+                                                        },
+                                                        child: Obx(() => obscure
+                                                                .value
+                                                            ? const Icon(Icons
+                                                                .visibility_off)
+                                                            : const Icon(Icons
+                                                                .visibility)),
+                                                      ),
+                                                      fillColor:
+                                                          Colors.transparent,
+                                                      hintText: 'password'.tr,
+                                                      border:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .transparent),
+                                                      ),
+                                                      enabledBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .transparent),
+                                                      ),
+                                                      focusedBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .transparent),
+                                                      ),
+                                                      errorBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .transparent),
+                                                      ),
+                                                      focusedErrorBorder:
+                                                          OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(40),
+                                                        borderSide:
+                                                            const BorderSide(
+                                                                color: Colors
+                                                                    .transparent),
+                                                      ),
+                                                      contentPadding:
+                                                          const EdgeInsets.all(
+                                                              16.0),
                                                     ),
-                                                    fillColor:
-                                                        Colors.transparent,
-                                                    hintText: 'password'.tr,
-                                                    border:
-                                                        const OutlineInputBorder(),
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            16.0),
                                                   ),
                                                 )),
                                           ),

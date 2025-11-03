@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
+import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
 
@@ -26,12 +27,15 @@ class OrganizationController extends GetxController {
 
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
+        Logger().d(data);
         organizations.value = Organization.fromJsonList(data["data"]);
       } else {
-        Get.snackbar("error_occured".tr, "error_fetching_data".tr);
+        Get.snackbar("error_occured".tr, "error_fetching_data".tr,
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
-      Get.snackbar("error_occured".tr, "error_fetching_data".tr);
+      Get.snackbar("error_occured".tr, "error_fetching_data".tr,
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading(false);
     }
@@ -42,7 +46,7 @@ class OrganizationController extends GetxController {
       required int organizationId,
       required String organizationName}) async {
     try {
-      Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
+      // Get.find<LoginDataProvider>(tag: 'login').loadLoginData();
       donating(true);
       var response = await http.post(Uri.parse("${baseUrlFunc}donate"),
           headers: {'content-type': 'application/json'},
@@ -70,7 +74,8 @@ class OrganizationController extends GetxController {
       }
     } catch (e) {
       Get.back();
-      Get.snackbar("error_occured".tr, "Something went wrong: $e",
+      Get.snackbar(
+          "error_occured".tr, "sth_went_wrong".trParams({'e': e.toString()}),
           backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       donating(false);

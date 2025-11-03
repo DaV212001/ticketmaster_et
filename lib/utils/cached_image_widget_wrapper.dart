@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'persistent_cache_manager.dart';
 
 Widget cachedNetworkImageWrapper({
   required String imageUrl,
@@ -22,7 +23,8 @@ Widget cachedNetworkImageWrapper({
     fit: fit ?? BoxFit.fill,
     height: height,
     width: width,
-    cacheManager: DefaultCacheManager(), // Ensure caching is enabled
+    // Use persistent cache manager that caches across app restarts
+    cacheManager: PersistentImageCacheManager(),
     cacheKey: imageUrl, // Assign a cache key to avoid re-downloading
   );
 }

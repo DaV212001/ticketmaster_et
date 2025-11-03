@@ -23,8 +23,7 @@ class RouteContainer extends StatelessWidget {
             padding: const EdgeInsets.symmetric(
               horizontal: 8.0,
             ),
-            decoration: BoxDecoration(
-                color: theme.cardColor, borderRadius: BorderRadius.circular(5)),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(5)),
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: routePart.length,
@@ -44,7 +43,7 @@ class RouteContainer extends StatelessWidget {
                         : Divider(
                             thickness: 1,
                             height: 1,
-                            color: Colors.grey.withOpacity(0.5))
+                            color: Colors.grey.withValues(alpha: 0.5))
                   ],
                 );
               },

@@ -1,7 +1,7 @@
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 class CalculationHelper {
-  static String calculateSpecificProductPrice(FoodPortions product) {
+  static String calculateSpecificProductPrice(Food product) {
     // Calculate the base price of the product
     double basePrice = (product.price ?? 0.0) * (product.amount ?? 1) / 1;
 
@@ -52,19 +52,19 @@ class CalculationHelper {
   // }
 
   static int calculateTotalQuantityOfProductsFromSpecificStore(
-      String storeId, List<FoodPortions> cart) {
+      String storeId, List<Food> cart) {
     // Retrieve the list of products from the specific store
-    List<FoodPortions> storeProducts =
-        cart.where((product) => product.foodId.toString() == storeId).toList();
+    List<Food> storeProducts =
+        cart.where((product) => product.id.toString() == storeId).toList();
 
     // Calculate total quantity of products in this store
-    int totalQuantity =
-        storeProducts.fold(0, (sum, product) => sum + (product.amount ?? 1));
+    int totalQuantity = storeProducts.fold(
+        0, (sum, product) => (sum + (product.amount ?? 1)).toInt());
 
     return totalQuantity;
   }
 
-  static double calculateTotalProductPrice(List<FoodPortions> cart) {
+  static double calculateTotalProductPrice(List<Food> cart) {
     double totalProductPrice = 0.0;
     for (var product in cart) {
       totalProductPrice +=

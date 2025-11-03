@@ -9,46 +9,13 @@ class ProductCheckOutCard extends StatelessWidget {
     required this.product,
   });
 
-  final FoodPortions product;
+  final Food product;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "${product.name}",
-                style:
-                    const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-              ),
-              // if (product.addons != null && product.addons!.isNotEmpty)
-              // Column(
-              //   crossAxisAlignment: CrossAxisAlignment.start,
-              //   children: product.addons!
-              //       .where(
-              //           (addon) => addon.amount != null && addon.amount! > 0)
-              //       .map(
-              //         (addon) => AutoSizeText(
-              //       "${addon.name} (x${addon.amount}) - ${addon.price! * (addon.amount ?? 1)} Birr",
-              //       maxLines: 1,
-              //       minFontSize: 9,
-              //       maxFontSize: 12,
-              //       stepGranularity: 0.5,
-              //       overflow: TextOverflow.visible,
-              //       style: TextStyle(
-              //           color: maincolor, fontWeight: FontWeight.w600),
-              //     ),
-              //   )
-              //       .toList(),
-              // ),
-            ],
-          ),
-        ),
         const SizedBox(
           height: 10,
         ),

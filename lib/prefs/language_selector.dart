@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:ticketmaster_et/provider/loginpersistence.dart';
 
 import '../controllers/theme_controller.dart';
+import '../functions/functions.dart';
+import '../models/newmodels.dart';
 import 'lang.dart';
 
 class LanguageSelectorButton extends StatefulWidget {
@@ -48,7 +51,9 @@ class _LanguageSelectorButtonState extends State<LanguageSelectorButton> {
             ),
           ),
         ],
-        onChanged: (value) {
+        onChanged: (value) async {
+          var loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+          var loginData = loginDataProvider.loginDataObs.value;
           setState(() {
             Language.selectedLanguage = value!;
             Get.updateLocale(value.code);
@@ -56,6 +61,44 @@ class _LanguageSelectorButtonState extends State<LanguageSelectorButton> {
             changed = true;
           });
           widget.onChange();
+          String? languageCode = ThemeModeController.languageCode.value == 'es'
+              ? 'tg'
+              : ThemeModeController.languageCode.value == 'it'
+                  ? 'or'
+                  : ThemeModeController.languageCode.value == 'fr'
+                      ? 'so'
+                      : ThemeModeController.languageCode.value;
+          UpdatedUser data = UpdatedUser(
+              id: loginData?.id,
+              firstName: loginData?.firstName,
+              lastName: loginData?.lastName,
+              phone: '${loginData?.phone}',
+              email: loginData?.email,
+              language: languageCode);
+
+          await updateUser(data).then((updateUserResponse) async {
+            if (updateUserResponse.message != null) {
+              if (updateUserResponse.message == "User Updated successfully") {}
+            } else {
+              String errorMessage = "error_update".tr;
+              if (updateUserResponse.error!.firstName != null) {
+                errorMessage = errorMessageConcatenator(
+                    updateUserResponse.error!.firstName!);
+              }
+              if (updateUserResponse.error!.LastName != null) {
+                errorMessage = errorMessageConcatenator(
+                    updateUserResponse.error!.LastName!);
+              }
+              if (updateUserResponse.error!.phone != null) {
+                errorMessage =
+                    errorMessageConcatenator(updateUserResponse.error!.phone!);
+              }
+              if (updateUserResponse.error!.email != null) {
+                errorMessage =
+                    errorMessageConcatenator(updateUserResponse.error!.email!);
+              }
+            }
+          });
         },
         dropdownStyleData: DropdownStyleData(
           width: 160,

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
-import '../screens/home/cart/cart_screen.dart';
+import '../controllers/cart_controller.dart';
 import '../screens/home/section/home_screen_tab/home_screen_categories.dart';
 import '../utils/cached_image_widget_wrapper.dart';
 import 'food_portion_checkout_card.dart';
 
-class OrderSummary extends StatelessWidget {
-  OrderSummary({
+class FoodSummary extends StatelessWidget {
+  FoodSummary({
     super.key,
     required this.groupedProducts,
     // required this.calculateStoreDeliveryFee,
@@ -16,7 +16,7 @@ class OrderSummary extends StatelessWidget {
     required this.calculateTotalQuantityOfProductsFromStore,
   });
 
-  final Map<String, List<FoodPortions>> groupedProducts;
+  final Map<String, List<Food>> groupedProducts;
   final String? Function(String storeId) storeNameById;
   // final String Function(String storeId) calculateStoreDeliveryFee;
   final int Function(String storeId) calculateTotalQuantityOfProductsFromStore;
@@ -46,7 +46,7 @@ class OrderSummary extends StatelessWidget {
               }
             }
           }
-          List<FoodPortions> storeProducts = groupedProducts[storeId]!;
+          List<Food> storeProducts = groupedProducts[storeId]!;
           double storeTotalPrice = storeProducts.fold(
               0, (sum, product) => sum + num.parse(product.totalPrice()));
           return Padding(
@@ -144,7 +144,7 @@ class OrderSummary extends StatelessWidget {
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: storeProducts.length,
                       itemBuilder: (context, index) {
-                        FoodPortions product = storeProducts[index];
+                        Food product = storeProducts[index];
                         return ProductCheckOutCard(product: product);
                       },
                     ),

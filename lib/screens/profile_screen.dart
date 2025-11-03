@@ -7,11 +7,13 @@ import 'package:logger/web.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:ticketmaster_et/api_call_status.dart';
 import 'package:ticketmaster_et/controllers/footer_controller.dart';
+import 'package:ticketmaster_et/controllers/wallet_controller.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/screens/organizations_screen.dart';
 import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
+import 'package:ticketmaster_et/screens/wallet/wallet_screen.dart';
 import 'package:ticketmaster_et/utils/update_enforcer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -19,7 +21,6 @@ import '../models/newmodels.dart';
 import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
 import 'change_password_screen.dart';
-import 'editprofilescreen.dart';
 
 class ProfileController extends GetxController {
   var loginData = Rxn<LoginData>();
@@ -48,10 +49,11 @@ class ProfileController extends GetxController {
     try {
       var res = await http
           .get(Uri.parse('${baseUrlFunc}free-meal/${loginData.value?.id}'));
-      Logger().d(res.body);
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
-        freeMeals.value = data['data'];
+        var dataValue =
+            data['data'] is String ? int.parse(data['data']) : data['data'];
+        freeMeals.value = (dataValue ?? 0) < 0 ? 0 : (dataValue ?? 0);
       }
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
@@ -63,7 +65,6 @@ class ProfileController extends GetxController {
     try {
       var res = await http
           .get(Uri.parse('${baseUrlFunc}target-count/${loginData.value?.id}'));
-      Logger().d(res.body);
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
         targetCount.value = data['data'];
@@ -83,6 +84,9 @@ class ProfileController extends GetxController {
 class ProfileWidget extends StatelessWidget {
   final ProfileController controller = Get.put(ProfileController());
   final FooterController footerController = Get.put(FooterController());
+  final WalletController walletController =
+      Get.put(WalletController(), tag: WalletController.tag);
+
   ProfileWidget({super.key});
 
   @override
@@ -180,14 +184,14 @@ class ProfileWidget extends StatelessWidget {
       //   },
       //   "trailing": const Text('')
       // },
-      // {
-      //   "title": "how_we_cook".tr,
-      //   "leadingIcon": Icons.kitchen,
-      //   "onTap": () {
-      //     Get.toNamed(Routes.howWeCookRoute);
-      //   },
-      //   "trailing": const Text("")
-      // }
+      {
+        "title": "wallet".tr,
+        "leadingIcon": Icons.wallet,
+        "onTap": () {
+          Get.to(() => const WalletScreen());
+        },
+        "trailing": const Text("")
+      }
     ];
 
     return Scaffold(
@@ -198,7 +202,7 @@ class ProfileWidget extends StatelessWidget {
           scrollDirection: Axis.vertical,
           children: [
             Container(
-              color: Theme.of(context).cardColor,
+              // color: Theme.of(context).cardColor,
               child: Column(
                 children: [
                   Obx(
@@ -212,16 +216,116 @@ class ProfileWidget extends StatelessWidget {
                         loyaltyPoints:
                             controller.loginData.value?.loyaltyPoints),
                   ),
+                  // Padding(
+                  //   padding: const EdgeInsets.all(8.0),
+                  //   child: GestureDetector(
+                  //       onTap: () => Get.to(() => const EditProfile()),
+                  //       child: Text(
+                  //         'editprofile'.tr,
+                  //         style: TextStyle(
+                  //             color: Theme.of(context).primaryColor,
+                  //             fontWeight: FontWeight.bold),
+                  //       )),
+                  // ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                        onTap: () => Get.to(() => const EditProfile()),
-                        child: Text(
-                          'editprofile'.tr,
-                          style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontWeight: FontWeight.bold),
-                        )),
+                    padding: const EdgeInsets.only(
+                        left: 16.0, right: 16.0, bottom: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Obx(
+                                  () => Text(
+                                    walletController.balance.value,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'wallet'.tr,
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.grey),
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                          child: VerticalDivider(
+                            thickness: 1,
+                            color: Colors.black12,
+                            indent: 4,
+                            endIndent: 4,
+                            width: 16,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  controller.targetCount.value.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'Total Orders'.tr,
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.grey),
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 30,
+                          child: VerticalDivider(
+                            thickness: 1,
+                            color: Colors.black12,
+                            indent: 4,
+                            endIndent: 4,
+                            width: 16,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  controller.freeMeals.value.toString(),
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'free_meals'.tr,
+                                style: const TextStyle(
+                                    fontSize: 10, color: Colors.grey),
+                              )
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 16,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -247,7 +351,7 @@ class ProfileWidget extends StatelessWidget {
                                     alignment: Alignment.centerLeft,
                                     child: FractionallySizedBox(
                                       widthFactor:
-                                          (controller.targetCount.value / 100)
+                                          (controller.targetCount.value / 10)
                                               .clamp(0.0, 1.0),
                                       child: Container(
                                         height: 10,
@@ -276,34 +380,36 @@ class ProfileWidget extends StatelessWidget {
                       style: const TextStyle(fontSize: 11),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                          'free_meals'.tr,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Text(
-                            controller.freeMeals.value.toString(),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                            onPressed: () {
-                              Get.to(() => OrganizationScreen());
-                            },
-                            child: Text('donate_fm'.tr))),
-                  )
+                  // Padding(
+                  //   padding: const EdgeInsets.only(top: 8.0),
+                  //   child: Column(
+                  //     children: [
+                  //       Text(
+                  //         'free_meals'.tr,
+                  //         style: const TextStyle(fontWeight: FontWeight.bold),
+                  //       ),
+                  //       Padding(
+                  //         padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  //         child: Text(
+                  //           controller.freeMeals.value.toString(),
+                  //           style: const TextStyle(fontWeight: FontWeight.bold),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  Obx(() => controller.freeMeals.value != 0
+                      ? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                  onPressed: () {
+                                    Get.to(() => OrganizationScreen());
+                                  },
+                                  child: Text('donate_fm'.tr))),
+                        )
+                      : const SizedBox.shrink())
                 ],
               ),
             ),

@@ -31,6 +31,7 @@ Future<List<Event>> getEvents(String apiUrl, String language) async {
     );
 
     var data = jsonDecode(res.body);
+    Logger().d(data);
     if (data['message'] == 'Event get successfully' ||
         data['message'] == 'Upcoming Event get successfully') {
       var eventsData = data['data'] as List;
@@ -87,7 +88,7 @@ Future<Food> getFoodbyID(int id, String language) async {
     var data = jsonDecode(res.body);
     if (data['message'] == 'Food detail get successfully') {
       var eventsData = data['data'][0];
-      events = [Food.fromJson(eventsData, language)];
+      events = [Food.fromJson(eventsData)];
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
@@ -217,11 +218,12 @@ Future<List<Category>> getCategorySubCategory(String language) async {
           headers: {'User-Agent': 'Mozilla/5.0'}),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    Logger().d(res.body);
+
     // print("res.statusCode  == = == = = = == = = = ${res.statusCode}");
     //  print("=================Category============${res.body}");
     // print(res.body);
     var data = jsonDecode(res.body);
+    // Logger().d(data);
     if (data['message'] == 'Food By category get successfully') {
       var categoriesData = data['data'] as List;
       categories = categoriesData
@@ -303,7 +305,7 @@ Future<List<Food>> getSubCategoryByCategoryId(int id, String language) async {
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
 
-    Logger().d(jsonDecode(res.body));
+    // Logger().d(jsonDecode(res.body));
     // print("=================getSubCategoryByCategoryId============${res.body}");
     var data = jsonDecode(res.body);
     if (data['message'] == 'Food By category get successfully') {
@@ -311,7 +313,7 @@ Future<List<Food>> getSubCategoryByCategoryId(int id, String language) async {
       for (var item in dataList) {
         var subcategoryData = item['food_list'] as List;
         subcategories += subcategoryData
-            .map((eventData) => Food.fromJson(eventData, language))
+            .map((eventData) => Food.fromJson(eventData))
             .toList();
       }
     } else {
@@ -392,6 +394,7 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
     'email': data.email,
     'password': data.password,
     'phone': data.phoneNumber,
+    'lang': data.language
     // 'city_id': data.cityid
   };
 
@@ -549,6 +552,7 @@ Future<CommentResponse> commentonEvent(
 Future<UpdatedUserResponse> updateUser(UpdatedUser data) async {
   UpdatedUserResponse updatedUserData;
   String requestBody = jsonEncode(data.toJson());
+  Logger().d(requestBody);
   try {
     var res = await retryOptions.retry(
       () => http.post(
@@ -560,8 +564,9 @@ Future<UpdatedUserResponse> updateUser(UpdatedUser data) async {
       ),
       retryIf: (p0) => p0 is SocketException || p0 is TimeoutException,
     );
+    Logger().d(res.body);
     var decodeRes = jsonDecode(res.body);
-    print(res.body);
+
     updatedUserData = UpdatedUserResponse.fromJson(decodeRes);
   } finally {
     client.close();
@@ -656,13 +661,71 @@ Future<List<TermsAndConditions>> getTermsAndConditions(String language) async {
   return termsAndConditions;
 }
 
+Future<List<Order>> getActiveTickets(String phone, String language) async {
+  List<Order> tickets = [];
+
+  try {
+    var res = await retryOptions.retry(
+      () => http.get(Uri.parse(
+          "https://api.hellomesa6810.com/api/my_active_order/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    print("My Active Order ${res.body}");
+    var data = jsonDecode(res.body);
+    Logger().i(data);
+    if (data['message'] == 'My Order  get successfully') {
+      var eventsData = data['data'] as List;
+      tickets = eventsData
+          .map((eventData) => Order.fromJson(eventData, language))
+          .toList();
+    } else if (data['message'] == 'No  Order found') {
+      return [];
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return tickets;
+}
+
+Future<List<Order>> getPastTickets(String phone, String language) async {
+  List<Order> tickets = [];
+
+  try {
+    var res = await retryOptions.retry(
+      () => http.get(Uri.parse(
+          "https://api.hellomesa6810.com/api/my_past_order/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}")),
+      retryIf: (e) => e is SocketException || e is TimeoutException,
+    );
+    print("My Past Order ${res.body}");
+    var data = jsonDecode(res.body);
+    Logger().i(data);
+    if (data['message'] == 'My Order  get successfully') {
+      var eventsData = data['data'] as List;
+      tickets = eventsData
+          .map((eventData) => Order.fromJson(eventData, language))
+          .toList();
+    } else if (data['message'] == 'No  Order found') {
+      return [];
+    } else {
+      throw Exception('Unexpected message from API: ${data['message']}');
+    }
+  } finally {
+    client.close();
+  }
+
+  return tickets;
+}
+
 Future<List<Order>> getTickets(String phone, String language) async {
   List<Order> tickets = [];
 
   try {
     var res = await retryOptions.retry(
       () => http.get(Uri.parse(
-          "https://api.hellomesa6810.com/api/my_order/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}")),
+          "https://api.hellomesa6810.com/api/my_active_order/${Get.find<LoginDataProvider>(tag: 'login').loginData?.id}")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
     print("My Order ${res.body}");

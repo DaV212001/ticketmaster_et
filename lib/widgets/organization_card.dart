@@ -4,14 +4,21 @@ import '../models/organizations.dart';
 
 class OrganizationCard extends StatelessWidget {
   final Organization organization;
+  final bool? isSelected;
 
-  const OrganizationCard({Key? key, required this.organization})
+  const OrganizationCard(
+      {Key? key, required this.organization, this.isSelected})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(
+              color: isSelected == true
+                  ? Theme.of(context).primaryColor
+                  : Colors.transparent)),
       elevation: 5,
       child: Padding(
         padding: const EdgeInsets.all(8.0),

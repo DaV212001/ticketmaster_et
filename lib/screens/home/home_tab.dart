@@ -1,9 +1,14 @@
 // ignore_for_file: unused_element, no_leading_underscores_for_local_identifiers
 
+import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:ticketmaster_et/controllers/cart_controller.dart';
+import 'package:ticketmaster_et/prefs/routes.dart';
 import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_tab_widget.dart';
-import 'package:ticketmaster_et/screens/video_screen.dart';
+
+import '../video_screen.dart';
 
 class HomeTab extends StatefulWidget {
   // final ValueNotifier<int> selectedIndex;
@@ -106,6 +111,11 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent, // Change this to your desired color
+      statusBarIconBrightness: Brightness.light, // For light icons
+      statusBarBrightness: Brightness.dark, // For iOS status bar
+    ));
     // List<Event> modified = [];
     // for (int i = 0; i < times; i++) {
     //   modified.addAll(events);
@@ -118,28 +128,64 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
 
     // super.build(context);
     //   print(tabController.index);
-    return Column(
+    return
+        // HomeTabWidget()
+        Column(
       children: [
-        Container(
-          color: const Color(0xFF23981C),
-          child: TabBar(
-              indicatorColor: Colors.white,
-              controller: tabController,
-              tabs: [
-                Tab(
-                  text: 'home'.tr,
-                ),
-                Tab(
-                  text: 'video'.tr,
-                ),
-              ]),
-        ),
         Expanded(
-          child: TabBarView(
-            controller: tabController,
+          child: Stack(
             children: [
-              HomeTabWidget(),
-              VideoPromotionScreen(),
+              TabBarView(
+                controller: tabController,
+                children: [
+                  HomeTabWidget(),
+                  VideoPromotionScreen(),
+                ],
+              ),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .cardColor
+                                    .withValues(alpha: 0.75),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: TabBar(
+                                  indicatorColor:
+                                      Theme.of(context).primaryColor,
+                                  // dividerColor: Colors.transparent,
+                                  controller: tabController,
+                                  tabs: [
+                                    Tab(
+                                      text: 'home'.tr,
+                                    ),
+                                    Tab(
+                                      text: 'video'.tr,
+                                    ),
+                                  ]),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: CartIcon(),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -176,4 +222,66 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   //     setState(() {});
   //   }
   // }
+}
+
+class CartIcon extends StatelessWidget {
+  CartIcon({
+    super.key,
+    this.colored,
+  });
+  final cartController = Get.find<CartController>(tag: CartController.tag);
+  final bool? colored;
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(Routes.cartRoute);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colored == true
+              ? Theme.of(context).primaryColor
+              : Theme.of(context).cardColor,
+        ),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Stack(
+              alignment: AlignmentGeometry.center,
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  EneftyIcons.shopping_cart_outline,
+                  color: colored == true
+                      ? Colors.white
+                      : Theme.of(context).primaryColor,
+                ),
+                Obx(() {
+                  final count = cartController.numberOfItemsInCart.value;
+                  if (count <= 0) return const SizedBox.shrink();
+                  return Positioned(
+                    right: -3,
+                    top: -4,
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        count.toString(),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 8),
+                      ),
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

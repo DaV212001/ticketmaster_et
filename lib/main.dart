@@ -29,6 +29,7 @@ late String langCode;
 late String countryCode;
 
 Future<void> appInit() async {
+  print(DateTime.now().toString());
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(
   //     options: const FirebaseOptions(
@@ -74,11 +75,11 @@ void main() async {
   await GetStorage.init();
   WidgetsFlutterBinding.ensureInitialized();
   ConfigPreference.init();
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Color(0xFF23981C), // Change this to your desired color
-    statusBarIconBrightness: Brightness.light, // For light icons
-    statusBarBrightness: Brightness.dark, // For iOS status bar
-  ));
+  // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+  //   statusBarColor: Color(0xFF23981C), // Change this to your desired color
+  //   statusBarIconBrightness: Brightness.light, // For light icons
+  //   statusBarBrightness: Brightness.dark, // For iOS status bar
+  // ));
   runApp(
     TicketMasterET(
       settingsProvider: settingsProvider,

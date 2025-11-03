@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:ticketmaster_et/provider/loginpersistence.dart';
@@ -26,14 +27,21 @@ class ChangePasswordController extends GetxController {
 
       if (response.statusCode == 200) {
         // Password change successful
-        Get.snackbar('success'.tr, 'change_pass_success'.tr);
+        Get.snackbar(
+          'success'.tr,
+          'change_pass_success'.tr,
+          backgroundColor: Colors.green,
+          colorText: Colors.white,
+        );
       } else {
         // Handle error
-        Get.snackbar('error'.tr, 'change_pass_failure'.tr);
+        Get.snackbar('error'.tr, 'change_pass_failure'.tr,
+            backgroundColor: Colors.red, colorText: Colors.white);
       }
     } catch (e) {
       // Handle connection error
-      Get.snackbar('error'.tr, 'change_pass_failure'.tr);
+      Get.snackbar('error'.tr, 'change_pass_failure'.tr,
+          backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }
