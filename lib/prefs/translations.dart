@@ -257,7 +257,9 @@ class AppTranslation extends Translations {
           'change_pass_success': 'Password Changed Successfully',
           'refresh': 'Refresh',
           'choose_org_don':
-              'Please Choose The Organization You’d Like To Donate To'
+              'Please Choose The Organization You’d Like To Donate To',
+          'still_not_enough_balance': 'Still not enough balance in your wallet',
+          'top_up_cancelled_or_failed': 'Topup cancelled or failed'
         },
         'am': {
           'forgot_pass': 'የይለፍ ቃል ረሱ',
@@ -507,7 +509,9 @@ class AppTranslation extends Translations {
           'invalid_status': "ልክ ያልሆነ ሁኔታ",
           'change_pass_success': 'የይለፍ ቃል በተሳካ ሁኔታ ተቀይሯል',
           'refresh': 'እንደገና ሞክር',
-          'choose_org_don': 'እባክዎን ለመለገስ የሚፈልጉትን ድርጅት ይምረጡ'
+          'choose_org_don': 'እባክዎን ለመለገስ የሚፈልጉትን ድርጅት ይምረጡ',
+          'still_not_enough_balance': 'አሁንም በዋሌትዎ ውስጥ በቂ ቀሪ ሒሳብ የለም።',
+          'top_up_cancelled_or_failed': 'መሙላት ተሰርዟል ወይም አልተሳካም።'
         },
         'es': {
           'forgot_pass': 'ፓስዎርድ ረሲዐዮ',
@@ -757,7 +761,9 @@ class AppTranslation extends Translations {
           'invalid_status': "ዘይቅኑዕ ኩነታት",
           'change_pass_success': 'ፓስዎርድ ብዓወት ተቐይሩ',
           'refresh': 'ሕደስ',
-          'choose_org_don': 'በጃኹም ነቲ ክትልግሰሉ እትደልዩ ትካል ምረጹ'
+          'choose_org_don': 'በጃኹም ነቲ ክትልግሰሉ እትደልዩ ትካል ምረጹ',
+          'still_not_enough_balance': 'ሕጂ ውን ኣብ ዋሌት እኹል ሚዛን የለን',
+          'top_up_cancelled_or_failed': 'ቶፕኣፕ ተሰሪዙ ወይ ፈሺሉ።'
         },
         'it': {
           'forgot_pass': 'Password dagadheera',
@@ -1020,7 +1026,10 @@ class AppTranslation extends Translations {
           'change_pass_success': 'Password Milkaa\'inaan Jijjiirame',
           'refresh': 'Haaromsaa',
           'choose_org_don':
-              'Maaloo dhaabbata arjooma itti gochuu barbaaddan filadhaa'
+              'Maaloo dhaabbata arjooma itti gochuu barbaaddan filadhaa',
+          'still_not_enough_balance':
+              'Ammas madaallii gahaa Waaleetii keessan keessa hin jiru',
+          'top_up_cancelled_or_failed': 'Topup haqame ykn hin milkoofne',
         },
         'fr': {
           'forgot_pass': 'Furaha la ilaaway',
@@ -1286,7 +1295,10 @@ class AppTranslation extends Translations {
           'invalid_status': "Xaalad aan ansax ahayn",
           'change_pass_success': 'Si guul leh ayaa loo bedelay erayga sirta ah',
           'refresh': 'Cusbooneysii',
-          'choose_org_don': 'Fadlan door ururka aad jeceshahay inaad ku deeqdo'
+          'choose_org_don': 'Fadlan door ururka aad jeceshahay inaad ku deeqdo',
+          'still_not_enough_balance': 'Wali kuma filna dheelitirnaanta Wallet',
+          'top_up_cancelled_or_failed':
+              'Ku shubista waa la joojiyay ama waa guuldareystay'
         }
       };
 }

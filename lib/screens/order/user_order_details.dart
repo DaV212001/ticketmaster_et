@@ -262,29 +262,7 @@ class OrderDetailController extends GetxController {
       try {
         var loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
         // loginDataProvider.loadLoginData();
-        double currentBalance = double.tryParse(balance.value) ?? 0;
-        final requiredAmount = double.parse(totalAmount);
-        // If not enough funds, wait for top-up
-        if (requiredAmount > currentBalance) {
-          bool? toppedUp = await showTopUpDialog(Get.context!);
-          if (!(toppedUp ?? false)) {
-            Get.snackbar('error'.tr, 'top_up_cancelled_or_failed'.tr,
-                backgroundColor: Colors.red, colorText: Colors.white);
-            isLoading.value = false;
-            return;
-          }
 
-          // Reload new balance
-          await loadBalance();
-          currentBalance = double.tryParse(balance.value) ?? 0;
-
-          if (requiredAmount > currentBalance) {
-            Get.snackbar('error'.tr, 'still_not_enough_balance'.tr,
-                backgroundColor: Colors.red, colorText: Colors.white);
-            isLoading.value = false;
-            return;
-          }
-        }
         Logger().i(jsonEncode(data));
         final response = await http.post(
           Uri.parse('${baseUrlFunc}pay-on-chapa'),
@@ -317,6 +295,29 @@ class OrderDetailController extends GetxController {
     } else {
       try {
         var loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
+        double currentBalance = double.tryParse(balance.value) ?? 0;
+        final requiredAmount = double.parse(totalAmount);
+        // If not enough funds, wait for top-up
+        if (requiredAmount > currentBalance) {
+          bool? toppedUp = await showTopUpDialog(Get.context!);
+          if (!(toppedUp ?? false)) {
+            Get.snackbar('error'.tr, 'top_up_cancelled_or_failed'.tr,
+                backgroundColor: Colors.red, colorText: Colors.white);
+            isLoading.value = false;
+            return;
+          }
+
+          // Reload new balance
+          await loadBalance();
+          currentBalance = double.tryParse(balance.value) ?? 0;
+
+          if (requiredAmount > currentBalance) {
+            Get.snackbar('error'.tr, 'still_not_enough_balance'.tr,
+                backgroundColor: Colors.red, colorText: Colors.white);
+            isLoading.value = false;
+            return;
+          }
+        }
         // loginDataProvider.loadLoginData();
         Logger().i(data);
         final response = await http.post(
