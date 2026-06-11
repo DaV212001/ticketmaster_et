@@ -27,6 +27,8 @@ class _WalletScreenState extends State<WalletScreen>
       vsync: this,
       duration: const Duration(seconds: 12),
     )..repeat(reverse: true);
+    walletController.loadTransactions();
+    walletController.loadWalletData();
   }
 
   @override
@@ -37,29 +39,53 @@ class _WalletScreenState extends State<WalletScreen>
 
   void _showTopUpDialog() {
     final amountController = TextEditingController();
+    final pointsNotifier = ValueNotifier<double>(0); // For live points update
+
+    amountController.addListener(() {
+      final amount = double.tryParse(amountController.text) ?? 0;
+      pointsNotifier.value = amount * 1.1; // conversion: 1 Birr = 1.1 Points
+    });
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('top_up_wallet'.tr),
-        content: TextField(
-          controller: amountController,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-              labelText: 'amounto'.tr,
-              hintText: 'enter_topup_amount'.tr,
-              border: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: Colors.green),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('1 Birr = 1.1 Point'),
+            const SizedBox(height: 8),
+            TextField(
+              controller: amountController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'amounto'.tr,
+                hintText: 'enter_topup_amount'.tr,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
               ),
-              focusedBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: Colors.green),
-              ),
-              enabledBorder: const OutlineInputBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-                borderSide: BorderSide(color: Colors.green),
-              )),
+            ),
+            const SizedBox(height: 8),
+            ValueListenableBuilder<double>(
+              valueListenable: pointsNotifier,
+              builder: (context, points, _) {
+                return Text(
+                  'You will get ${points.toStringAsFixed(1)} Pts',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -73,8 +99,12 @@ class _WalletScreenState extends State<WalletScreen>
                 Get.back();
                 walletController.topUp(amount);
               } else {
-                Get.snackbar('error'.tr, 'enter_valid_amount'.tr,
-                    backgroundColor: Colors.red, colorText: Colors.white);
+                Get.snackbar(
+                  'error'.tr,
+                  'enter_valid_amount'.tr,
+                  backgroundColor: Colors.red,
+                  colorText: Colors.white,
+                );
               }
             },
             child: Text('proceed'.tr),

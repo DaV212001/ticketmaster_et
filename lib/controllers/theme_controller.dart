@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/screens/category/category_tab.dart';
-import 'package:ticketmaster_et/screens/home/section/home_screen_tab/home_screen_categories.dart';
 
 import '../constants/theme.dart';
 import '../prefs/config_preferences.dart';
+import 'home_category_controller.dart';
 
 class ThemeModeController extends GetxController {
   static late Rx<ThemeData> _themeMode;
@@ -29,7 +29,7 @@ class ThemeModeController extends GetxController {
     if (Get.isRegistered<HomeCategoryController>(
         tag: HomeCategoryController.tag)) {
       HomeCategoryController hcc = Get.find(tag: HomeCategoryController.tag);
-      hcc.updateCategories();
+      hcc.fetchAll();
     }
     if (Get.isRegistered<CategoryController>()) {
       CategoryController cc = Get.find();

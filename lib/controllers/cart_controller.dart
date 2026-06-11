@@ -4,9 +4,9 @@ import 'package:get_storage/get_storage.dart';
 import 'package:logger/logger.dart';
 
 import '../models/newmodels.dart';
-import '../screens/home/section/home_screen_tab/home_screen_categories.dart';
 import '../utils/calculator_helper.dart';
 import '../widgets/animated_undo_button.dart';
+import 'home_category_controller.dart';
 
 class CartController extends GetxController {
   static String tag = 'cart';

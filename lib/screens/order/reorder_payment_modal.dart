@@ -1,7 +1,8 @@
 import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ticketmaster_et/screens/order/user_order_details.dart';
+
+import '../../controllers/order_detail_controller.dart';
 
 class ReorderPaymentModal extends StatelessWidget {
   ReorderPaymentModal({super.key});

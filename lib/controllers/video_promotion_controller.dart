@@ -74,8 +74,8 @@ class VideoPromotionController extends GetxController {
       }
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
-      Get.snackbar('Error', e.toString(),
-          backgroundColor: Colors.red, colorText: Colors.white);
+      // Get.snackbar('Error', e.toString(),
+      //     backgroundColor: Colors.red, colorText: Colors.white);
     } finally {
       isLoading.value = false;
     }

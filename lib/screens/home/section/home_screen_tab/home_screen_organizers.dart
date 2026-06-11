@@ -135,7 +135,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                                   image: NetworkImage(
                                     ep[index].image!.trim() ==
                                             'https://admin.ticketmaster-et.com/public/storage/dsvdv'
-                                        ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+                                        ? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'
                                         : ep[index].image!.trim(),
                                   ))),
                         ),
@@ -147,7 +147,7 @@ class _HomeScreenOrganizersState extends State<HomeScreenOrganizers> {
                 } else {
                   return Center(
                     child: Image.network(
-                        'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+                        'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'),
                   );
                 }
               }),

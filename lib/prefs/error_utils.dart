@@ -26,7 +26,7 @@ class ErrorUtil {
       return ErrorData(
         title: "No Internet Connection",
         body:
-            "It seems that your internet connection is turned off. Please turn it on and try again.",
+            "It seems that your internet connection is turned off or weak. Please turn it on or find a better connection and try again.",
         image: 'assets/images/errors/no_connection.svg',
         buttonText: "Retry",
       );

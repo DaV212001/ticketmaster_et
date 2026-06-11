@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:ticketmaster_et/screens/otp_screen.dart';
 
 import '../controllers/theme_controller.dart';
 import '../functions/functions.dart';
@@ -11,6 +10,7 @@ import '../prefs/language_selector.dart';
 import '../prefs/routes.dart';
 import '../provider/loginpersistence.dart';
 import '../provider/settings_provider.dart';
+import 'otp_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -73,36 +73,44 @@ class _SignupScreenState extends State<SignupScreen> {
       language: languageCode,
     );
 
-    bool? verified = await Get.to<bool>(() => OtpScreen(
-          fromSignUp: true,
-          phone: _phone.text.trim(),
-        ));
-    if (verified == true) {
-      final response =
-          await signupResponse(signupData, '${baseUrlFunc}register');
+    // bool? verified = await Get.to<bool>(() => OtpScreen(
+    //       fromSignUp: true,
+    //       phone: _phone.text.trim(),
+    //     ));
+    // if (verified == true) {
+    final response = await signupResponse(signupData, '${baseUrlFunc}register');
 
-      if (response.message == "User registered successfully") {
-        final log = LoginData(
-          firstName: _firstName.text,
-          lastName: _lastName.text,
-          email: _email.text,
-          phone: '251${_phone.text}',
-        );
-        await loginProvider.setLoginData(log);
-        loginProvider.setUserRegistered(true);
-        Get.offNamed(Routes.loginRoute);
-      } else {
-        loginProvider.setUserRegistered(false);
-        final errorMsg = buildErrorMessage(response.error);
-        _showErrorDialog(errorMsg);
-      }
-
+    if (response.message == "User registered successfully") {
+      final log = LoginData(
+        firstName: _firstName.text,
+        lastName: _lastName.text,
+        email: _email.text,
+        phone: '251${_phone.text}',
+      );
+      // await loginProvider.setLoginData(log);
+      loginProvider.setUserRegistered(true);
       setState(() => _isLoading = false);
+      var data = response.data as Map<String, dynamic>;
+
+      // Get.offNamed(Routes.loginRoute);
+      await Get.to<bool>(() => OtpScreen(
+            fromSignUp: true,
+            phone: _phone.text.trim(),
+            userId: data['id'],
+          ));
     } else {
-      setState(() {
-        _isLoading = false;
-      });
+      loginProvider.setUserRegistered(false);
+      setState(() => _isLoading = false);
+      final errorMsg = buildErrorMessage(response.error);
+      _showErrorDialog(errorMsg);
     }
+
+    setState(() => _isLoading = false);
+    // } else {
+    // setState(() {
+    //   _isLoading = false;
+    // });
+    // }
   }
 
   void _showErrorDialog(String message) {
@@ -122,8 +130,9 @@ class _SignupScreenState extends State<SignupScreen> {
     String msg = '';
     if (error.name != null) msg += errorMessageConcatenator(error.name!);
     if (error.email != null) msg += errorMessageConcatenator(error.email!);
-    if (error.password != null)
+    if (error.password != null) {
       msg += errorMessageConcatenator(error.password!);
+    }
     if (error.phonenumber != null) {
       msg += errorMessageConcatenator(error.phonenumber!);
     }
@@ -204,7 +213,7 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                               InputField(
                                 controller: _promo,
-                                hint: 'Promo code',
+                                hint: 'promocode'.tr,
                               ),
                               InputField(
                                 controller: _email,

@@ -8,6 +8,7 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/prefs/routes.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
 import 'package:ticketmaster_et/screens/order/payment_modal.dart';
+import 'package:ticketmaster_et/screens/profile_screen.dart';
 
 import '../../functions/functions.dart';
 import '../../provider/loginpersistence.dart';
@@ -43,6 +44,9 @@ class UserOrdersController extends GetxController
       // Sort both lists by date
       activeOrders.sort((a, b) => b.id!.compareTo(a.id!));
       pastOrders.sort((a, b) => b.id!.compareTo(a.id!));
+      if (Get.isRegistered<ProfileController>()) {
+        await Get.find<ProfileController>().loadData();
+      }
     } else {
       Logger().i('No Phone');
     }
@@ -325,18 +329,23 @@ class OrderCard extends StatelessWidget {
                         const SizedBox(height: 10),
                         if (paymentStatus == 'not_paid'.tr)
                           ElevatedButton(
-                            onPressed: () => showModalBottomSheet(
-                              context: context,
+                            onPressed: () => Get.bottomSheet(
+                              FractionallySizedBox(
+                                heightFactor:
+                                    0.3, // 👈 limits modal to half screen height
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: const BorderRadius.vertical(
+                                          top: Radius.circular(16)),
+                                    ),
+                                    child: PaymentModal(order: order)),
+                              ),
                               shape: const RoundedRectangleBorder(
                                 borderRadius: BorderRadius.vertical(
                                     top: Radius.circular(16)),
                               ),
                               isScrollControlled: true,
-                              builder: (_) => FractionallySizedBox(
-                                heightFactor:
-                                    0.3, // 👈 limits modal to half screen height
-                                child: PaymentModal(order: order),
-                              ),
                             ),
                             child: const Text('Pay Now'),
                           )

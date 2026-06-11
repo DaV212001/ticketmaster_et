@@ -40,7 +40,11 @@ class Pages {
         name: Routes.mainLayoutRoute,
         page: () => const TicketMatserHomePage(),
         middlewares: [InitialNavigationMiddleware()]),
-    GetPage(name: Routes.foodDetailRoute, page: () => const FoodDetail()),
+    GetPage(
+      name: Routes.foodDetailRoute,
+      page: () => const FoodDetail(),
+      // middlewares: [TimeCheckerMiddleware()]
+    ),
     GetPage(
         name: Routes.orderDetailRoute, page: () => const UserOrderDetails()),
     GetPage(name: Routes.faqRoute, page: () => FAQScreen()),
@@ -49,6 +53,9 @@ class Pages {
     GetPage(name: Routes.howWeCookRoute, page: () => HowWeCookScreen()),
     GetPage(name: Routes.editProfileRoute, page: () => const EditProfile()),
     GetPage(name: Routes.cartRoute, page: () => CartScreen()),
-    GetPage(name: Routes.checkoutRoute, page: () => CheckoutScreen()),
+    GetPage(
+        name: Routes.checkoutRoute,
+        page: () => CheckoutScreen(),
+        middlewares: [AuthNavigationMiddleware()]),
   ];
 }

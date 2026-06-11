@@ -21,6 +21,7 @@ class PaymentModal extends StatelessWidget {
           }
 
           return Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -62,10 +63,19 @@ class PaymentModal extends StatelessWidget {
                     controller: paymentController,
                     onTap: () async {
                       if (paymentController.selectedMethod.value == "chapa") {
+                        // Get.showOverlay(
+                        //     asyncFunction: () async =>
                         await paymentController.payWithChapa(order);
+                        // loadingWidget: const Center(
+                        //     child: CircularProgressIndicator()));
                       } else {
                         paymentController.selectedMethod.value = "chapa";
+                        Get.back();
+                        // Get.showOverlay(
+                        //     asyncFunction: () async =>
                         await paymentController.payWithChapa(order);
+                        // loadingWidget: const Center(
+                        //     child: CircularProgressIndicator()));
                       }
                     },
                   ),
@@ -76,10 +86,20 @@ class PaymentModal extends StatelessWidget {
                     controller: paymentController,
                     onTap: () async {
                       if (paymentController.selectedMethod.value == "wallet") {
+                        // Get.back();
+                        // Get.showOverlay(
+                        //     asyncFunction: () async =>
                         await paymentController.payWithWallet(order);
+                        // loadingWidget: const Center(
+                        //     child: CircularProgressIndicator()));
                       } else {
                         paymentController.selectedMethod.value = "wallet";
+                        // Get.back();
+                        // Get.showOverlay(
+                        //     asyncFunction: () async =>
                         await paymentController.payWithWallet(order);
+                        // loadingWidget: const Center(
+                        //     child: CircularProgressIndicator()));
                       }
                     },
                   ),

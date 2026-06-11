@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../controllers/cart_controller.dart';
-import '../screens/home/section/home_screen_tab/home_screen_categories.dart';
+import '../controllers/home_category_controller.dart';
 import '../utils/cached_image_widget_wrapper.dart';
 import 'food_portion_checkout_card.dart';
 
@@ -125,8 +126,10 @@ class FoodSummary extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "total_birr".trParams(
-                          {'total': storeTotalPrice.toStringAsFixed(2)}),
+                      "total_birr".trParams({
+                        'total':
+                            NumberFormat('#,##0.00').format(storeTotalPrice)
+                      }),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                       ),

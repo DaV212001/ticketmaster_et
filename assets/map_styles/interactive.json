@@ -1,0 +1,93 @@
+{
+  "version": 8,
+  "name": "GebetaThemeMap",
+  "sources": {
+    "osm": {
+      "type": "vector",
+      "url": "https://api.maptiler.com/tiles/v3/tiles.json?key=yU14CpCZTnBXOEjOP9Uf"
+    }
+  },
+  "sprite": "https://api.maptiler.com/maps/streets/sprite",
+  "glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf",
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": {
+        "background-color": "#f5f5f5"
+      }
+    },
+    {
+      "id": "water",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "water",
+      "paint": {
+        "fill-color": "#64C5BA"
+      }
+    },
+    {
+      "id": "landuse",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "landuse",
+      "paint": {
+        "fill-color": "#ffffff"
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "osm",
+      "source-layer": "roads",
+      "paint": {
+        "line-color": "#218A36",
+        "line-width": 1.5
+      }
+    },
+    {
+      "id": "highways",
+      "type": "line",
+      "source": "osm",
+      "source-layer": "roads",
+      "filter": ["==", "class", "highway"],
+      "paint": {
+        "line-color": "#FFDD66",
+        "line-width": 3
+      }
+    },
+    {
+      "id": "parks",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "landuse",
+      "filter": ["==", "class", "park"],
+      "paint": {
+        "fill-color": "#C8F1E5"
+      }
+    },
+    {
+      "id": "buildings",
+      "type": "fill",
+      "source": "osm",
+      "source-layer": "building",
+      "paint": {
+        "fill-color": "#ffffff",
+        "fill-outline-color": "#218A36"
+      }
+    },
+    {
+      "id": "labels",
+      "type": "symbol",
+      "source": "osm",
+      "source-layer": "place_label",
+      "layout": {
+        "text-field": "{name}",
+        "text-size": 12
+      },
+      "paint": {
+        "text-color": "#333333"
+      }
+    }
+  ]
+}

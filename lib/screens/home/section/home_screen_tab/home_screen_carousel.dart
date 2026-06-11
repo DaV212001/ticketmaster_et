@@ -6,6 +6,7 @@ import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/utils/cached_image_widget_wrapper.dart';
 
 import '../../../../controllers/theme_controller.dart';
+import '../../../../controllers/time_controller.dart';
 import '../../../../functions/functions.dart';
 import '../../../../prefs/routes.dart';
 
@@ -95,8 +96,14 @@ class HomeScreenCarouselSlider extends StatelessWidget {
                         if (controller.popularevents.isNotEmpty) {
                           return GestureDetector(
                             onTap: () {
+                              if (Get.find<TimeController>(
+                                      tag: TimeController.tag)
+                                  .closedHours
+                                  .value) {
+                                return;
+                              }
                               Get.toNamed(Routes.foodDetailRoute, arguments: {
-                                'id': controller.popularevents[index].id!
+                                'id': controller.popularevents[index].foodId!
                               });
                             },
                             child: cachedNetworkImageWrapper(

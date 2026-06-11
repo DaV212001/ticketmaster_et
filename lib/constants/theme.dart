@@ -15,7 +15,7 @@
 // ignore_for_file: unnecessary_const, prefer_const_constructors
 import 'package:flutter/material.dart';
 
-var mainColor = Color(0xFF218A36);
+var mainColor = Color(0xFF23981C);
 
 class Styles {
   static ThemeData themeData(

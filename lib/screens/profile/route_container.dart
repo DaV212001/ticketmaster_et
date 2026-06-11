@@ -38,12 +38,10 @@ class RouteContainer extends StatelessWidget {
                         onTap: routePart[index]["onTap"],
                         title: routePart[index]["title"],
                         icon: routePart[index]["leadingIcon"]),
-                    index == indexTwo
-                        ? const SizedBox.shrink()
-                        : Divider(
-                            thickness: 1,
-                            height: 1,
-                            color: Colors.grey.withValues(alpha: 0.5))
+                    Divider(
+                        thickness: 1,
+                        height: 1,
+                        color: Colors.grey.withValues(alpha: 0.5))
                   ],
                 );
               },

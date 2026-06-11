@@ -9,13 +9,14 @@ import 'package:ticketmaster_et/api_call_status.dart';
 import 'package:ticketmaster_et/controllers/footer_controller.dart';
 import 'package:ticketmaster_et/controllers/wallet_controller.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
-import 'package:ticketmaster_et/screens/organizations_screen.dart';
+import 'package:ticketmaster_et/screens/home/delivery_address/delivery_address_screen.dart';
 import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
 import 'package:ticketmaster_et/screens/wallet/wallet_screen.dart';
 import 'package:ticketmaster_et/utils/update_enforcer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import '../models/newmodels.dart';
 import '../prefs/routes.dart';
@@ -64,7 +65,7 @@ class ProfileController extends GetxController {
   void getTargetCount() async {
     try {
       var res = await http
-          .get(Uri.parse('${baseUrlFunc}target-count/${loginData.value?.id}'));
+          .get(Uri.parse('${baseUrlFunc}total-order/${loginData.value?.id}'));
       if (res.statusCode == 200) {
         var data = jsonDecode(res.body);
         targetCount.value = data['data'];
@@ -88,6 +89,13 @@ class ProfileWidget extends StatelessWidget {
       Get.put(WalletController(), tag: WalletController.tag);
 
   ProfileWidget({super.key});
+  final YoutubePlayerController _controller = YoutubePlayerController(
+    initialVideoId: 'iLnmTe5Q2Qw',
+    flags: const YoutubePlayerFlags(
+      autoPlay: true,
+      mute: true,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -98,6 +106,16 @@ class ProfileWidget extends StatelessWidget {
         "onTap": () {},
         "trailing": const Text("")
       },
+      // {
+      //   "title": 'debug'.tr,
+      //   "leadingIcon": Icons.dark_mode,
+      //   "onTap": () {
+      //     Get.to(
+      //       () => DebugOverlay(),
+      //     );
+      //   },
+      //   "trailing": const Text("")
+      // },
       {
         "title": "changelanguage".tr,
         "leadingIcon": Icons.language,
@@ -106,7 +124,7 @@ class ProfileWidget extends StatelessWidget {
       },
       {
         "title": "change_pass".tr,
-        "leadingIcon": Icons.language,
+        "leadingIcon": Icons.key,
         "onTap": () {
           Get.to(() => ChangePasswordScreen());
         },
@@ -160,16 +178,17 @@ class ProfileWidget extends StatelessWidget {
                   height: 40,
                   child: Center(child: CircularProgressIndicator())));
         },
-        "trailing": Icon(Icons.chevron_right_outlined)
+        "trailing": const Icon(Icons.chevron_right_outlined)
       },
       {
         "title": "invitefriends".tr,
         "leadingIcon": Icons.share,
         "onTap": () {
-          Share.share(
-            'https://play.google.com/store/apps/details?id=com.hello.mesa',
-            subject: 'Check out my app on the Play Store',
-          );
+          SharePlus.instance.share(ShareParams(
+              subject: 'Check out my app on the Play Store',
+              uri: Uri(
+                  path:
+                      'https://play.google.com/store/apps/details?id=com.hello.mesa')));
         },
         "trailing": const Text("")
       },
@@ -184,6 +203,14 @@ class ProfileWidget extends StatelessWidget {
       //   },
       //   "trailing": const Text('')
       // },
+      {
+        "title": "delivery_address".tr,
+        "leadingIcon": Icons.location_on_outlined,
+        "onTap": () {
+          Get.to(() => DeliveryAddressScreen());
+        },
+        "trailing": const Text("")
+      },
       {
         "title": "wallet".tr,
         "leadingIcon": Icons.wallet,
@@ -227,6 +254,7 @@ class ProfileWidget extends StatelessWidget {
                   //             fontWeight: FontWeight.bold),
                   //       )),
                   // ),
+
                   Padding(
                     padding: const EdgeInsets.only(
                         left: 16.0, right: 16.0, bottom: 8.0),
@@ -241,7 +269,7 @@ class ProfileWidget extends StatelessWidget {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Obx(
                                   () => Text(
-                                    walletController.balance.value,
+                                    walletController.balance.value + ' Pts',
                                     style: const TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -289,97 +317,110 @@ class ProfileWidget extends StatelessWidget {
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 30,
-                          child: VerticalDivider(
-                            thickness: 1,
-                            color: Colors.black12,
-                            indent: 4,
-                            endIndent: 4,
-                            width: 16,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  controller.freeMeals.value.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'free_meals'.tr,
-                                style: const TextStyle(
-                                    fontSize: 10, color: Colors.grey),
-                              )
-                            ],
-                          ),
-                        ),
+                        // const SizedBox(
+                        //   height: 30,
+                        //   child: VerticalDivider(
+                        //     thickness: 1,
+                        //     color: Colors.black12,
+                        //     indent: 4,
+                        //     endIndent: 4,
+                        //     width: 16,
+                        //   ),
+                        // ),
+                        // Padding(
+                        //   padding: const EdgeInsets.all(8.0),
+                        //   child: Column(
+                        //     children: [
+                        //       Padding(
+                        //         padding: const EdgeInsets.all(8.0),
+                        //         child: Obx(() => Text(
+                        //               controller.freeMeals.value.toString(),
+                        //               style: const TextStyle(
+                        //                 fontSize: 14,
+                        //                 fontWeight: FontWeight.bold,
+                        //               ),
+                        //             )),
+                        //       ),
+                        //       Text(
+                        //         'free_meals'.tr,
+                        //         style: const TextStyle(
+                        //             fontSize: 10, color: Colors.grey),
+                        //       )
+                        //     ],
+                        //   ),
+                        // ),
                       ],
                     ),
                   ),
                   const SizedBox(
                     height: 16,
                   ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Row(
-                      children: [
-                        Obx(
-                          () => Text(controller.targetCount.value.toString()),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Obx(() => AnimatedContainer(
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                  height: 10,
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: FractionallySizedBox(
-                                      widthFactor:
-                                          (controller.targetCount.value / 10)
-                                              .clamp(0.0, 1.0),
-                                      child: Container(
-                                        height: 10,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                )),
-                          ),
-                        ),
-                        const Text('10'),
-                      ],
+                  Card(
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'DEAR FAMILY, USE YOUR POINTS TO ORDER YOUR MEALS.',
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                  Align(
-                    alignment: Alignment.center,
-                    child: Text(
-                      "target_count".trParams(
-                          {"count": "${10 - controller.targetCount.value}"}),
-                      style: const TextStyle(fontSize: 11),
-                    ),
-                  ),
+                  // Padding(
+                  //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  //   child: Row(
+                  //     children: [
+                  //       Obx(
+                  //         () => Text(controller.targetCount.value.toString()),
+                  //       ),
+                  //       Expanded(
+                  //         child: Padding(
+                  //           padding:
+                  //               const EdgeInsets.symmetric(horizontal: 8.0),
+                  //           child: Obx(() => AnimatedContainer(
+                  //                 duration: const Duration(milliseconds: 500),
+                  //                 curve: Curves.easeInOut,
+                  //                 height: 10,
+                  //                 width: double.infinity,
+                  //                 decoration: BoxDecoration(
+                  //                   color: Colors.grey[300],
+                  //                   borderRadius: BorderRadius.circular(10),
+                  //                 ),
+                  //                 child: Align(
+                  //                   alignment: Alignment.centerLeft,
+                  //                   child: FractionallySizedBox(
+                  //                     widthFactor:
+                  //                         (controller.targetCount.value / 10)
+                  //                             .clamp(0.0, 1.0),
+                  //                     child: Container(
+                  //                       height: 10,
+                  //                       decoration: BoxDecoration(
+                  //                         color: Theme.of(context)
+                  //                             .colorScheme
+                  //                             .primary,
+                  //                         borderRadius:
+                  //                             BorderRadius.circular(10),
+                  //                       ),
+                  //                     ),
+                  //                   ),
+                  //                 ),
+                  //               )),
+                  //         ),
+                  //       ),
+                  //       const Text('10'),
+                  //     ],
+                  //   ),
+                  // ),
+                  // Align(
+                  //   alignment: Alignment.center,
+                  //   child: Text(
+                  //     "target_count".trParams(
+                  //         {"count": "${10 - controller.targetCount.value}"}),
+                  //     style: const TextStyle(fontSize: 11),
+                  //   ),
+                  // ),
                   // Padding(
                   //   padding: const EdgeInsets.only(top: 8.0),
                   //   child: Column(
@@ -398,18 +439,31 @@ class ProfileWidget extends StatelessWidget {
                   //     ],
                   //   ),
                   // ),
-                  Obx(() => controller.freeMeals.value != 0
-                      ? Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                  onPressed: () {
-                                    Get.to(() => OrganizationScreen());
-                                  },
-                                  child: Text('donate_fm'.tr))),
-                        )
-                      : const SizedBox.shrink())
+                  // SizedBox(
+                  //   height: 300,
+                  //   width: 400,
+                  //   child: YoutubePlayer(
+                  //     controller: _controller,
+                  //     showVideoProgressIndicator: true,
+                  //     progressIndicatorColor: Colors.amber,
+                  //     progressColors: const ProgressBarColors(
+                  //       playedColor: Colors.amber,
+                  //       handleColor: Colors.amberAccent,
+                  //     ),
+                  //   ),
+                  // ),
+                  // Obx(() => controller.freeMeals.value != 0
+                  //     ? Padding(
+                  //         padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  //         child: SizedBox(
+                  //             width: double.infinity,
+                  //             child: ElevatedButton(
+                  //                 onPressed: () {
+                  //                   Get.to(() => OrganizationScreen());
+                  //                 },
+                  //                 child: Text('donate_fm'.tr))),
+                  //       )
+                  //     : const SizedBox.shrink())
                 ],
               ),
             ),

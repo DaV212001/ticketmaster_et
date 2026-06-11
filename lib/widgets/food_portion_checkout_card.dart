@@ -1,6 +1,7 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 class ProductCheckOutCard extends StatelessWidget {
@@ -29,7 +30,8 @@ class ProductCheckOutCard extends StatelessWidget {
           style: const TextStyle(fontWeight: FontWeight.w600),
         ),
         AutoSizeText(
-          'price'.trParams({'pr': (product.price ?? 0).toStringAsFixed(2)}),
+          'price'.trParams(
+              {'pr': NumberFormat('#,##0.00').format((product.price ?? 0))}),
           maxLines: 1,
           minFontSize: 9,
           maxFontSize: 12,

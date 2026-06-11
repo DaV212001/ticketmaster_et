@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
+import 'package:ticketmaster_et/controllers/time_controller.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 import 'package:ticketmaster_et/screens/category/section/category_child_list_screen.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
@@ -28,19 +29,18 @@ class CategoryController extends GetxController
       var categoryList =
           await getCategorySubCategory(ThemeModeController.languageCode.value);
       categories.assignAll(categoryList);
-
+      tabController = TabController(length: categories.length - 1, vsync: this);
       for (var cat in categories) {
-        try {
-          var subcategoryList = await getSubCategoryByCategoryId(
-              cat.id!, ThemeModeController.languageCode.value);
-          subcategoriesMap[cat.id!] = subcategoryList;
-          // Logger().d(subcategoriesMap.entries.first.value.length);
-        } catch (e, s) {
-          Logger().t(e.toString(), stackTrace: s);
-        }
+        // try {
+        //   var subcategoryList = await getSubCategoryByCategoryId(
+        //       cat.id!, ThemeModeController.languageCode.value);
+        subcategoriesMap[cat.id!] = cat.foods ?? [];
+        // Logger().d(subcategoriesMap.entries.first.value.length);
+        // } catch (e, s) {
+        //   Logger().t(e.toString(), stackTrace: s);
+        // }
       }
 
-      tabController = TabController(length: categories.length, vsync: this);
       isLoaded.value = true;
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
@@ -71,7 +71,12 @@ class CategoryTab extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Obx(() {
-          if (controller.isLoaded.value) {
+          List<Category> categories = List.from(controller.categories);
+          categories.removeWhere((categories) => categories.id == 20);
+          if (controller.isLoaded.value &&
+              !Get.find<TimeController>(tag: TimeController.tag)
+                  .isLoadingWorkTimes
+                  .value) {
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(
@@ -95,7 +100,7 @@ class CategoryTab extends StatelessWidget {
                             ),
                             labelColor: Colors.white,
                             unselectedLabelColor: Colors.black,
-                            tabs: controller.categories
+                            tabs: categories
                                 .map((category) => Tab(
                                       child: Text(
                                         category.name ?? '',
@@ -116,7 +121,7 @@ class CategoryTab extends StatelessWidget {
                   Expanded(
                     child: TabBarView(
                       controller: controller.tabController,
-                      children: controller.categories.map((category) {
+                      children: categories.map((category) {
                         var subcategories =
                             controller.subcategoriesMap[category.id] ?? [];
                         return Column(
@@ -140,8 +145,8 @@ class CategoryTab extends StatelessWidget {
             return Column(
               children: [
                 Center(
-                    child: Image.network(
-                        'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png')),
+                    child:
+                        Image.asset('assets/images/THICKET_MASTER_LOGO.png')),
                 const CircularProgressIndicator(),
               ],
             );

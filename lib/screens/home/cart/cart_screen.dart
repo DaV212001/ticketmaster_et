@@ -3,6 +3,7 @@ import 'package:enefty_icons/enefty_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
 import '../../../constants/assets.dart';
@@ -347,6 +348,7 @@ class CartScreen extends StatelessWidget {
                       height: 45,
                       child: ElevatedButton(
                         onPressed: () {
+                          Logger().d(Get.arguments);
                           // UserController.getWalletBalance();
                           Get.toNamed(Routes.checkoutRoute,
                               arguments: Get.arguments);

@@ -196,7 +196,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
                   })
               : Center(
                   child: Image.network(
-                      'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+                      'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'),
                 )),
       TabPair(
         tab: Tab(
@@ -209,7 +209,7 @@ class _TabBarAndTabViewsState extends State<TabBarAndTabViews>
             ? Center(
                 child: Center(
                 child: Image.network(
-                    'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+                    'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'),
               ))
             : Padding(
                 padding: const EdgeInsets.all(8.0),

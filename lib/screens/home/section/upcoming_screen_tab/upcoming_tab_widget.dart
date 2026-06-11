@@ -146,7 +146,7 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                   borderRadius: BorderRadius.circular(50),
                                   child: Image.network(
                                     organizer?.image ??
-                                        'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png',
+                                        'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg',
                                     width: 45,
                                     height: 45,
                                     fit: BoxFit.cover,
@@ -329,9 +329,9 @@ class _UpcomingTabWidgetState extends State<UpcomingTabWidget> {
                                           widget.modified[iindex].upcomingImage!
                                                   .trim() ==
                                               'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                                      ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+                                      ? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'
                                       : widget.modified[iindex].image!.trim()
-                                  : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'))),
+                                  : 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'))),
                     ),
                   ),
                 ),

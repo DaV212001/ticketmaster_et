@@ -6,13 +6,13 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/controllers/wallet_controller.dart';
-import 'package:ticketmaster_et/screens/order/user_order_details.dart';
 
 import '../functions/functions.dart';
 import '../models/newmodels.dart';
 import '../provider/loginpersistence.dart';
 import '../screens/order/user_orders.dart';
 import '../screens/wallet/payment_web_view.dart';
+import 'order_detail_controller.dart';
 
 class PaymentController extends GetxController {
   final Dio dio = Dio();
@@ -55,8 +55,14 @@ class PaymentController extends GetxController {
   }
 
   Future<bool?> showTopUpDialog(BuildContext context) async {
-    final amountController = TextEditingController();
     bool topUpSuccess = false;
+    final amountController = TextEditingController();
+    final pointsNotifier = ValueNotifier<double>(0); // For live points update
+
+    amountController.addListener(() {
+      final amount = double.tryParse(amountController.text) ?? 0;
+      pointsNotifier.value = amount * 1.1; // conversion: 1 Birr = 1.1 Points
+    });
 
     return await Get.dialog<bool>(
       AlertDialog(
@@ -64,22 +70,43 @@ class PaymentController extends GetxController {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const Text('1 Birr = 1.1 Point'),
+            const SizedBox(height: 8),
             TextField(
               controller: amountController,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: 'amounto'.tr,
                 hintText: 'enter_topup_amount'.tr,
-                border: const OutlineInputBorder(),
-                enabledBorder: const OutlineInputBorder(),
-                focusedBorder: const OutlineInputBorder(),
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+                focusedBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
+                enabledBorder: const OutlineInputBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                  borderSide: BorderSide(color: Colors.green),
+                ),
               ),
+            ),
+            const SizedBox(height: 8),
+            ValueListenableBuilder<double>(
+              valueListenable: pointsNotifier,
+              builder: (context, points, _) {
+                return Text(
+                  'You will get ${points.toStringAsFixed(1)} Pts',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                );
+              },
             ),
           ],
         ),
         actions: [
           TextButton(
-            onPressed: () => Get.back(result: false),
+            onPressed: () => Get.back(),
             child: Text('cancel'.tr),
           ),
           ElevatedButton(
@@ -186,17 +213,25 @@ class PaymentController extends GetxController {
       };
 
       Logger().i(data);
-      final response = await http.post(
-        Uri.parse('${baseUrlFunc}pay-on-wallet'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(data),
-      );
-
-      Logger().i(response.body);
+      http.Response? response = http.Response('', 400);
+      await Get.showOverlay(
+          asyncFunction: () async {
+            response = await http.post(
+              Uri.parse('${baseUrlFunc}pay-on-wallet'),
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode(data),
+            );
+          },
+          loadingWidget: const Center(
+            child: SizedBox(
+                height: 50, width: 50, child: CircularProgressIndicator()),
+          ));
+      // if (response != null) {
+      Logger().i(response?.body);
       isLoading.value = false;
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Get.back();
+      if (response?.statusCode == 200 || response?.statusCode == 201) {
+        Get.back();
         Get.snackbar(
           "success".tr,
           "wallet_payment_processed".tr,
@@ -204,8 +239,15 @@ class PaymentController extends GetxController {
           colorText: Colors.black,
         );
         order.paymentStatus = true;
-        Get.find<UserOrdersController>().updateOrders();
-        Get.find<OrderDetailController>().fetchOrderItems(order);
+        if (Get.isRegistered<UserOrdersController>()) {
+          Get.find<UserOrdersController>().updateOrders();
+        }
+        if (Get.isRegistered<OrderDetailController>()) {
+          Get.find<OrderDetailController>().fetchOrderItems(order);
+        }
+        if (Get.isRegistered<WalletController>(tag: WalletController.tag)) {
+          Get.find<WalletController>(tag: WalletController.tag).loadBalance();
+        }
         update();
       } else {
         Get.snackbar(
@@ -215,6 +257,7 @@ class PaymentController extends GetxController {
           colorText: Colors.black,
         );
       }
+      // }
     } catch (e, s) {
       Logger().t(e, stackTrace: s);
       isLoading.value = false;
@@ -226,7 +269,7 @@ class PaymentController extends GetxController {
   Future<void> payWithChapa(Order order) async {
     try {
       isLoading.value = true;
-
+      Get.back();
       var loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
       // loginDataProvider.loadLoginData();
       var data = {
@@ -259,8 +302,12 @@ class PaymentController extends GetxController {
             colorText: Colors.black,
           );
           order.paymentStatus = true;
-          Get.find<UserOrdersController>().updateOrders();
-          Get.find<OrderDetailController>().fetchOrderItems(order);
+          if (Get.isRegistered<UserOrdersController>()) {
+            Get.find<UserOrdersController>().updateOrders();
+          }
+          if (Get.isRegistered<OrderDetailController>()) {
+            Get.find<OrderDetailController>().fetchOrderItems(order);
+          }
           update();
         }
       } else {

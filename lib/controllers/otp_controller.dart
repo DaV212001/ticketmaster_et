@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:ticketmaster_et/functions/functions.dart';
+import 'package:ticketmaster_et/prefs/routes.dart';
 
 class OtpController extends GetxController {
   var isLoading = false.obs;
@@ -48,9 +50,13 @@ class OtpController extends GetxController {
     }
   }
 
-  Future<void> verifyOtp(String phone, String otpPassed,
-      {bool fromSignUp = false}) async {
-    // isLoading.value = true;
+  Future<void> verifyOtp(
+    String phone,
+    String otpPassed, {
+    bool fromSignUp = false,
+    required int userId,
+  }) async {
+    isLoading.value = true;
     // final body = {"phone": phone, "otp": otpPassed};
     //
     // try {
@@ -59,32 +65,63 @@ class OtpController extends GetxController {
     //     headers: {"Content-Type": "application/json"},
     //     body: jsonEncode(body),
     //   );
+    isLoading.value = true;
 
-    if (otpPassed == otp.value) {
-      if (fromSignUp) {
-        Get.back(result: true);
-        Get.snackbar('success'.tr, 'otp_verified_success'.tr,
-            backgroundColor: Colors.green, colorText: Colors.white);
-        return;
+    final body = {
+      "user_id": userId,
+      "otp": otpPassed,
+    };
+
+    Logger().d(body);
+
+    try {
+      if (userId != 0) {
+        final response = await http.post(
+          Uri.parse('${baseUrlFunc}verify-otp'),
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(body),
+        );
+
+        Logger().d(response.body);
+
+        if (response.statusCode == 200) {
+          if (fromSignUp) {
+            Get.offNamed(Routes.loginRoute);
+            Get.snackbar('success'.tr, 'otp_verified_login'.tr,
+                backgroundColor: Colors.green, colorText: Colors.white);
+            return;
+          }
+          isOtpVerified.value = true;
+          Get.snackbar('success'.tr, 'otp_verified_success'.tr,
+              backgroundColor: Colors.green, colorText: Colors.white);
+        } else {
+          // ❌ WRONG OTP
+          Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
+              backgroundColor: Colors.red, colorText: Colors.white);
+        }
+      } else {
+        if (otpPassed == otp.value) {
+          if (fromSignUp) {
+            Get.offNamed(Routes.loginRoute);
+            Get.snackbar('success'.tr, 'otp_verified_login'.tr,
+                backgroundColor: Colors.green, colorText: Colors.white);
+            return;
+          }
+          isOtpVerified.value = true;
+          Get.snackbar('success'.tr, 'otp_verified_success'.tr,
+              backgroundColor: Colors.green, colorText: Colors.white);
+        } else {
+          // ❌ WRONG OTP
+          Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
+              backgroundColor: Colors.red, colorText: Colors.white);
+        }
       }
-      isOtpVerified.value = true;
-      Get.snackbar('success'.tr, 'otp_verified_success'.tr,
-          backgroundColor: Colors.green, colorText: Colors.white);
-    } else {
-      if (fromSignUp) {
-        Get.back(result: false);
-        Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
-            backgroundColor: Colors.red, colorText: Colors.white);
-        return;
-      }
+    } catch (e) {
       Get.snackbar('error'.tr, 'otp_verified_failure'.tr,
           backgroundColor: Colors.red, colorText: Colors.white);
+    } finally {
+      isLoading.value = false;
     }
-    // } catch (e) {
-    //   Get.snackbar('error'.tr, 'otp_verified_failure'.tr);
-    // } finally {
-    //   isLoading.value = false;
-    // }
   }
 
   Future<void> resetPassword(

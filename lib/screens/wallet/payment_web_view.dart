@@ -29,6 +29,12 @@ class _PaymentWebViewState extends State<PaymentWebView> {
         onWebViewCreated: (controller) {
           webViewController = controller;
         },
+        onLoadStart: (controller, url) async {
+          if (url.toString().contains("receipt")) {
+            // await Future.delayed(const Duration(seconds: 3));
+            Get.back(result: true);
+          }
+        },
         onLoadStop: (controller, url) async {
           // Check if the loaded URL matches the receipt page URL
           if (url.toString().contains("receipt")) {

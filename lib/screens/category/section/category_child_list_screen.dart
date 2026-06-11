@@ -3,9 +3,13 @@ import 'package:badges/badges.dart' as badge;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
+import 'package:ticketmaster_et/screens/category/category_tab.dart';
 
 import '../../../controllers/cart_controller.dart';
+import '../../../controllers/time_controller.dart';
 import '../../../prefs/routes.dart';
 
 class CategoryChildList extends StatefulWidget {
@@ -31,39 +35,52 @@ class _CategoryChildListState extends State<CategoryChildList> {
     return Stack(
       children: [
         widget.subCategories.isNotEmpty
-            ? ListView.builder(
-                // controller: scrollController,
-                physics: const BouncingScrollPhysics(),
-                itemCount: widget.subCategories.length,
-                shrinkWrap: true,
-                itemBuilder: (BuildContext context, int index) {
-                  final subCategory = widget.subCategories[index];
-                  return CategoryFoodCard(
-                    fromDonation: widget.fromDonation ?? false,
-                    className: subCategory.name ?? '',
-                    cartController: cartController,
-                    imageUrl: subCategory.image ?? '',
-                    status: subCategory.discountPercentage == 0.0
-                        ? ''
-                        : '${subCategory.discountPercentage ?? '0'}%',
-                    eventDate: subCategory.createdAt ?? DateTime.now(),
-                    price: subCategory.price ?? 0.0,
-                    paymentStatus: subCategory.desc ?? '',
-                    rating: subCategory.rating ?? 0.0,
-                    food: subCategory,
-                    onTap: () {
-                      Get.toNamed(Routes.foodDetailRoute,
-                          arguments: {'id': subCategory.id!});
-                    },
-                  );
+            ? RefreshIndicator(
+                onRefresh: () async {
+                  Get.find<CategoryController>()
+                      .updateCategoriesAndSubCategories();
+                  Get.find<TimeController>(tag: TimeController.tag)
+                      .loadWorkTimes();
                 },
+                child: ListView.builder(
+                  // controller: scrollController,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: widget.subCategories.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    final subCategory = widget.subCategories[index];
+                    return CategoryFoodCard(
+                      fromDonation: widget.fromDonation ?? false,
+                      className: subCategory.name ?? '',
+                      cartController: cartController,
+                      imageUrl: subCategory.image ?? '',
+                      status: subCategory.discountPercentage == 0.0
+                          ? ''
+                          : '${subCategory.discountPercentage ?? '0'}%',
+                      eventDate: subCategory.createdAt ?? DateTime.now(),
+                      price: (subCategory.price ?? 0.0).toDouble(),
+                      paymentStatus: subCategory.desc ?? '',
+                      rating: (subCategory.rating ?? 0.0).toDouble(),
+                      food: subCategory,
+                      onTap: () {
+                        if (Get.find<TimeController>(tag: TimeController.tag)
+                            .closedHours
+                            .value) {
+                          return;
+                        }
+                        Get.toNamed(Routes.foodDetailRoute,
+                            arguments: {'id': subCategory.id!});
+                      },
+                    );
+                  },
+                ),
               )
             : Center(
                 child: SizedBox(
                   height: 200,
                   width: 200,
                   child: Image.network(
-                      'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+                      'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'),
                 ),
               ),
         // ================= FLOATING TOTAL BAR =================
@@ -106,8 +123,8 @@ class _CategoryChildListState extends State<CategoryChildList> {
             child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Obx(() {
-                  final totalQuantity = cartController.cart
-                      .fold<int>(0, (sum, item) => sum + (item.amount ?? 0));
+                  final totalQuantity = cartController.cart.fold<int>(
+                      0, (sum, item) => sum + (item.amount ?? 0).toInt());
 
                   return badge.Badge(
                     showBadge: totalQuantity > 0,
@@ -143,8 +160,10 @@ class _CategoryChildListState extends State<CategoryChildList> {
                 borderRadius: BorderRadius.circular(10),
               ),
             ),
-            onPressed: () =>
-                Get.toNamed(Routes.cartRoute, arguments: widget.fromDonation),
+            onPressed: () {
+              Logger().d(widget.fromDonation);
+              Get.toNamed(Routes.cartRoute, arguments: widget.fromDonation);
+            },
             child: Text(
               'buy_now'.tr,
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -205,20 +224,41 @@ class _CategoryFoodCardState extends State<CategoryFoodCard> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 90,
-                    height: 100,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10.0),
-                      child: CachedNetworkImage(
-                        imageUrl: widget.imageUrl.trim(),
-                        fit: BoxFit.cover,
-                        errorWidget: (context, url, error) => Image.asset(
-                          'assets/images/na_logo.jpg',
-                          fit: BoxFit.cover,
+                  Stack(
+                    children: [
+                      SizedBox(
+                        width: 90,
+                        height: 100,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10.0),
+                          child: CachedNetworkImage(
+                            imageUrl: widget.imageUrl.trim(),
+                            fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => Image.asset(
+                              'assets/images/na_logo.jpg',
+                              fit: BoxFit.cover,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      if (Get.find<TimeController>(tag: TimeController.tag)
+                          .closedHours
+                          .value)
+                        Positioned(
+                          child: Container(
+                              width: 90,
+                              height: 100,
+                              decoration: BoxDecoration(
+                                color: Colors.black45,
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              child: const Center(
+                                  child: Text(
+                                'Closed',
+                                style: TextStyle(color: Colors.white),
+                              ))),
+                        )
+                    ],
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -236,7 +276,7 @@ class _CategoryFoodCardState extends State<CategoryFoodCard> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '${widget.price.toStringAsFixed(2)} ${'etb'.tr}',
+                          '${NumberFormat('#,##0.00').format(widget.price)} ${'etb'.tr}',
                           style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontWeight: FontWeight.bold),
@@ -267,116 +307,121 @@ class _CategoryFoodCardState extends State<CategoryFoodCard> {
                       const SizedBox(
                         height: 16,
                       ),
-                      Obx(() {
-                        final inCart = widget.cartController.cart
-                            .any((item) => item.id == widget.food.id);
-                        if (!inCart) {
-                          return IconButton(
-                            onPressed: () => widget.cartController
-                                .addProductToCart(widget.food),
-                            icon: const Icon(Icons.add_circle_outline,
-                                color: Colors.green),
+                      if (!Get.find<TimeController>(tag: TimeController.tag)
+                          .closedHours
+                          .value)
+                        Obx(() {
+                          final inCart = widget.cartController.cart
+                              .any((item) => item.id == widget.food.id);
+                          if (!inCart) {
+                            return IconButton(
+                              onPressed: () => widget.cartController
+                                  .addProductToCart(widget.food),
+                              icon: const Icon(Icons.add_circle_outline,
+                                  color: Colors.green),
+                            );
+                          }
+
+                          final cartItem = widget.cartController.cart
+                              .firstWhere((item) => item.id == widget.food.id);
+                          final controller = _controllers.putIfAbsent(
+                            cartItem.id!.toInt(),
+                            () => TextEditingController(
+                                text: '${cartItem.amount ?? 1}'),
                           );
-                        }
 
-                        final cartItem = widget.cartController.cart
-                            .firstWhere((item) => item.id == widget.food.id);
-                        final controller = _controllers.putIfAbsent(
-                          cartItem.id!,
-                          () => TextEditingController(
-                              text: '${cartItem.amount ?? 1}'),
-                        );
+                          // keep text in sync when value changes externally
+                          if (controller.text != '${cartItem.amount ?? 1}') {
+                            controller.text = '${cartItem.amount ?? 1}';
+                            controller.selection = TextSelection.fromPosition(
+                              TextPosition(offset: controller.text.length),
+                            );
+                          }
 
-                        // keep text in sync when value changes externally
-                        if (controller.text != '${cartItem.amount ?? 1}') {
-                          controller.text = '${cartItem.amount ?? 1}';
-                          controller.selection = TextSelection.fromPosition(
-                            TextPosition(offset: controller.text.length),
-                          );
-                        }
-
-                        return Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            border: Border.all(color: Colors.grey.shade300),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  if (cartItem.amount! > 1) {
-                                    widget.cartController
-                                        .removeProductAmount(cartItem);
-                                  } else {
-                                    widget.cartController
-                                        .removeProductFromCart(cartItem);
-                                    _controllers.remove(cartItem.id); // cleanup
-                                  }
-                                },
-                                icon: const Icon(Icons.remove_circle_outline,
-                                    color: Colors.red),
-                              ),
-                              if (widget.fromDonation == true)
-                                SizedBox(
-                                  width: 45,
-                                  child: TextField(
-                                    controller: controller,
-                                    textAlign: TextAlign.center,
-                                    keyboardType: TextInputType.number,
-                                    autofocus: false,
-                                    onTap: () {
-                                      controller.selection = TextSelection(
-                                          baseOffset: 0,
-                                          extentOffset: controller.text.length);
-                                    },
-                                    onSubmitted: (value) {
-                                      final newAmount = int.tryParse(value) ??
-                                          cartItem.amount ??
-                                          1;
-                                      if (newAmount > 0) {
-                                        widget.cartController
-                                            .updateProductAmount(
-                                                cartItem, newAmount);
-                                      } else {
-                                        widget.cartController
-                                            .removeProductFromCart(cartItem);
-                                        _controllers
-                                            .remove(cartItem.id); // cleanup
-                                      }
-                                    },
-                                    onTapOutside: (_) =>
-                                        FocusScope.of(context).unfocus(),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    decoration: const InputDecoration(
-                                      border: InputBorder.none,
-                                      isDense: true,
-                                      contentPadding: EdgeInsets.zero,
-                                    ),
-                                  ),
-                                )
-                              else
-                                Text(
-                                  '${cartItem.amount ?? 1}',
-                                  style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold),
+                          return Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Theme.of(context).scaffoldBackgroundColor,
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  onPressed: () {
+                                    if (cartItem.amount! > 1) {
+                                      widget.cartController
+                                          .removeProductAmount(cartItem);
+                                    } else {
+                                      widget.cartController
+                                          .removeProductFromCart(cartItem);
+                                      _controllers
+                                          .remove(cartItem.id); // cleanup
+                                    }
+                                  },
+                                  icon: const Icon(Icons.remove_circle_outline,
+                                      color: Colors.red),
                                 ),
-                              IconButton(
-                                onPressed: () => widget.cartController
-                                    .addProductAmount(cartItem),
-                                icon: const Icon(Icons.add_circle_outline,
-                                    color: Colors.green),
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                                if (widget.fromDonation == true)
+                                  SizedBox(
+                                    width: 45,
+                                    child: TextField(
+                                      controller: controller,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      autofocus: false,
+                                      onTap: () {
+                                        controller.selection = TextSelection(
+                                            baseOffset: 0,
+                                            extentOffset:
+                                                controller.text.length);
+                                      },
+                                      onSubmitted: (value) {
+                                        final newAmount = int.tryParse(value) ??
+                                            cartItem.amount ??
+                                            1;
+                                        if (newAmount > 0) {
+                                          widget.cartController
+                                              .updateProductAmount(
+                                                  cartItem, newAmount.toInt());
+                                        } else {
+                                          widget.cartController
+                                              .removeProductFromCart(cartItem);
+                                          _controllers
+                                              .remove(cartItem.id); // cleanup
+                                        }
+                                      },
+                                      onTapOutside: (_) =>
+                                          FocusScope.of(context).unfocus(),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: const InputDecoration(
+                                        border: InputBorder.none,
+                                        isDense: true,
+                                        contentPadding: EdgeInsets.zero,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Text(
+                                    '${cartItem.amount ?? 1}',
+                                    style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                IconButton(
+                                  onPressed: () => widget.cartController
+                                      .addProductAmount(cartItem),
+                                  icon: const Icon(Icons.add_circle_outline,
+                                      color: Colors.green),
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
                     ],
                   ),
                 ],

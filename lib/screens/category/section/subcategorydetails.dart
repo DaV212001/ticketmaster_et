@@ -13,6 +13,7 @@ import 'package:ticketmaster_et/screens/review/sub_category/add_review_sub_cat_s
 
 import '../../../controllers/cart_controller.dart';
 import '../../../controllers/theme_controller.dart';
+import '../../../controllers/time_controller.dart';
 import '../../../prefs/routes.dart';
 
 class FoodDetail extends StatefulWidget {
@@ -75,21 +76,23 @@ class _FoodDetailState extends State<FoodDetail> {
                   ),
 
                   const SizedBox(height: 20),
-
-                  // ======== ORDER NOW BUTTON OR QUANTITY CONTROL ========
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Obx(() {
-                      final inCart = cartController.cart
-                          .any((foodItem) => foodItem.id == food.id);
-                      return AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 250),
-                        child: inCart
-                            ? _buildQuantityControl(food, context)
-                            : _buildOrderNowButton(context, food),
-                      );
-                    }),
-                  ),
+                  if (!Get.find<TimeController>(tag: TimeController.tag)
+                      .closedHours
+                      .value)
+                    // ======== ORDER NOW BUTTON OR QUANTITY CONTROL ========
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Obx(() {
+                        final inCart = cartController.cart
+                            .any((foodItem) => foodItem.id == food.id);
+                        return AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: inCart
+                              ? _buildQuantityControl(food, context)
+                              : _buildOrderNowButton(context, food),
+                        );
+                      }),
+                    ),
 
                   const SizedBox(height: 20),
                   Padding(
@@ -103,7 +106,8 @@ class _FoodDetailState extends State<FoodDetail> {
                           // initialRating: 3,
                           // minRating: 1,
                           direction: Axis.horizontal,
-                          rating: controller.food.value.rating ?? 3.5,
+                          rating:
+                              (controller.food.value.rating ?? 3.5).toDouble(),
                           // allowHalfRating: true,
                           itemCount: 5,
                           itemPadding:
@@ -196,10 +200,14 @@ class _FoodDetailState extends State<FoodDetail> {
 
   Widget _buildOrderNowButton(BuildContext context, Food food) {
     return ElevatedButton(
-      onPressed: () {
-        cartController.addProductToCart(food);
-      },
+      onPressed:
+          (Get.find<TimeController>(tag: TimeController.tag).closedHours.value)
+              ? null
+              : () {
+                  cartController.addProductToCart(food);
+                },
       style: ElevatedButton.styleFrom(
+        disabledBackgroundColor: Colors.grey,
         backgroundColor: Theme.of(context).primaryColor,
         minimumSize: const Size(double.infinity, 50),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),

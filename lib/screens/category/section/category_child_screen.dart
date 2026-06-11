@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:ticketmaster_et/models/newmodels.dart';
 
+import '../../../controllers/time_controller.dart';
 import '../../../prefs/routes.dart';
 
 class CategoryChild extends StatefulWidget {
@@ -33,6 +34,11 @@ class _CategoryChildState extends State<CategoryChild> {
             itemBuilder: (BuildContext context, int index, pageViewIndex) =>
                 GestureDetector(
               onTap: () {
+                if (Get.find<TimeController>(tag: TimeController.tag)
+                    .closedHours
+                    .value) {
+                  return;
+                }
                 Get.toNamed(Routes.foodDetailRoute,
                     arguments: {'id': widget.subCategories[index].id!});
                 // Navigator.push(context, MaterialPageRoute(builder: (context) {
@@ -59,7 +65,7 @@ class _CategoryChildState extends State<CategoryChild> {
                               'https://admin.ticketmaster-et.com/public/storage/' ||
                           widget.subCategories[index].image!.trim() ==
                               'https://admin.ticketmaster-et.com/public/storage/[value-2]'
-                      ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
+                      ? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'
                       : widget.subCategories[index].image!.trim(),
                   imageBuilder: (context, imageProvider) => Container(
                     decoration: BoxDecoration(
@@ -82,7 +88,7 @@ class _CategoryChildState extends State<CategoryChild> {
         height: 200,
         width: 200,
         child: Image.network(
-            'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+            'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'),
       ));
     }
   }

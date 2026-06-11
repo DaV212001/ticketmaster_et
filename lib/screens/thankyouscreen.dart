@@ -20,8 +20,7 @@ class _ThankYouScreenState extends State<ThankYouScreen> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Center(
-            child: Image.network(
-                'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'),
+            child: Image.asset('assets/images/THICKET_MASTER_LOGO.png'),
           ),
           Text(
             'Thank you for buying the ${widget.event.title} ticket! \n Enjoy The Event',

@@ -302,7 +302,7 @@
 //                                     fadeInDuration: const Duration(
 //                                         milliseconds: 700),
 //                                     fadeInCurve: Curves.easeIn,
-//                                     imageUrl:  ep[index].image!.trim()=='https://admin.ticketmaster-et.com/public/storage/dsvdv'?'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png': ep[index].image!.trim(),
+//                                     imageUrl:  ep[index].image!.trim()=='https://admin.ticketmaster-et.com/public/storage/dsvdv'?'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg': ep[index].image!.trim(),
 //                                     imageBuilder:
 //                                         (context, imageProvider) =>
 //                                         Container(
@@ -348,7 +348,7 @@
 //                                     fadeInDuration: const Duration(
 //                                         milliseconds: 700),
 //                                     fadeInCurve: Curves.easeIn,
-//                                     imageUrl: events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png': events[index].image!.trim(),
+//                                     imageUrl: events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/%5Bvalue-2%5D' || events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/aaa'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/'||events[index].image!.trim() == 'https://admin.ticketmaster-et.com/public/storage/[value-2]'? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg': events[index].image!.trim(),
 //                                     imageBuilder:
 //                                         (context, imageProvider) =>
 //                                         Container(

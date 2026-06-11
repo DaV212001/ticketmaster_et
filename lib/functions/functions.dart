@@ -59,6 +59,7 @@ Future<List<PromotionalImages>> getPromotionalImages(
     );
 
     var data = jsonDecode(res.body);
+    Logger().w(data);
     if (data['message'] == 'Promotional Image get successfully' ||
         data['message'] == 'Upcoming Event get successfully') {
       var eventsData = data['data'] as List;
@@ -76,6 +77,7 @@ Future<List<PromotionalImages>> getPromotionalImages(
 }
 
 Future<Food> getFoodbyID(int id, String language) async {
+  Logger().i(id);
   List<Food> events = [];
 
   try {
@@ -223,7 +225,7 @@ Future<List<Category>> getCategorySubCategory(String language) async {
     //  print("=================Category============${res.body}");
     // print(res.body);
     var data = jsonDecode(res.body);
-    // Logger().d(data);
+    Logger().d(data);
     if (data['message'] == 'Food By category get successfully') {
       var categoriesData = data['data'] as List;
       categories = categoriesData
@@ -232,6 +234,8 @@ Future<List<Category>> getCategorySubCategory(String language) async {
     } else {
       throw Exception('Unexpected message from API: ${data['message']}');
     }
+  } catch (e) {
+    rethrow;
   } finally {
     client.close();
   }
@@ -394,7 +398,8 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
     'email': data.email,
     'password': data.password,
     'phone': data.phoneNumber,
-    'lang': data.language
+    'lang': data.language,
+    'promo_code': data.promoCode,
     // 'city_id': data.cityid
   };
 
@@ -701,7 +706,7 @@ Future<List<Order>> getPastTickets(String phone, String language) async {
     );
     print("My Past Order ${res.body}");
     var data = jsonDecode(res.body);
-    Logger().i(data);
+    // Logger().i(data);
     if (data['message'] == 'My Order  get successfully') {
       var eventsData = data['data'] as List;
       tickets = eventsData
@@ -759,7 +764,7 @@ Future<List<MealType>> getMealTypes() async {
       () => http.get(Uri.parse("${baseUrlFunc}meal-type")),
       retryIf: (e) => e is SocketException || e is TimeoutException,
     );
-    Logger().d(jsonDecode(res.body));
+    Logger().w(jsonDecode(res.body));
     var data = jsonDecode(res.body);
     if (data['message'] == 'Meal type get successfully') {
       var mealTypesData = data['data'] as List;

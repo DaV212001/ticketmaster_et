@@ -11,6 +11,9 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ticketmaster_et/controllers/current_location_controller.dart';
+import 'package:ticketmaster_et/controllers/delivery_address_controller.dart';
+import 'package:ticketmaster_et/controllers/time_controller.dart';
 import 'package:ticketmaster_et/prefs/config_preferences.dart';
 import 'package:ticketmaster_et/prefs/routes.dart';
 import 'package:ticketmaster_et/prefs/translations.dart';
@@ -172,16 +175,84 @@ class InitialNavigationMiddleware extends GetMiddleware {
     if (isFirstTimeUser) {
       Logger().i("SplashScreen $isFirstTimeUser");
       return const RouteSettings(name: Routes.splashRoute);
-    } else if (!ConfigPreference.isUserLoggedIn()) {
-      Logger().i("SignupScreen $isFirstTimeUser");
-      return const RouteSettings(name: Routes.loginRoute);
     }
+    // else if (!ConfigPreference.isUserLoggedIn()) {
+    //   Logger().i("SignupScreen $isFirstTimeUser");
+    //   return const RouteSettings(name: Routes.loginRoute);
+    // }
     // Check if the user is logged in
     // bool isLoggedIn = loginDataProvider.loginData != null;
     // if (!isLoggedIn) {
     //   return const RouteSettings(name: '/login'); // Redirect to login page
     // }
     return null; // Allow the navigation
+  }
+}
+
+class AuthNavigationMiddleware extends GetMiddleware {
+  Future<void> _checkFirstTimeUser() async {}
+  @override
+  RouteSettings? redirect(String? route) {
+    bool isFirstTimeUser = true;
+    print("Checking First TimeUser");
+    // final prefs = ConfigPreference.getStorage();
+    // final hasLaunchedBefore = prefs.getBool('hasLaunchedBefore') ?? false;
+    // if (hasLaunchedBefore) {
+    //   isFirstTimeUser = false;
+    // } else {
+    //   prefs.setBool('hasLaunchedBefore', true);
+    // }
+    //
+    // Logger().i("First Time User status $isFirstTimeUser");
+    // if (isFirstTimeUser) {
+    //   Logger().i("SplashScreen $isFirstTimeUser");
+    //   return const RouteSettings(name: Routes.splashRoute);
+    // }
+    if (!ConfigPreference.isUserLoggedIn()) {
+      Logger().i("SignupScreen $isFirstTimeUser");
+      Get.snackbar('Sign In', 'You need to sign in to continue to checkout');
+      return const RouteSettings(name: Routes.loginRoute);
+    }
+    // else if (!ConfigPreference.isUserLoggedIn()) {
+    //   Logger().i("SignupScreen $isFirstTimeUser");
+    //   return const RouteSettings(name: Routes.loginRoute);
+    // }
+    // Check if the user is logged in
+    // bool isLoggedIn = loginDataProvider.loginData != null;
+    // if (!isLoggedIn) {
+    //   return const RouteSettings(name: '/login'); // Redirect to login page
+    // }
+    return null; // Allow the navigation
+  }
+}
+
+class TimeCheckerMiddleware extends GetMiddleware {
+  bool get _isClosed {
+    final hour = DateTime.now().hour;
+    final minute = DateTime.now().minute;
+    final second = DateTime.now().second;
+
+    // CLOSED if time is from 18:00:00 → 06:59:59
+    // OPEN if time is from 07:00:01 → 17:59:59
+    final isBeforeOpen = hour < 7; // 00:00 → 06:59
+    final isAfterClose = hour >= 18; // 18:00 → 23:59
+    final isExactly7am = hour == 7 && minute == 0 && second == 0;
+
+    // Closed unless it's strictly after 07:00:01
+    return (isBeforeOpen || isAfterClose) && !isExactly7am;
+    // final hour = DateTime.now().hour;
+    // return hour <= 7 || hour >= 18;
+  }
+
+  @override
+  RouteSettings? redirect(String? route) {
+    if (_isClosed) {
+      // Prevent navigation completely by returning the same route
+      // but indicating that navigation should not proceed.
+      return RouteSettings(name: Get.currentRoute);
+    }
+
+    return null; // allow navigation
   }
 }
 
@@ -194,6 +265,12 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> {
   LoginDataProvider login = Get.put(LoginDataProvider(), tag: 'login');
+  DeliveryAddressController deliveryAddressController =
+      Get.put(DeliveryAddressController(), tag: DeliveryAddressController.tag);
+  CurrentLocationController currentLocationController =
+      Get.put(CurrentLocationController(), tag: CurrentLocationController.tag);
+  TimeController timeController =
+      Get.put(TimeController(), tag: TimeController.tag, permanent: true);
 
   @override
   Widget build(BuildContext context) {
@@ -427,9 +504,12 @@ class _DeepLinkNavigationState extends State<DeepLinkNavigation> {
                                 borderRadius: BorderRadius.circular(50),
                                 child: Image.network(
                                   organizer?.image ??
-                                      'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png',
+                                      'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg',
                                   width: 65,
                                   height: 65,
+                                  errorBuilder: (context, obj, stack) =>
+                                      Image.asset(
+                                          'assets/images/THICKET_MASTER_LOGO.png'),
                                   fit: BoxFit.cover,
                                 ),
                               ),

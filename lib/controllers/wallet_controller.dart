@@ -70,6 +70,7 @@ class WalletController extends GetxController {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        Logger().d(data);
         final List<dynamic> transactionData = data['data'] ?? [];
 
         transactions.assignAll(
@@ -155,7 +156,7 @@ class Transaction {
     );
   }
 
-  bool get isSuccessful => title == "Wallet Topup";
+  bool get isSuccessful => title != "Food Order Payment";
   String get formattedDate {
     if (paidAt == null) return "---";
 

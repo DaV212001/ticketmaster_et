@@ -1,6 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
 import 'package:ticketmaster_et/screens/otp_screen.dart';
 
@@ -23,43 +27,71 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _phoneNumber, _password;
+
   Future submitForm() async {
     final isValid = _formKey.currentState!.validate();
     FocusScope.of(context).unfocus();
 
     if (isValid) {
       _formKey.currentState!.save();
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
+
       final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
-      await loginResponse(
-        Endpoints.loginEndpoint(),
-        Login(password: _password, phoneNumber: "251$_phoneNumber"),
-      ).then((value) async {
-        // Add async here
-        setState(() {
-          _isLoading = true;
-        });
+
+      try {
+        final value = await loginResponse(
+          Endpoints.loginEndpoint(),
+          Login(password: _password, phoneNumber: "251$_phoneNumber"),
+        );
+
         if (value.responseData != null) {
-          await loginDataProvider
-              .setLoginData(value.responseData!); // Use await here
-          loginDataProvider.setUserLoggedIn(true); // Set user as logged in
+          if (value.responseData?.status == 0) {
+            Get.to(() => OtpScreen(
+                  phone: _phoneNumber,
+                  fromSignUp: true,
+                  userId: value.responseData?.id,
+                ));
+            Get.snackbar('Phone Not Verified',
+                'Please verify your phone number to continue',
+                colorText: Colors.white, backgroundColor: Colors.red);
+            return;
+          }
+          await loginDataProvider.setLoginData(value.responseData!);
+          loginDataProvider.setUserLoggedIn(true);
           debugPrint('${loginDataProvider.loginData!.id!}');
           Get.offAllNamed(Routes.mainLayoutRoute);
         } else if (value.error != null) {
-          setState(() {
-            _isLoading = false;
-          });
-          print(value.error);
+          // Backend error (valid error message)
           ScaffoldMessenger.of(context)
               .showSnackBar(SnackBar(content: Text(value.error!)));
         }
-      });
-      setState(() {
-        _isLoading = false;
-      });
+      }
+      // 🔥🔥 Catch ALL network-related errors with one message
+      on SocketException catch (_) {
+        _showConnectionError();
+      } on TimeoutException catch (_) {
+        _showConnectionError();
+      } on HandshakeException catch (_) {
+        _showConnectionError();
+      } on http.ClientException catch (_) {
+        _showConnectionError();
+      } catch (e) {
+        // Unknown error → keep your fallback
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("An error occurred: $e")),
+        );
+      } finally {
+        setState(() => _isLoading = false);
+      }
     }
+  }
+
+  void _showConnectionError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Your internet connection is weak. Please try again."),
+      ),
+    );
   }
 
   var obscure = true.obs;

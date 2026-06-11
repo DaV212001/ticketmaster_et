@@ -57,6 +57,7 @@ class UserScreenHeader extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text("$firstName $lastName",
+                    textAlign: TextAlign.center,
                     style: const TextStyle(
                         fontSize: 20, fontWeight: FontWeight.w800)),
                 Padding(

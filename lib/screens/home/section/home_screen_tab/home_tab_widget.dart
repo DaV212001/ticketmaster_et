@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:ticketmaster_et/screens/profile_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:ticketmaster_et/controllers/time_controller.dart';
+import 'package:ticketmaster_et/controllers/wallet_controller.dart';
 
+import '../../../../controllers/home_category_controller.dart';
 import 'home_screen_carousel.dart';
 import 'home_screen_categories.dart';
 
@@ -18,24 +21,33 @@ class HomeTabWidget extends StatelessWidget {
           if (Get.isRegistered<HomeCategoryController>(
               tag: HomeCategoryController.tag)) {
             Get.find<HomeCategoryController>(tag: HomeCategoryController.tag)
-                .updateCategories();
+                .fetchAll();
           }
           if (Get.isRegistered<HomeCarouselController>()) {
             Get.find<HomeCarouselController>().fetchPromotionalImages();
           }
+          if (Get.isRegistered<WalletController>(tag: WalletController.tag)) {
+            Get.find<WalletController>(tag: WalletController.tag).loadBalance();
+          }
+          Get.find<TimeController>(tag: TimeController.tag).loadWorkTimes();
         },
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeScreenCarouselSlider(),
-              // const SizedBox(
-              //   height: 10,
-              // ),
-              const TargetCountCard(),
-              HomeScreenCategories(),
-            ],
-          ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    HomeScreenCarouselSlider(),
+                    const TargetCountCard(),
+                    HomeScreenCategories(),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
@@ -60,63 +72,29 @@ class TargetCountCard extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: Column(
             children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                child: Row(
-                  children: [
-                    Obx(
-                      () => Text(Get.find<ProfileController>()
-                          .targetCount
-                          .value
-                          .toString()),
-                    ),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Obx(() => AnimatedContainer(
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                              height: 10,
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: FractionallySizedBox(
-                                  widthFactor: (Get.find<ProfileController>()
-                                              .targetCount
-                                              .value /
-                                          10)
-                                      .clamp(0.0, 1.0),
-                                  child: Container(
-                                    height: 10,
-                                    decoration: BoxDecoration(
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )),
-                      ),
-                    ),
-                    const Text('10'),
-                  ],
-                ),
-              ),
               Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "target_count".trParams({
-                    "count":
-                        "${10 - Get.find<ProfileController>().targetCount.value}"
-                  }),
-                  style: const TextStyle(fontSize: 11),
-                ),
+                alignment: AlignmentGeometry.center,
+                child: Obx(() {
+                  WalletController wc =
+                      Get.find<WalletController>(tag: WalletController.tag);
+                  return wc.loadingBalance.value
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator())
+                      : Text(
+                          'Your Point is: ${NumberFormat('#,##0.00').format(double.parse(Get.find<WalletController>(tag: WalletController.tag).balance.value))}',
+                          style: const TextStyle(
+                              fontWeight: FontWeight.bold, color: Colors.green),
+                        );
+                }),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              const Text(
+                'DEAR FAMILY, USE YOUR POINTS TO ORDER YOUR MEALS.',
+                textAlign: TextAlign.center,
               ),
             ],
           ),

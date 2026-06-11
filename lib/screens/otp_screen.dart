@@ -17,10 +17,11 @@ class OtpScreen extends StatelessWidget {
   final TextEditingController passwordConfirmationController =
       TextEditingController();
 
-  OtpScreen({super.key, this.fromSignUp, this.phone})
+  OtpScreen({super.key, this.fromSignUp, this.phone, this.userId})
       : phoneController = TextEditingController(text: phone);
   final bool? fromSignUp;
   final String? phone;
+  final int? userId;
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +148,7 @@ class OtpScreen extends StatelessWidget {
                                                   }
                                                   controller.verifyOtp(
                                                       phone, otp,
+                                                      userId: userId ?? 0,
                                                       fromSignUp:
                                                           fromSignUp ?? false);
                                                 },

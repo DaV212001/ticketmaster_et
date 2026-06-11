@@ -180,8 +180,8 @@ class Event {
     image = json['image'] != null
         ? baseUrl + json['image']
         : json['image'] != ""
-            ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
-            : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png';
+            ? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'
+            : 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg';
     popularImage = json['popular_image'] != null
         ? baseUrl + json['popular_image']
         : 'https://img.freepik.com/free-vector/employee-celebration-concept-illustration_114360-14531.jpg?w=900&t=st=1696951514~exp=1696952114~hmac=f103ab36b4bed1d38df9e097be19f2cc962d37467cc7fafcee237070c9df8c25';
@@ -228,8 +228,8 @@ class Event {
     upcomingImage = json['upcoming_image'] != null
         ? baseUrl + json['upcoming_image']
         : json['upcoming_image'] != ""
-            ? 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png'
-            : 'https://i.postimg.cc/4dyhqLLY/THICKET-MASTER-LOGO.png';
+            ? 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg'
+            : 'https://i.postimg.cc/9FkTYfDq/THICKET-MASTER-LOGO.jpg';
 
     var coverData =
         json["cover_image"] != null ? json["cover_image"] as List : [];
@@ -555,20 +555,20 @@ class FoodPortions {
 }
 
 class Food {
-  int? id;
+  num? id;
   String? image;
-  int? categoryId;
+  num? categoryId;
   String? name;
   String? desc;
-  double? price;
-  int? amount = 1;
+  num? price;
+  num? amount = 1;
   bool? isDiscounted;
-  double? rating;
-  int? discountPercentage;
+  num? rating;
+  num? discountPercentage;
   bool? isSelected = false;
   DateTime? createdAt;
   DateTime? updatedAt;
-  int? status;
+  num? status;
 
   final Map<String, dynamic> _descriptions = {};
   final Map<String, dynamic> _name = {};
@@ -613,25 +613,30 @@ class Food {
     image = json["cover_image"];
     amount = json.containsKey('amount')
         ? json['amount'] is String
-            ? int.parse(json['amount'])
+            ? num.parse(json['amount'])
             : json['amount']
         : 1;
-    rating = json.containsKey('rating')
+    // Logger().d(
+    //     'Rating: ${json['rating']}, ID: ${json['id']}, Name: ${json['name_en']}');
+    rating = json.containsKey('rating') && (json['rating'] != null)
         ? json['rating'] is String
-            ? double.parse(json['rating'])
+            ? json['rating'] == ''
+                ? 3.5
+                : num.parse(json['rating'])
             : json['rating']
         : 3.5;
     status = json.containsKey('status')
         ? json['status'] is String
-            ? int.parse(json['status'])
+            ? num.parse(json['status'])
             : json['status']
         : 0;
     createdAt = DateTime.parse(json["created_at"]);
     updatedAt = DateTime.parse(json["updated_at"]);
     isSelected = json.containsKey('isSelected') ? json['isSelected'] : false;
+    // Logger().d(json['price']);
     price = json.containsKey('price')
         ? json['price'] is String
-            ? double.parse(json['price'])
+            ? num.parse((json['price']).toString().replaceAll(',', ''))
             : json['price']
         : 0.00;
     isDiscounted = json.containsKey('is_discount')
@@ -639,11 +644,11 @@ class Food {
         : false;
     discountPercentage = json.containsKey('discount_percent')
         ? json['discount_percent'] is String
-            ? int.parse(json['discount_percent'])
+            ? num.parse(json['discount_percent'])
             : json['discount_percent']
         : 0;
     categoryId = json["category_id"] is String
-        ? int.parse(json["category_id"])
+        ? num.parse(json["category_id"])
         : json["category_id"];
     String? languageCode = ThemeModeController.languageCode.value == 'es'
         ? 'tg'
@@ -750,12 +755,14 @@ class Signup {
 
 class SignupResponse {
   String? message;
+  dynamic data;
   ErrorDataS? error;
 
   SignupResponse({this.message, this.error});
 
   SignupResponse.fromJson(Map<String, dynamic> json) {
     message = json.containsKey('message') ? json['message'] : null;
+    data = json.containsKey('data') ? json['data'] : null;
     error =
         json.containsKey('error') ? ErrorDataS.fromJson(json['error']) : null;
   }
@@ -940,25 +947,28 @@ class LoginData {
   String? createdAt;
   String? updatedAt;
   String? password;
+  num? status;
 
-  LoginData(
-      {this.id,
-      this.profileImage,
-      this.firstName,
-      this.lastName,
-      this.phone,
-      this.cityId,
-      this.email,
-      this.emailVerifiedAt,
-      this.roleId,
-      this.lang,
-      this.darkMode,
-      this.promocode,
-      this.token,
-      this.loyaltyPoints,
-      this.createdAt,
-      this.updatedAt,
-      this.password});
+  LoginData({
+    this.id,
+    this.profileImage,
+    this.firstName,
+    this.lastName,
+    this.phone,
+    this.cityId,
+    this.email,
+    this.emailVerifiedAt,
+    this.roleId,
+    this.lang,
+    this.darkMode,
+    this.promocode,
+    this.token,
+    this.loyaltyPoints,
+    this.createdAt,
+    this.updatedAt,
+    this.password,
+    this.status,
+  });
 
   LoginData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
@@ -977,6 +987,8 @@ class LoginData {
     loyaltyPoints = '${json['loyality_point']}';
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
+    status =
+        json['status'] is String ? num.parse(json['status']) : json['status'];
   }
 
   Map<String, dynamic> toJson() {
@@ -996,7 +1008,8 @@ class LoginData {
       'token': token,
       'loyality_point': loyaltyPoints,
       'created_at': createdAt,
-      'updated_at': updatedAt
+      'updated_at': updatedAt,
+      'status': status
     };
   }
 

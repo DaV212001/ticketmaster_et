@@ -127,7 +127,7 @@ class _FoodReviewState extends State<FoodReview> {
                 //     )),
                 RatingBar.builder(
                   itemSize: 30,
-                  initialRating: widget.food.rating ?? 3.5,
+                  initialRating: (widget.food.rating ?? 3.5).toDouble(),
                   minRating: 1,
                   direction: Axis.horizontal,
                   allowHalfRating: true,
@@ -204,8 +204,8 @@ class _FoodReviewState extends State<FoodReview> {
                       print("star = $ratingController");
                       print("star = ${commentController.text}");
                       var response = await reviewBySubCategory(
-                          widget.food.categoryId,
-                          widget.food.id,
+                          (widget.food.categoryId ?? 0).toInt(),
+                          (widget.food.id ?? 0).toInt(),
                           ratingController.toString(),
                           commentController.text);
                       print("back");
