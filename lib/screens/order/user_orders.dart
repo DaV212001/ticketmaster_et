@@ -9,6 +9,7 @@ import 'package:ticketmaster_et/prefs/routes.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
 import 'package:ticketmaster_et/screens/order/payment_modal.dart';
 import 'package:ticketmaster_et/screens/profile_screen.dart';
+import 'package:ticketmaster_et/setup_files/login_prompter.dart';
 
 import '../../functions/functions.dart';
 import '../../provider/loginpersistence.dart';
@@ -69,41 +70,44 @@ class UserOrders extends StatelessWidget {
             child: CartIcon(
               colored: true,
             )),
-        body: Column(
-          children: [
-            Container(
-              color: const Color(0xFF23981C),
-              child: Column(
+        body: Obx(() => !LoginDataProvider.isLoggedIn.value
+            ? const LoginPrompter()
+            : Column(
                 children: [
-                  const SafeArea(
-                      child: SizedBox(
-                    height: 10,
-                  )),
-                  TabBar(
-                      indicatorColor: Colors.white,
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white60,
-                      controller: controller.tabController,
-                      tabs: [
-                        Tab(
-                          text: 'active_orders'.tr,
-                        ),
-                        Tab(
-                          text: 'past_orders'.tr,
-                        ),
-                      ]),
+                  Container(
+                    color: const Color(0xFF23981C),
+                    child: Column(
+                      children: [
+                        const SafeArea(
+                            child: SizedBox(
+                          height: 10,
+                        )),
+                        TabBar(
+                            indicatorColor: Colors.white,
+                            labelColor: Colors.white,
+                            unselectedLabelColor: Colors.white60,
+                            controller: controller.tabController,
+                            tabs: [
+                              Tab(
+                                text: 'active_orders'.tr,
+                              ),
+                              Tab(
+                                text: 'past_orders'.tr,
+                              ),
+                            ]),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    child: TabBarView(
+                        controller: controller.tabController,
+                        children: [
+                          ActiveOrders(controller: controller),
+                          PastOrders(controller: controller),
+                        ]),
+                  )
                 ],
-              ),
-            ),
-            Expanded(
-              child:
-                  TabBarView(controller: controller.tabController, children: [
-                ActiveOrders(controller: controller),
-                PastOrders(controller: controller),
-              ]),
-            )
-          ],
-        ));
+              )));
   }
 }
 

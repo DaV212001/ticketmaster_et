@@ -210,7 +210,8 @@ class AuthNavigationMiddleware extends GetMiddleware {
     // }
     if (!ConfigPreference.isUserLoggedIn()) {
       Logger().i("SignupScreen $isFirstTimeUser");
-      Get.snackbar('Sign In', 'You need to sign in to continue to checkout');
+      Get.snackbar('Sign In', 'You need to sign in to continue to checkout',
+          backgroundColor: Colors.red, colorText: Colors.white);
       return const RouteSettings(name: Routes.loginRoute);
     }
     // else if (!ConfigPreference.isUserLoggedIn()) {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -10,6 +11,7 @@ import 'package:ticketmaster_et/controllers/footer_controller.dart';
 import 'package:ticketmaster_et/controllers/wallet_controller.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
 import 'package:ticketmaster_et/screens/home/delivery_address/delivery_address_screen.dart';
+import 'package:ticketmaster_et/screens/profile/delete_account_screen.dart';
 import 'package:ticketmaster_et/screens/profile/footer.dart';
 import 'package:ticketmaster_et/screens/profile/header.dart';
 import 'package:ticketmaster_et/screens/profile/route_container.dart';
@@ -86,7 +88,7 @@ class ProfileWidget extends StatelessWidget {
   final ProfileController controller = Get.put(ProfileController());
   final FooterController footerController = Get.put(FooterController());
   final WalletController walletController =
-      Get.put(WalletController(), tag: WalletController.tag);
+      Get.find<WalletController>(tag: WalletController.tag);
 
   ProfileWidget({super.key});
   final YoutubePlayerController _controller = YoutubePlayerController(
@@ -192,6 +194,15 @@ class ProfileWidget extends StatelessWidget {
         },
         "trailing": const Text("")
       },
+      if (Platform.isIOS && LoginDataProvider.isLoggedIn.value)
+        {
+          "title": "Delete Account",
+          "leadingIcon": Icons.delete,
+          "onTap": () {
+            Get.to(() => const DeleteAccountScreen());
+          },
+          "trailing": const Text("")
+        }
     ];
 
     final List<Map<String, dynamic>> profile = [
@@ -233,15 +244,30 @@ class ProfileWidget extends StatelessWidget {
               child: Column(
                 children: [
                   Obx(
-                    () => UserScreenHeader(
-                        reFresh: controller.loadData,
-                        firstName:
-                            controller.loginData.value?.firstName ?? '...',
-                        lastName: controller.loginData.value?.lastName ?? '...',
-                        phone: controller.loginData.value?.phone ?? '...',
-                        email: controller.loginData.value?.email ?? '...',
-                        loyaltyPoints:
-                            controller.loginData.value?.loyaltyPoints),
+                    () => LoginDataProvider.isLoggedIn.value
+                        ? UserScreenHeader(
+                            reFresh: controller.loadData,
+                            firstName:
+                                controller.loginData.value?.firstName ?? '...',
+                            lastName:
+                                controller.loginData.value?.lastName ?? '...',
+                            phone: controller.loginData.value?.phone ?? '...',
+                            email: controller.loginData.value?.email ?? '...',
+                            loyaltyPoints:
+                                controller.loginData.value?.loyaltyPoints)
+                        : Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                Get.toNamed(Routes.loginRoute);
+                              },
+                              child: Image.asset(
+                                'assets/images/sign_in_but.png',
+                                height:
+                                    MediaQuery.of(context).size.height * 0.09,
+                              ),
+                            ),
+                          ),
                   ),
                   // Padding(
                   //   padding: const EdgeInsets.all(8.0),
@@ -254,120 +280,132 @@ class ProfileWidget extends StatelessWidget {
                   //             fontWeight: FontWeight.bold),
                   //       )),
                   // ),
-
-                  Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16.0, right: 16.0, bottom: 8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
+                  Obx(
+                    () => LoginDataProvider.isLoggedIn.value
+                        ? Column(
                             children: [
                               Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Obx(
-                                  () => Text(
-                                    walletController.balance.value + ' Pts',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                                padding: const EdgeInsets.only(
+                                    left: 16.0, right: 16.0, bottom: 8.0),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Obx(
+                                              () => Text(
+                                                '${walletController.balance.value} Pts',
+                                                style: const TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            'wallet'.tr,
+                                            style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey),
+                                          )
+                                        ],
+                                      ),
                                     ),
+                                    const SizedBox(
+                                      height: 30,
+                                      child: VerticalDivider(
+                                        thickness: 1,
+                                        color: Colors.black12,
+                                        indent: 4,
+                                        endIndent: 4,
+                                        width: 16,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Text(
+                                              controller.targetCount.value
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            'Total Orders'.tr,
+                                            style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                    // const SizedBox(
+                                    //   height: 30,
+                                    //   child: VerticalDivider(
+                                    //     thickness: 1,
+                                    //     color: Colors.black12,
+                                    //     indent: 4,
+                                    //     endIndent: 4,
+                                    //     width: 16,
+                                    //   ),
+                                    // ),
+                                    // Padding(
+                                    //   padding: const EdgeInsets.all(8.0),
+                                    //   child: Column(
+                                    //     children: [
+                                    //       Padding(
+                                    //         padding: const EdgeInsets.all(8.0),
+                                    //         child: Obx(() => Text(
+                                    //               controller.freeMeals.value.toString(),
+                                    //               style: const TextStyle(
+                                    //                 fontSize: 14,
+                                    //                 fontWeight: FontWeight.bold,
+                                    //               ),
+                                    //             )),
+                                    //       ),
+                                    //       Text(
+                                    //         'free_meals'.tr,
+                                    //         style: const TextStyle(
+                                    //             fontSize: 10, color: Colors.grey),
+                                    //       )
+                                    //     ],
+                                    //   ),
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 16,
+                              ),
+                              Card(
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    'DEAR FAMILY, USE YOUR POINTS TO ORDER YOUR MEALS.',
+                                    textAlign: TextAlign.center,
                                   ),
                                 ),
                               ),
-                              Text(
-                                'wallet'.tr,
-                                style: const TextStyle(
-                                    fontSize: 10, color: Colors.grey),
-                              )
                             ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 30,
-                          child: VerticalDivider(
-                            thickness: 1,
-                            color: Colors.black12,
-                            indent: 4,
-                            endIndent: 4,
-                            width: 16,
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                                  controller.targetCount.value.toString(),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                'Total Orders'.tr,
-                                style: const TextStyle(
-                                    fontSize: 10, color: Colors.grey),
-                              )
-                            ],
-                          ),
-                        ),
-                        // const SizedBox(
-                        //   height: 30,
-                        //   child: VerticalDivider(
-                        //     thickness: 1,
-                        //     color: Colors.black12,
-                        //     indent: 4,
-                        //     endIndent: 4,
-                        //     width: 16,
-                        //   ),
-                        // ),
-                        // Padding(
-                        //   padding: const EdgeInsets.all(8.0),
-                        //   child: Column(
-                        //     children: [
-                        //       Padding(
-                        //         padding: const EdgeInsets.all(8.0),
-                        //         child: Obx(() => Text(
-                        //               controller.freeMeals.value.toString(),
-                        //               style: const TextStyle(
-                        //                 fontSize: 14,
-                        //                 fontWeight: FontWeight.bold,
-                        //               ),
-                        //             )),
-                        //       ),
-                        //       Text(
-                        //         'free_meals'.tr,
-                        //         style: const TextStyle(
-                        //             fontSize: 10, color: Colors.grey),
-                        //       )
-                        //     ],
-                        //   ),
-                        // ),
-                      ],
-                    ),
+                          )
+                        : const SizedBox.shrink(),
                   ),
-                  const SizedBox(
-                    height: 16,
-                  ),
-                  Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text(
-                        'DEAR FAMILY, USE YOUR POINTS TO ORDER YOUR MEALS.',
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
+
                   // Padding(
                   //   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                   //   child: Row(
@@ -467,20 +505,38 @@ class ProfileWidget extends StatelessWidget {
                 ],
               ),
             ),
-            RouteContainer(
-              routePart: profile,
-              indexTwo: 2,
-              routeName: 'profile'.tr,
-            ),
+            Obx(() => LoginDataProvider.isLoggedIn.value
+                ? RouteContainer(
+                    routePart: profile,
+                    indexTwo: 2,
+                    routeName: 'profile'.tr,
+                  )
+                : SizedBox.shrink()),
             RouteContainer(
               routePart: general,
               indexTwo: 5,
               routeName: "general".tr,
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
-                  onPressed: controller.logout, child: Text("logout".tr)),
+            Obx(
+              () => LoginDataProvider.isLoggedIn.value
+                  ? Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ElevatedButton(
+                          onPressed: controller.logout,
+                          child: Text("logout".tr)),
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.toNamed(Routes.loginRoute);
+                        },
+                        child: Image.asset(
+                          'assets/images/sign_in_but.png',
+                          height: MediaQuery.of(context).size.height * 0.09,
+                        ),
+                      ),
+                    ),
             ),
             Obx(() => footerController.footer.value.copyWriteText == null
                 ? const SizedBox(

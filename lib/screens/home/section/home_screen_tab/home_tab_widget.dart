@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:ticketmaster_et/controllers/time_controller.dart';
 import 'package:ticketmaster_et/controllers/wallet_controller.dart';
+import 'package:ticketmaster_et/provider/loginpersistence.dart';
 
 import '../../../../controllers/home_category_controller.dart';
 import 'home_screen_carousel.dart';
@@ -41,7 +42,9 @@ class HomeTabWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     HomeScreenCarouselSlider(),
-                    const TargetCountCard(),
+                    Obx(() => LoginDataProvider.isLoggedIn.value
+                        ? const TargetCountCard()
+                        : SizedBox.shrink()),
                     HomeScreenCategories(),
                   ],
                 ),

@@ -10,12 +10,14 @@ import 'package:ticketmaster_et/prefs/config_preferences.dart';
 import '../models/newmodels.dart';
 
 class LoginDataProvider extends GetxController {
+  static RxBool isLoggedIn = RxBool(false);
   Rxn<LoginData> loginDataObs = Rxn<LoginData>();
 
   LoginData? get loginData => loginDataObs.value;
 
   Future<void> setLoginData(LoginData loginData) async {
     loginDataObs.value = loginData;
+    isLoggedIn.value = true;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('loginData', json.encode(loginData.toJson()));
@@ -29,6 +31,7 @@ class LoginDataProvider extends GetxController {
     if (storedLoginData != null) {
       loginDataObs.value = LoginData.fromJson(json.decode(storedLoginData));
     }
+    isLoggedIn.value = ConfigPreference.isUserLoggedIn() ?? false;
   }
 
   Future<void> updateName(
@@ -57,6 +60,7 @@ class LoginDataProvider extends GetxController {
 
   Future<void> clear() async {
     loginDataObs.value = null;
+    isLoggedIn.value = false;
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('loginData');
@@ -72,14 +76,14 @@ class LoginDataProvider extends GetxController {
     await prefs.setBool('isUserRegistered', isRegistered);
   }
 
-  Future<bool> get isUserLoggedIn async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('isUserLoggedIn') ?? false;
+  bool get isUserLoggedIn {
+    return isLoggedIn.value;
   }
 
-  Future<void> setUserLoggedIn(bool isLoggedIn) async {
+  Future<void> setUserLoggedIn(bool isLoggedInValue) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('isUserLoggedIn', isLoggedIn);
+    await prefs.setBool('isUserLoggedIn', isLoggedInValue);
+    isLoggedIn.value = isLoggedInValue;
   }
 
   @override

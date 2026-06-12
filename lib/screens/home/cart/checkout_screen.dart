@@ -31,8 +31,9 @@ class CheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Map<String, List<Food>> groupedProducts =
         cartController.groupCartItemsByStore();
-    var extraFoods = homeCategoryController.categories
-        .firstWhere((cat) => cat.id == 20)
+    var extraFoods = (homeCategoryController.categories
+                .firstWhereOrNull((cat) => cat.id == 20) ??
+            Category(foods: []))
         .foods;
     return PopScope(
       onPopInvokedWithResult: (c, s) {
@@ -248,8 +249,9 @@ class CheckoutScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        homeCategoryController.categories
-                                .firstWhere((cat) => cat.id == 20)
+                        (homeCategoryController.categories.firstWhereOrNull(
+                                        (cat) => cat.id == 20) ??
+                                    Category(name: null))
                                 .name ??
                             '',
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -305,7 +307,8 @@ class CheckoutScreen extends StatelessWidget {
                                               children: [
                                                 Row(children: [
                                                   CircleAvatar(
-                                                    backgroundColor: Colors.green,
+                                                    backgroundColor:
+                                                        Colors.green,
                                                     radius: 20,
                                                     backgroundImage:
                                                         NetworkImage(

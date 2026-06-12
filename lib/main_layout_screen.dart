@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
+import 'package:ticketmaster_et/provider/loginpersistence.dart';
 import 'package:ticketmaster_et/screens/category/category_tab.dart';
 import 'package:ticketmaster_et/screens/donation/donation_screen.dart';
 import 'package:ticketmaster_et/screens/home/home_tab.dart';
@@ -11,12 +12,15 @@ import 'package:ticketmaster_et/screens/profile_screen.dart';
 import 'package:ticketmaster_et/utils/update_enforcer.dart';
 
 import 'controllers/cart_controller.dart';
+import 'controllers/wallet_controller.dart';
 
 class MainLayoutController extends GetxController {
   static String tag = "MainLayoutController";
   late PersistentTabController bottomTabController;
 
   final cartController = Get.put(CartController(), tag: CartController.tag);
+  final WalletController walletController =
+      Get.put(WalletController(), tag: WalletController.tag);
 
   @override
   void onInit() {
@@ -24,6 +28,8 @@ class MainLayoutController extends GetxController {
     bottomTabController = PersistentTabController(initialIndex: 0);
     UpdateChecker().checkForUpdates(fromStartUp: true);
   }
+
+  final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
 
   /// Screens (same as before)
   List<Widget> get screens => [

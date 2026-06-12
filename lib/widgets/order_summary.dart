@@ -67,7 +67,7 @@ class FoodSummary extends StatelessWidget {
                 childrenPadding:
                     const EdgeInsets.only(left: 16.0, bottom: 16.0),
                 leading: cachedNetworkImageWrapper(
-                  imageUrl: store.image!,
+                  imageUrl: store.image ?? '',
                   imageBuilder: (context, imageProvider) => Container(
                     width: 50,
                     height: 50,
