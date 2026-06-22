@@ -30,7 +30,7 @@ class CurrentLocationSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final current = Get.put(CurrentLocationController());
+    final current = CurrentLocationController.findOrPut();
     final delivery =
         Get.find<DeliveryAddressController>(tag: DeliveryAddressController.tag);
 

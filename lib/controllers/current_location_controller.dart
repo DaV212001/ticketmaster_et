@@ -19,6 +19,25 @@ class CurrentLocationController extends GetxController {
   // Use same API key used in DeliveryAddressController
   final String _gebetaApiKey = gak;
 
+  static CurrentLocationController findOrPut() {
+    if (Get.isRegistered<CurrentLocationController>(tag: tag)) {
+      return Get.find<CurrentLocationController>(tag: tag);
+    }
+
+    return Get.put(CurrentLocationController(), tag: tag);
+  }
+
+  String get currentLocationLabel {
+    if (displayName.value.trim().isNotEmpty) {
+      return displayName.value.trim();
+    }
+
+    final latLng = currentLatLng.value;
+    if (latLng == null) return '';
+
+    return _coordinatesLabel(latLng.latitude, latLng.longitude);
+  }
+
   @override
   void onInit() {
     fetchCurrentLocation();
@@ -92,23 +111,26 @@ class CurrentLocationController extends GetxController {
               }
             }
 
-            displayName.value = '';
+            displayName.value = _coordinatesLabel(lat, lng);
           } catch (e, s) {
             AppLogger().t(e, stackTrace: s);
-            displayName.value = '';
+            displayName.value = _coordinatesLabel(lat, lng);
           }
         },
         onFailure: (error, resp) {
           AppLogger().t("Reverse geocode failed $error");
-          displayName.value = '';
+          displayName.value = _coordinatesLabel(lat, lng);
         },
       );
     } catch (e, s) {
       AppLogger().t(e, stackTrace: s);
-      displayName.value = '';
+      displayName.value = _coordinatesLabel(lat, lng);
     }
   }
 
   String _cacheKey(double lat, double lng) =>
       '${lat.toStringAsFixed(6)}_${lng.toStringAsFixed(6)}';
+
+  String _coordinatesLabel(double lat, double lng) =>
+      '${lat.toStringAsFixed(6)}, ${lng.toStringAsFixed(6)}';
 }

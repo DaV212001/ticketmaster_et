@@ -35,7 +35,17 @@ class CheckoutController extends GetxController {
   var onDelivery = false.obs;
 
   Map<String, dynamic> convertCartToJson(List<Food> foodPortions) {
-    var currentLocationController = Get.find<CurrentLocationController>();
+    var currentLocationController = CurrentLocationController.findOrPut();
+    final currentLatLng = currentLocationController.currentLatLng.value;
+    final savedAddress = deliveryAddress.value;
+    final savedAddressLabel = savedAddress.displayName?.trim();
+    final hasSavedCoordinates =
+        savedAddress.lat != null && savedAddress.lng != null;
+    final orderLocation = hasSavedCoordinates
+        ? (savedAddressLabel?.isNotEmpty ?? false)
+            ? savedAddressLabel
+            : '${savedAddress.lat!.toStringAsFixed(6)}, ${savedAddress.lng!.toStringAsFixed(6)}'
+        : currentLocationController.currentLocationLabel;
     var cartJson = {
       'organization_id': fromDonation == true
           ? Get.find<DonationController>().selectedOrganizationId.value
@@ -44,14 +54,9 @@ class CheckoutController extends GetxController {
           Get.find<LoginDataProvider>(tag: 'login').loginData?.id ?? '',
       "meal_type_id": mealType.value,
       "friendly_location": location.value,
-      "location":
-          deliveryAddress.value.lat == null || deliveryAddress.value.lng == null
-              ? currentLocationController.displayName.value
-              : deliveryAddress.value.displayName,
-      "latitude": deliveryAddress.value.lat ??
-          currentLocationController.currentLatLng.value?.latitude,
-      "longitude": deliveryAddress.value.lng ??
-          currentLocationController.currentLatLng.value?.longitude,
+      "location": orderLocation,
+      "latitude": savedAddress.lat ?? currentLatLng?.latitude,
+      "longitude": savedAddress.lng ?? currentLatLng?.longitude,
       "date": DateTime.now().toLocal().toString(),
       "payment_type": onDelivery.value == true
           ? '1'
@@ -87,9 +92,16 @@ class CheckoutController extends GetxController {
     // final loginDataProvider = Get.find<LoginDataProvider>(tag: 'login');
 
     List<Food> foodPortions = cartController.cart;
+    final currentLocationController = CurrentLocationController.findOrPut();
+    if ((deliveryAddress.value.lat == null ||
+            deliveryAddress.value.lng == null) &&
+        currentLocationController.currentLatLng.value == null) {
+      await currentLocationController.fetchCurrentLocation();
+    }
+
     if (((deliveryAddress.value.lat == null ||
             deliveryAddress.value.lng == null) &&
-        (Get.find<CurrentLocationController>().currentLatLng.value == null))) {
+        currentLocationController.currentLatLng.value == null)) {
       showErrorSnackbar('please_enter_location'.tr);
       return;
     }

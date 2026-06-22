@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle, Uint8List;
 import 'package:gebeta_gl/gebeta_gl.dart';
-import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 import 'package:ticketmaster_et/controllers/current_location_controller.dart';
 
@@ -25,10 +24,7 @@ class _LocationPickerState extends State<LocationPicker> {
   GebetaMapController? _controller;
   Symbol? _marker;
 
-  LatLng selected = Get.find<CurrentLocationController>(
-              tag: CurrentLocationController.tag)
-          .currentLatLng
-          .value ??
+  LatLng selected = CurrentLocationController.findOrPut().currentLatLng.value ??
       const LatLng(
           9.0192, 38.7525); // default: User's current location || Addis Ababa
 
