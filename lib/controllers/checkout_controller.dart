@@ -74,6 +74,7 @@ class CheckoutController extends GetxController {
           .toString(),
       "total_food": foodPortions.map((e) => e.id).toSet().length.toString(),
       "price": foodPortions.map((e) => e.totalPrice()).toList(),
+      "unit_price": foodPortions.map((e) => (e.price ?? 0).toString()).toList(),
       "quantity": foodPortions.map((e) => e.amount.toString()).toList(),
       // "portion_id": foodPortions.map((e) => e.id.toString()).toList(),
       "food_id": foodPortions.map((e) => e.id.toString()).toList(),

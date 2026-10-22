@@ -136,6 +136,9 @@ class _SignupScreenState extends State<SignupScreen> {
     if (error.phonenumber != null) {
       msg += errorMessageConcatenator(error.phonenumber!);
     }
+    if (error.promocode != null) {
+      msg += errorMessageConcatenator(error.promocode!);
+    }
     return msg.isEmpty ? "Error signing up" : msg;
   }
 

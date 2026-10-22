@@ -399,7 +399,8 @@ Future<SignupResponse> signupResponse(Signup data, String uri) async {
     'password': data.password,
     'phone': data.phoneNumber,
     'lang': data.language,
-    'promo_code': data.promoCode,
+    if (data.promoCode != null && data.promoCode!.trim().isNotEmpty)
+      'promocode': data.promoCode!.trim(),
     // 'city_id': data.cityid
   };
 

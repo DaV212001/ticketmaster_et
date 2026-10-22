@@ -56,6 +56,7 @@ class OrderDetailController extends GetxController {
           .map(
               (e) => (int.parse(e.price ?? '0') * (e.quantity ?? 0)).toString())
           .toList(),
+      "unit_price": items.map((e) => (e.price ?? '0').toString()).toList(),
       "quantity": items.map((e) => (e.quantity ?? 0).toString()).toList(),
       "food_id": items.map((e) => e.foodId?.toString() ?? '').toList(),
     };

@@ -746,8 +746,8 @@ class Signup {
     data['phone'] = phoneNumber;
     data['city_id'] = cityid;
     data['lang'] = language;
-    if (promoCode != null) {
-      data['promocode'] = promoCode;
+    if (promoCode != null && promoCode!.trim().isNotEmpty) {
+      data['promocode'] = promoCode!.trim();
     }
     return data;
   }
@@ -773,12 +773,14 @@ class ErrorDataS {
   List<String>? phonenumber;
   List<String>? name;
   List<String>? password;
+  List<String>? promocode;
 
   ErrorDataS(
       {required this.email,
       required this.phonenumber,
       required this.name,
-      required this.password});
+      required this.password,
+      this.promocode});
 
   ErrorDataS.fromJson(Map<String, dynamic> json) {
     if (json.containsKey('email')) {
@@ -792,6 +794,9 @@ class ErrorDataS {
     }
     if (json.containsKey('password')) {
       password = List<String>.from(json['password']);
+    }
+    if (json.containsKey('promocode')) {
+      promocode = List<String>.from(json['promocode']);
     }
   }
 }
