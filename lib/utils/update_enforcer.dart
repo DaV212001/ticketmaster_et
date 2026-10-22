@@ -3,14 +3,13 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:in_app_update/in_app_update.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:ticketmaster_et/functions/functions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UpdateChecker {
   bool _isChecking = false;
-  final int _retryCooldownSeconds = 2; // Wait between retries if Play throttles
 
   Future<void> checkForUpdates({bool fromStartUp = false}) async {
     if (_isChecking) return;
@@ -72,28 +71,40 @@ class UpdateChecker {
   }
 
   final LogController logController = Get.put(LogController(), tag: 'log');
-  // Force an immediate update, retrying if the user cancels or Play throttles
+
+  Future<void> _openPlayStore() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      final packageName = packageInfo.packageName;
+      logController.add("🌐 Launching Play Store for package: $packageName");
+
+      final marketUri = Uri.parse('market://details?id=$packageName');
+      final webUri = Uri.parse('https://play.google.com/store/apps/details?id=$packageName');
+
+      if (await canLaunchUrl(marketUri)) {
+        await launchUrl(marketUri, mode: LaunchMode.externalApplication);
+      } else if (await canLaunchUrl(webUri)) {
+        await launchUrl(webUri, mode: LaunchMode.externalApplication);
+      } else {
+        await launchUrl(webUri);
+      }
+    } catch (e) {
+      logController.add("❌ Error opening Play Store: $e");
+      print("Error opening Play Store: $e");
+    }
+  }
+
+  // Force an update dialog leading directly to the Play Store listing
   Future<void> _forceImmediateUpdate(BuildContext context) async {
-    final log = Logger(filter: ProductionFilter(), level: Level.trace);
-    bool updateCompleted = false;
-    int attempt = 0;
+    logController.add("🔄 Showing update required dialog leading to Play Store");
 
-    logController.add("🔄 FORCE UPDATE LOOP STARTED");
-
-    while (!updateCompleted) {
-      attempt++;
-      logController.add("⏳ Attempt #$attempt — showing update dialog...");
-
-      BuildContext? dialogContext;
-
-      // ---- SHOW DIALOG ----
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) {
-          dialogContext = ctx;
-          logController.add("📌 Dialog BUILT with dialogContext = $ctx");
-          return AlertDialog(
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) {
+        return PopScope(
+          canPop: false,
+          child: AlertDialog(
             title: const Text("Update Required"),
             content: const Text(
               "A new version is available. You must update to continue.",
@@ -101,61 +112,16 @@ class UpdateChecker {
             actions: [
               ElevatedButton(
                 onPressed: () {
-                  logController.add("🟢 User tapped 'Update Now'");
-                  Navigator.of(dialogContext!).pop();
-                  logController.add("📤 Dialog closed.");
+                  logController.add("🟢 User tapped 'Update Now' -> opening Play Store");
+                  _openPlayStore();
                 },
                 child: const Text("Update Now"),
               ),
             ],
-          );
-        },
-      );
-
-      logController.add("🔍 Checking for update via Play Store...");
-
-      try {
-        // Must be called to satisfy Play Store rules
-        AppUpdateInfo updateInfo = await InAppUpdate.checkForUpdate();
-        logController.add(
-            "ℹ️ Play Store checkForUpdate() returned: availability=${updateInfo.updateAvailability}, "
-            "immediateAllowed=${updateInfo.immediateUpdateAllowed}, "
-            "flexibleAllowed=${updateInfo.flexibleUpdateAllowed}");
-
-        if (updateInfo.updateAvailability ==
-            UpdateAvailability.updateNotAvailable) {
-          logController.add(
-              "⚠️ Update not available. Retrying in $_retryCooldownSeconds seconds...");
-          await Future.delayed(Duration(seconds: _retryCooldownSeconds));
-          continue;
-        }
-
-        logController.add("🚀 Starting IMMEDIATE update...");
-
-        // VM: For forced update, immediate update is the correct choice
-        AppUpdateResult result = await InAppUpdate.startFlexibleUpdate();
-
-        logController.add("📥 startFlexibleUpdate() result = $result");
-
-        if (result == AppUpdateResult.success) {
-          logController.add("🎉 UPDATE COMPLETED SUCCESSFULLY!");
-          updateCompleted = true;
-        } else {
-          logController.add(
-              "⚠️ Update did NOT complete (result=$result). Retrying after cooldown...");
-          await Future.delayed(Duration(seconds: _retryCooldownSeconds));
-        }
-      } catch (e, stack) {
-        logController.add("❌ ERROR during update attempt #$attempt: $e");
-        logController.add("📚 Stacktrace: $stack");
-
-        logController.add(
-            "⏳ Play Store error or no update available. Retrying in $_retryCooldownSeconds seconds...");
-        await Future.delayed(Duration(seconds: _retryCooldownSeconds));
-      }
-    }
-
-    logController.add("🏁 FORCE UPDATE LOOP EXIT — Update is completed.");
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -165,12 +131,6 @@ class LogController extends GetxController {
   void add(String log) {
     Future.microtask(() => logs.add(log));
   }
-
-  // void addLogSafe(String message) {
-  //   WidgetsBinding.instance.addPostFrameCallback((_) {
-  //     logController.add(message);
-  //   });
-  // }
 
   void clear() {
     logs.clear();
